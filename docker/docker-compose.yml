@@ -1,0 +1,53 @@
+name: open-erase
+services:
+  server:
+    container_name: server
+    image: server
+    env_file: .env
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - iso:/dist/iso
+    restart: always
+    depends_on:
+      - db
+
+  db:
+    container_name: db
+    image: postgres:18
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # iso-builder:
+  #   container_name: iso-builder
+  #   image: iso-builder
+  #   cap_add:
+  #     - SYS_ADMIN
+  #   stdin_open: true
+  #   build:
+  #     context: ../
+  #     dockerfile: docker/dev.iso.Dockerfile
+  #   volumes:
+  #     - iso:/iso/out
+  #   command: >
+  #     sh -c "ls -a && mkarchiso -v -w /tmp/archiso-tmp -o /iso/out /iso"
+
+volumes:
+  db:
+    driver: local
+  iso:
