@@ -6,6 +6,7 @@ use uuid::Uuid;
 #[async_trait]
 pub trait RecipeRepository: Send + Sync {
     async fn find_by_id(&self, id: Uuid) -> RepositoryResult<Option<Recipe>>;
+    async fn get_all(&self) -> RepositoryResult<Vec<Recipe>>;
     async fn create(&self, name: String, summary: String) -> RepositoryResult<Recipe>;
     async fn update(
         &self,
@@ -39,6 +40,16 @@ impl RecipeRepository for PostgresRecipeRepository {
             .fetch_optional(&self.pool)
             .await?;
         Ok(recipe)
+    }
+
+    async fn get_all(&self) -> RepositoryResult<Vec<Recipe>> {
+        let query = "
+            SELECT * FROM recipes;
+        ";
+        let recipes = sqlx::query_as::<_, Recipe>(query)
+            .fetch_all(&self.pool)
+            .await?;
+        Ok(recipes)
     }
 
     async fn create(&self, name: String, summary: String) -> RepositoryResult<Recipe> {
