@@ -1,8 +1,8 @@
 CREATE TABLE recipe_ingredients (
     recipe_id     UUID NOT NULL REFERENCES recipes(id),
     ingredient_id UUID NOT NULL REFERENCES ingredients(id),
+    unit          UUID NOT NULL REFERENCES units(id),
     quantity      NUMERIC(10, 2),
-    unit          TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     PRIMARY KEY (recipe_id, ingredient_id)

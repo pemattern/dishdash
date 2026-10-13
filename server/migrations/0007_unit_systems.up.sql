@@ -10,7 +10,7 @@ CREATE TRIGGER update_unit_systems_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-INSERT INTO unit_systems (id, name)
+INSERT INTO unit_systems (name)
 VALUES
     ('metric'),
     ('imperial'),
