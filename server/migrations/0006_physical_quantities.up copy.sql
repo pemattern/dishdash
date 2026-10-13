@@ -25,5 +25,5 @@ INSERT INTO physical_quantities (
 INSERT INTO physical_quantities (
     name
 ) VALUES (
-    'amount'
+    'count'
 );
