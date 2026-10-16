@@ -8,6 +8,10 @@ mod units;
 mod user;
 
 pub use ingredient::Ingredient;
+pub use physical_quantities::PhysicalQuantity;
 pub use recipe::Recipe;
+pub use recipe_ingredients::RecipeIngredient;
 pub use refresh_token::RefreshToken;
+pub use unit_systems::UnitSystem;
+pub use units::Unit;
 pub use user::User;
