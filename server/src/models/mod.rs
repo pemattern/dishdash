@@ -15,3 +15,7 @@ pub use refresh_token::RefreshToken;
 pub use unit_systems::UnitSystem;
 pub use units::Unit;
 pub use user::User;
+
+pub trait Model {
+    const TABLE_NAME: &str;
+}
