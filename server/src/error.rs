@@ -105,7 +105,7 @@ impl From<serde_json::Error> for ServiceError {
 pub enum RepositoryError {
     Sqlx(sqlx::Error),
     Fs(io::Error),
-    Test,
+    Mock(String),
 }
 
 impl From<sqlx::Error> for RepositoryError {

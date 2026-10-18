@@ -80,7 +80,7 @@ impl RefreshTokenRepository for MockRefreshTokenRepository {
             refresh_token.is_used = true;
             return Ok(refresh_token);
         }
-        Err(RepositoryError::Test)
+        Err(RepositoryError::Mock)
     }
 
     async fn delete(&self, id: Uuid) -> RepositoryResult<RefreshToken> {
@@ -90,6 +90,6 @@ impl RefreshTokenRepository for MockRefreshTokenRepository {
             .collect::<Vec<RefreshToken>>()
             .first()
             .cloned();
-        user.ok_or(RepositoryError::Test)
+        user.ok_or(RepositoryError::Mock)
     }
 }

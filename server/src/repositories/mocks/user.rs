@@ -84,7 +84,7 @@ impl UserRepository for MockUserRepository {
             .iter()
             .find(|user| user.id == id)
             .cloned();
-        user.ok_or(RepositoryError::Test)
+        user.ok_or(RepositoryError::Mock)
     }
 
     async fn delete(&self, id: Uuid) -> RepositoryResult<User> {
@@ -94,6 +94,6 @@ impl UserRepository for MockUserRepository {
             .collect::<Vec<User>>()
             .first()
             .cloned();
-        user.ok_or(RepositoryError::Test)
+        user.ok_or(RepositoryError::Mock)
     }
 }
