@@ -1,12 +1,7 @@
-use std::{any::Any, collections::HashMap};
-
-use sqlx::{AssertSqlSafe, FromRow, PgConnection, PgPool, postgres::PgRow};
+use sqlx::{AssertSqlSafe, FromRow, PgPool, postgres::PgRow};
 use uuid::Uuid;
 
-use crate::{
-    error::{RepositoryError, RepositoryResult},
-    models::Model,
-};
+use crate::{error::RepositoryResult, models::Model};
 
 #[cfg(test)]
 pub mod mocks;
@@ -23,36 +18,44 @@ struct PostgresRepository {
     pool: PgPool,
 }
 
-struct MockRepository {
-    tables: HashMap<String, Vec<Box<dyn Any>>>,
-}
-
-impl MockRepository {
-    fn get_table(&self, table_name: &str) -> RepositoryResult<&Vec<Box<dyn Any>>> {
-        let Some(rows) = self.tables.get(table_name) else {
-            return Err(RepositoryError::Mock(format!(
-                "no tables found in mock repository for table_name: '{}'",
-                table_name
-            )));
-        };
-        Ok(rows)
-    }
-}
-
 impl Repository for PostgresRepository {}
-impl Repository for MockRepository {}
 
 trait Insert<R>
 where
-    Self: Model + for<'a> sqlx::FromRow<'a, sqlx::postgres::PgRow> + Send + Unpin,
+    Self: Model,
     R: Repository,
 {
     async fn insert(repository: R, value: &Self) -> RepositoryResult<Self>;
 }
 
+trait SelectById<R>
+where
+    Self: Model,
+    R: Repository,
+{
+    async fn select_by_id(repository: R, id: Uuid) -> RepositoryResult<Option<Self>>;
+}
+
+impl<M> SelectById<PostgresRepository> for M
+where
+    Self: Model + for<'a> FromRow<'a, PgRow>,
+{
+    async fn select_by_id(
+        repository: PostgresRepository,
+        id: Uuid,
+    ) -> RepositoryResult<Option<Self>> {
+        let query = format!("SELECT * FROM {} WHERE id = $1;", Self::TABLE_NAME);
+        let row = sqlx::query_as::<_, Self>(AssertSqlSafe(query))
+            .bind(id)
+            .fetch_optional(&repository.pool)
+            .await?;
+        Ok(row)
+    }
+}
+
 trait SelectAll<R>
 where
-    Self: Model + for<'a> FromRow<'a, PgRow> + Send + Unpin,
+    Self: Model,
     R: Repository,
 {
     async fn select_all(persistance: R) -> RepositoryResult<Vec<Self>>;
@@ -60,7 +63,7 @@ where
 
 impl<M> SelectAll<PostgresRepository> for M
 where
-    M: Model + for<'a> FromRow<'a, PgRow> + Send + Unpin,
+    M: Model + for<'a> FromRow<'a, PgRow>,
 {
     async fn select_all(repository: PostgresRepository) -> RepositoryResult<Vec<Self>> {
         let query = format!("SELECT * FROM {};", Self::TABLE_NAME);
@@ -71,61 +74,34 @@ where
     }
 }
 
-impl<M> SelectAll<MockRepository> for M
+trait Update<R>
 where
-    M: Model + for<'a> FromRow<'a, PgRow> + Send + Unpin,
+    Self: Model + for<'a> FromRow<'a, PgRow>,
+    R: Repository,
 {
-    async fn select_all(repository: MockRepository) -> RepositoryResult<Vec<Self>> {
-        let table = repository.get_table(M::TABLE_NAME)?;
-
-        let rows = table
-            .into_iter()
-            .map(|row| {
-                row.downcast::<Self>()
-                    .map(|boxed| *boxed.clone())
-                    .expect("unable to downcast to model")
-            })
-            .collect();
-        Ok(rows)
-    }
+    async fn update(repository: R, value: &Self) -> RepositoryResult<Self>;
 }
 
-trait SelectById
+trait DeleteById<R>
 where
-    Self: Model + for<'a> FromRow<'a, PgRow> + Send + Unpin,
+    Self: Model,
+    R: Repository,
 {
-    async fn select_by_id(
-        connection: &mut PgConnection,
-        id: Uuid,
-    ) -> RepositoryResult<Option<Self>> {
-        let query = format!("SELECT * FROM {} WHERE id = $1;", Self::TABLE_NAME);
-        let row = sqlx::query_as::<_, Self>(AssertSqlSafe(query))
-            .bind(id)
-            .fetch_optional(connection)
-            .await?;
-        Ok(row)
-    }
+    async fn delete_by_id(repository: R, id: Uuid) -> RepositoryResult<Self>;
 }
 
-trait Put
+impl<M> DeleteById<PostgresRepository> for M
 where
-    Self: Model + for<'a> sqlx::FromRow<'a, sqlx::postgres::PgRow> + Send + Unpin,
+    Self: Model + for<'a> FromRow<'a, PgRow>,
 {
-    async fn put(connection: &mut PgConnection, value: &Self) -> RepositoryResult<Self>;
-}
-
-trait DeleteById
-where
-    Self: Model + for<'a> FromRow<'a, PgRow> + Send + Unpin,
-{
-    async fn delete_by_id(connection: &mut PgConnection, id: Uuid) -> RepositoryResult<Self> {
+    async fn delete_by_id(repository: PostgresRepository, id: Uuid) -> RepositoryResult<Self> {
         let query = format!(
             "DELETE FROM {} WHERE id = $1 RETURNING *;",
             Self::TABLE_NAME
         );
         let row = sqlx::query_as::<_, Self>(AssertSqlSafe(query))
             .bind(id)
-            .fetch_one(connection)
+            .fetch_one(&repository.pool)
             .await?;
         Ok(row)
     }

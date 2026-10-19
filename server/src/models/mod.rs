@@ -16,6 +16,6 @@ pub use unit_systems::UnitSystem;
 pub use units::Unit;
 pub use user::User;
 
-pub trait Model: Clone {
+pub trait Model: Send + Unpin + Clone {
     const TABLE_NAME: &str;
 }

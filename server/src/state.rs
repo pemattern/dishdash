@@ -41,16 +41,8 @@ fn db_url_from_envs() -> String {
 
 #[cfg(test)]
 impl AppState {
-    pub fn mock() -> Self {
-        let user_repository = Arc::new(crate::repositories::mocks::MockUserRepository::new());
-        let refresh_token_repository =
-            Arc::new(crate::repositories::mocks::MockRefreshTokenRepository::new());
-        let auth_service =
-            AuthService::new(user_repository.clone(), refresh_token_repository.clone());
-        let user_service = UserService::new(user_repository.clone());
-        Self {
-            auth_service,
-            user_service,
-        }
+    pub async fn mock() -> Result<Self, Box<dyn std::error::Error>> {
+        let repository = crate::repositories::mocks::MockRepository::new();
+        AppState::postgres().await
     }
 }
