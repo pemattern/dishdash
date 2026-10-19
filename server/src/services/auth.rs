@@ -6,16 +6,13 @@ use base64::{Engine, prelude::BASE64_URL_SAFE_NO_PAD};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
-use std::{
-    sync::{Arc, LazyLock},
-    time::Duration,
-};
+use std::{sync::LazyLock, time::Duration};
 use uuid::Uuid;
 
 use crate::{
     error::ServiceResult,
-    models::{RefreshToken, User},
-    repositories::{refresh_token::RefreshTokenRepository, user::UserRepository},
+    models::{BaseModel, RefreshToken, User},
+    repositories::{Repository, user::UserRepository},
 };
 
 const ISSUER: &str = "open-erase";
@@ -46,29 +43,27 @@ impl Claims {
 }
 
 #[derive(Clone)]
-#[allow(dead_code)]
-pub struct AuthService {
-    user_repository: Arc<dyn UserRepository>,
-    refresh_token_repository: Arc<dyn RefreshTokenRepository>,
+pub struct AuthService<R>
+where
+    R: Repository,
+{
+    repository: R,
 }
 
-impl AuthService {
-    pub fn new(
-        user_repository: Arc<dyn UserRepository>,
-        refresh_token_repository: Arc<dyn RefreshTokenRepository>,
-    ) -> Self {
-        Self {
-            user_repository,
-            refresh_token_repository,
-        }
+impl<R> AuthService<R>
+where
+    R: Repository,
+{
+    pub fn new(repository: R) -> Self {
+        Self { repository }
     }
 
     pub async fn get_user_from_basic_auth(
         &self,
         email: &str,
         password: &str,
-    ) -> ServiceResult<Option<User>> {
-        if let Some(user) = self.user_repository.find_by_email(email).await?
+    ) -> ServiceResult<Option<BaseModel<User>>> {
+        if let Some(user) = User::select_by_email(&self.repository, email).await?
             && is_valid_password(password, &user.password_hash)
         {
             return Ok(Some(user));
@@ -163,7 +158,7 @@ fn is_valid_password(password: &str, password_hash: &str) -> bool {
     false
 }
 
-fn generate_hash(password: &str) -> ServiceResult<String> {
+pub fn generate_hash(password: &str) -> ServiceResult<String> {
     let salt_string = SaltString::generate(&mut OsRng);
     Ok(ARGON2
         .hash_password(password.as_bytes(), &salt_string)

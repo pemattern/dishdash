@@ -1,28 +1,30 @@
-use std::sync::Arc;
-
 use uuid::Uuid;
 
 use crate::{
     error::ServiceResult,
-    models::User,
-    repositories::user::UserRepository,
+    models::{BaseModel, User},
+    repositories::{Repository, SelectById},
     schemas::user::{PatchUserRequest, PostUserRequest},
 };
 
 #[derive(Clone)]
-pub struct UserService {
-    user_repository: Arc<dyn UserRepository>,
+pub struct UserService<R>
+where
+    R: Repository,
+{
+    repository: R,
 }
 
-impl UserService {
-    pub fn new(user_repository: Arc<dyn UserRepository>) -> Self {
-        Self { user_repository }
+impl<R> UserService<R>
+where
+    R: Repository,
+{
+    pub fn new(repository: R) -> Self {
+        Self { repository }
     }
-}
 
-impl UserService {
-    pub async fn find_user_by_id(&self, id: Uuid) -> ServiceResult<Option<User>> {
-        Ok(self.user_repository.find_by_id(id).await?)
+    pub async fn find_user_by_id(&self, id: Uuid) -> ServiceResult<Option<BaseModel<User>>> {
+        Ok(User::select_by_id(self.repository, id).await?)
     }
 
     pub async fn find_user_by_email(&self, email: &str) -> ServiceResult<Option<User>> {

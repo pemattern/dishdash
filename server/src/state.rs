@@ -1,28 +1,31 @@
-use std::{env, sync::Arc};
+use std::env;
 
 use sqlx::postgres::PgPoolOptions;
 
+#[cfg(test)]
+use crate::repositories::mocks::MockRepository;
 use crate::{
-    repositories::{refresh_token::PostgresRefreshTokenRepository, user::PostgresUserRepository},
+    repositories::{PostgresRepository, Repository},
     services::{auth::AuthService, user::UserService},
 };
 
 #[derive(Clone)]
-pub struct AppState {
-    pub auth_service: AuthService,
-    pub user_service: UserService,
+pub struct AppState<R>
+where
+    R: Repository,
+{
+    pub auth_service: AuthService<R>,
+    pub user_service: UserService<R>,
 }
 
-impl AppState {
+impl AppState<PostgresRepository> {
     pub async fn postgres() -> Result<Self, Box<dyn std::error::Error>> {
         let db_url = db_url_from_envs();
         let pool = PgPoolOptions::new().connect(&db_url).await?;
         sqlx::migrate!("./migrations").run(&pool).await?;
-        let user_repository = Arc::new(PostgresUserRepository::new(pool.clone()));
-        let refresh_token_repository = Arc::new(PostgresRefreshTokenRepository::new(pool.clone()));
-        let auth_service =
-            AuthService::new(user_repository.clone(), refresh_token_repository.clone());
-        let user_service = UserService::new(user_repository.clone());
+        let repository = PostgresRepository::new(pool);
+        let auth_service = AuthService::new(repository.clone());
+        let user_service = UserService::new(repository.clone());
         Ok(Self {
             auth_service,
             user_service,
@@ -40,9 +43,14 @@ fn db_url_from_envs() -> String {
 }
 
 #[cfg(test)]
-impl AppState {
+impl AppState<MockRepository> {
     pub async fn mock() -> Result<Self, Box<dyn std::error::Error>> {
         let repository = crate::repositories::mocks::MockRepository::new();
-        AppState::postgres().await
+        let auth_service = AuthService::new(repository.clone());
+        let user_service = UserService::new(repository.clone());
+        Ok(Self {
+            auth_service,
+            user_service,
+        })
     }
 }

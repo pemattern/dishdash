@@ -1,12 +1,18 @@
-use chrono::{DateTime, Utc};
 use sqlx::prelude::FromRow;
-use uuid::Uuid;
+
+use crate::models::Model;
+
+#[cfg(test)]
+use fake::faker::internet::en::SafeEmail;
 
 #[derive(Debug, Clone, FromRow)]
+#[cfg_attr(test, derive(fake::Dummy))]
 pub struct User {
-    pub id: Uuid,
+    #[cfg_attr(test, dummy(faker = "SafeEmail()"))]
     pub email: String,
     pub password_hash: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+}
+
+impl Model for User {
+    const TABLE_NAME: &str = "users";
 }
