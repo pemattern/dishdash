@@ -2,6 +2,8 @@ use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
 
+use crate::models::Model;
+
 #[derive(Debug, Clone, FromRow)]
 pub struct RefreshToken {
     pub user_id: Uuid,
@@ -19,4 +21,8 @@ impl RefreshToken {
     pub fn is_valid(&self) -> bool {
         !self.is_expired() && !self.is_used
     }
+}
+
+impl Model for RefreshToken {
+    const TABLE_NAME: &str = "refresh_tokens";
 }

@@ -19,7 +19,7 @@ pub use units::Unit;
 pub use user::User;
 use uuid::Uuid;
 
-pub trait Model: Send + Unpin + Clone {
+pub trait Model: Send + Sync + Unpin + Clone {
     const TABLE_NAME: &str;
 }
 

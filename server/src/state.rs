@@ -2,30 +2,28 @@ use std::env;
 
 use sqlx::postgres::PgPoolOptions;
 
-#[cfg(test)]
-use crate::repositories::mocks::MockRepository;
 use crate::{
-    repositories::{PostgresRepository, Repository},
+    models::{RefreshToken, User},
+    repositories::PostgresRepository,
     services::{auth::AuthService, user::UserService},
 };
 
 #[derive(Clone)]
-pub struct AppState<R>
-where
-    R: Repository,
-{
-    pub auth_service: AuthService<R>,
-    pub user_service: UserService<R>,
+pub struct AppState {
+    pub auth_service: AuthService,
+    pub user_service: UserService,
 }
 
-impl AppState<PostgresRepository> {
+impl AppState {
     pub async fn postgres() -> Result<Self, Box<dyn std::error::Error>> {
         let db_url = db_url_from_envs();
         let pool = PgPoolOptions::new().connect(&db_url).await?;
         sqlx::migrate!("./migrations").run(&pool).await?;
-        let repository = PostgresRepository::new(pool);
-        let auth_service = AuthService::new(repository.clone());
-        let user_service = UserService::new(repository.clone());
+        let user_repository = PostgresRepository::<User>::new(pool.clone());
+        let refresh_token_repository = PostgresRepository::<RefreshToken>::new(pool.clone());
+        let auth_service =
+            AuthService::new(user_repository.clone(), refresh_token_repository.clone());
+        let user_service = UserService::new(user_repository.clone());
         Ok(Self {
             auth_service,
             user_service,
@@ -43,14 +41,8 @@ fn db_url_from_envs() -> String {
 }
 
 #[cfg(test)]
-impl AppState<MockRepository> {
+impl AppState {
     pub async fn mock() -> Result<Self, Box<dyn std::error::Error>> {
-        let repository = crate::repositories::mocks::MockRepository::new();
-        let auth_service = AuthService::new(repository.clone());
-        let user_service = UserService::new(repository.clone());
-        Ok(Self {
-            auth_service,
-            user_service,
-        })
+        todo!()
     }
 }

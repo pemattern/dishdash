@@ -1,59 +1,36 @@
 use async_trait::async_trait;
-use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{error::RepositoryResult, models::RefreshToken};
+use crate::{
+    error::RepositoryResult,
+    models::{BaseModel, RefreshToken},
+    repositories::{PostgresRepository, Repository},
+};
 
 #[async_trait]
-pub trait RefreshTokenRepository: Send + Sync {
-    async fn find_by_id(&self, id: Uuid) -> RepositoryResult<Option<RefreshToken>>;
-    async fn create(
+pub trait RefreshTokenRepository: Repository<RefreshToken> {
+    async fn insert(
         &self,
         user_id: Uuid,
         parent_id: Option<Uuid>,
         opaque_token_hash: String,
-    ) -> RepositoryResult<RefreshToken>;
-    async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<RefreshToken>;
-    async fn delete(&self, id: Uuid) -> RepositoryResult<RefreshToken>;
-}
-
-#[derive(Clone)]
-pub struct PostgresRefreshTokenRepository {
-    pool: PgPool,
-}
-
-impl PostgresRefreshTokenRepository {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
-    }
+    ) -> RepositoryResult<BaseModel<RefreshToken>>;
+    async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<BaseModel<RefreshToken>>;
 }
 
 #[async_trait]
-impl RefreshTokenRepository for PostgresRefreshTokenRepository {
-    async fn find_by_id(&self, id: Uuid) -> RepositoryResult<Option<RefreshToken>> {
-        let query = "
-            SELECT * FROM refresh_tokens
-            WHERE id = $1;
-        ";
-        let refresh_token = sqlx::query_as::<_, RefreshToken>(query)
-            .bind(id)
-            .fetch_optional(&self.pool)
-            .await?;
-        Ok(refresh_token)
-    }
-
-    async fn create(
+impl RefreshTokenRepository for PostgresRepository<RefreshToken> {
+    async fn insert(
         &self,
         user_id: Uuid,
         parent_id: Option<Uuid>,
         opaque_token_hash: String,
-    ) -> RepositoryResult<RefreshToken> {
+    ) -> RepositoryResult<BaseModel<RefreshToken>> {
         let query = "
             INSERT INTO refresh_tokens (user_id, parent_id, opaque_token_hash)
             VALUES ($1, $2, $3)
-            RETURNING *;
-        ";
-        let refresh_token = sqlx::query_as::<_, RefreshToken>(query)
+            RETURNING *;";
+        let refresh_token = sqlx::query_as::<_, BaseModel<RefreshToken>>(query)
             .bind(user_id)
             .bind(parent_id)
             .bind(&opaque_token_hash)
@@ -62,27 +39,13 @@ impl RefreshTokenRepository for PostgresRefreshTokenRepository {
         Ok(refresh_token)
     }
 
-    async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<RefreshToken> {
+    async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<BaseModel<RefreshToken>> {
         let query = "
             UPDATE refresh_tokens
             SET is_used = true
             WHERE id = $1
-            RETURNING *;
-        ";
-        let refresh_token = sqlx::query_as::<_, RefreshToken>(query)
-            .bind(id)
-            .fetch_one(&self.pool)
-            .await?;
-        Ok(refresh_token)
-    }
-
-    async fn delete(&self, id: Uuid) -> RepositoryResult<RefreshToken> {
-        let query = "
-            DELETE FROM refresh_tokens
-            WHERE id = $1
-            RETURNING *;  
-        ";
-        let refresh_token = sqlx::query_as::<_, RefreshToken>(query)
+            RETURNING *;";
+        let refresh_token = sqlx::query_as::<_, BaseModel<RefreshToken>>(query)
             .bind(id)
             .fetch_one(&self.pool)
             .await?;

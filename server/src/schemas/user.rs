@@ -1,4 +1,7 @@
-use crate::{models::User, schemas::json};
+use crate::{
+    models::{BaseModel, User},
+    schemas::json,
+};
 use axum::{
     http::{StatusCode, header},
     response::{IntoResponse, Response},
@@ -53,11 +56,11 @@ impl IntoResponse for GetUserResponse {
     }
 }
 
-impl From<User> for GetUserResponse {
-    fn from(value: User) -> Self {
+impl From<BaseModel<User>> for GetUserResponse {
+    fn from(value: BaseModel<User>) -> Self {
         Self {
             id: value.id,
-            email: value.email,
+            email: value.model.email,
             created_at: value.created_at,
             updated_at: value.updated_at,
         }
@@ -75,11 +78,11 @@ impl IntoResponse for PostUserResponse {
     }
 }
 
-impl From<User> for PostUserResponse {
-    fn from(value: User) -> Self {
+impl From<BaseModel<User>> for PostUserResponse {
+    fn from(value: BaseModel<User>) -> Self {
         Self {
             id: value.id,
-            email: value.email,
+            email: value.model.email,
             created_at: value.created_at,
             updated_at: value.updated_at,
         }
@@ -92,11 +95,11 @@ impl IntoResponse for PatchUserResponse {
     }
 }
 
-impl From<User> for PatchUserResponse {
-    fn from(value: User) -> Self {
+impl From<BaseModel<User>> for PatchUserResponse {
+    fn from(value: BaseModel<User>) -> Self {
         Self {
             id: value.id,
-            email: value.email,
+            email: value.model.email,
             created_at: value.created_at,
             updated_at: value.updated_at,
         }
@@ -109,8 +112,8 @@ impl IntoResponse for DeleteUserResponse {
     }
 }
 
-impl From<User> for DeleteUserResponse {
-    fn from(value: User) -> Self {
+impl From<BaseModel<User>> for DeleteUserResponse {
+    fn from(value: BaseModel<User>) -> Self {
         Self { id: value.id }
     }
 }

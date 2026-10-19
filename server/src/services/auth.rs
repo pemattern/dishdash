@@ -6,16 +6,19 @@ use base64::{Engine, prelude::BASE64_URL_SAFE_NO_PAD};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
-use std::{sync::LazyLock, time::Duration};
+use std::{
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 use uuid::Uuid;
 
 use crate::{
     error::ServiceResult,
     models::{BaseModel, RefreshToken, User},
-    repositories::{Repository, user::UserRepository},
+    repositories::{refresh_token::RefreshTokenRepository, user::UserRepository},
 };
 
-const ISSUER: &str = "open-erase";
+const ISSUER: &str = "dishdash";
 const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_secs(60 * 15); // 15 minutes
 const KEY_LENGTH: usize = 32;
 
@@ -43,19 +46,20 @@ impl Claims {
 }
 
 #[derive(Clone)]
-pub struct AuthService<R>
-where
-    R: Repository,
-{
-    repository: R,
+pub struct AuthService {
+    user_repository: Arc<dyn UserRepository>,
+    refresh_token_repository: Arc<dyn RefreshTokenRepository>,
 }
 
-impl<R> AuthService<R>
-where
-    R: Repository,
-{
-    pub fn new(repository: R) -> Self {
-        Self { repository }
+impl AuthService {
+    pub fn new(
+        user_repository: Arc<dyn UserRepository>,
+        refresh_token_repository: Arc<dyn RefreshTokenRepository>,
+    ) -> Self {
+        Self {
+            user_repository,
+            refresh_token_repository,
+        }
     }
 
     pub async fn get_user_from_basic_auth(
@@ -63,8 +67,8 @@ where
         email: &str,
         password: &str,
     ) -> ServiceResult<Option<BaseModel<User>>> {
-        if let Some(user) = User::select_by_email(&self.repository, email).await?
-            && is_valid_password(password, &user.password_hash)
+        if let Some(user) = self.user_repository.select_by_email(email).await?
+            && is_valid_password(password, &user.model.password_hash)
         {
             return Ok(Some(user));
         };
@@ -90,20 +94,23 @@ where
         self.generate_refresh_token(user_id, None).await
     }
 
-    pub async fn cycle_refresh_token(&self, refresh_token: &RefreshToken) -> ServiceResult<String> {
+    pub async fn cycle_refresh_token(
+        &self,
+        refresh_token: &BaseModel<RefreshToken>,
+    ) -> ServiceResult<String> {
         let _ = self
             .refresh_token_repository
             .mark_as_used(refresh_token.id)
             .await?;
 
-        self.generate_refresh_token(refresh_token.user_id, Some(refresh_token.id))
+        self.generate_refresh_token(refresh_token.model.user_id, Some(refresh_token.id))
             .await
     }
 
     pub async fn mark_refresh_token_as_used(
         &self,
-        refresh_token: &RefreshToken,
-    ) -> ServiceResult<RefreshToken> {
+        refresh_token: &BaseModel<RefreshToken>,
+    ) -> ServiceResult<BaseModel<RefreshToken>> {
         let refresh_token = self
             .refresh_token_repository
             .mark_as_used(refresh_token.id)
@@ -121,7 +128,7 @@ where
         let opaque_token_hash = generate_hash(&opaque_token_raw)?;
         let refresh_token = self
             .refresh_token_repository
-            .create(user_id, parent_id, opaque_token_hash)
+            .insert(user_id, parent_id, opaque_token_hash)
             .await?;
         let composite_refresh_token = format!("{}.{}", refresh_token.id, opaque_token_raw);
         Ok(composite_refresh_token)
@@ -130,16 +137,16 @@ where
     pub async fn get_valid_refresh_token(
         &self,
         composite_refresh_token: &str,
-    ) -> ServiceResult<Option<RefreshToken>> {
+    ) -> ServiceResult<Option<BaseModel<RefreshToken>>> {
         if let Some((refresh_token_id_raw, opaque_token_raw)) =
             composite_refresh_token.split_once('.')
             && let Ok(refresh_token_id) = Uuid::parse_str(refresh_token_id_raw)
             && let Some(refresh_token) = self
                 .refresh_token_repository
-                .find_by_id(refresh_token_id)
+                .select_by_id(refresh_token_id)
                 .await?
-            && refresh_token.is_valid()
-            && is_valid_password(opaque_token_raw, &refresh_token.opaque_token_hash)
+            && refresh_token.model.is_valid()
+            && is_valid_password(opaque_token_raw, &refresh_token.model.opaque_token_hash)
         {
             return Ok(Some(refresh_token));
         };

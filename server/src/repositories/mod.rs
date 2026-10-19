@@ -1,3 +1,6 @@
+use std::{marker::PhantomData, sync::Arc};
+
+use async_trait::async_trait;
 use sqlx::{AssertSqlSafe, FromRow, PgPool, postgres::PgRow};
 use uuid::Uuid;
 
@@ -15,106 +18,114 @@ pub mod recipe;
 pub mod refresh_token;
 pub mod user;
 
-pub trait Repository {}
-
-#[derive(Clone)]
-pub struct PostgresRepository {
-    pool: PgPool,
+pub trait Repository<M>: SelectAll<M> + SelectById<M> + DeleteById<M> + Send + Sync
+where
+    M: Model,
+{
 }
 
-impl PostgresRepository {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+impl<M> Repository<M> for PostgresRepository<M> where M: Model + for<'a> FromRow<'a, PgRow> {}
+
+#[derive(Clone)]
+pub struct PostgresRepository<M>
+where
+    M: Model,
+{
+    pool: PgPool,
+    _marker: PhantomData<M>,
+}
+
+impl<M> PostgresRepository<M>
+where
+    M: Model,
+{
+    pub fn new(pool: PgPool) -> Arc<Self> {
+        Arc::new(Self {
+            pool,
+            _marker: PhantomData,
+        })
     }
 }
 
-impl Repository for PostgresRepository {}
-
+#[async_trait]
 pub trait Insert<M>
 where
-    Self: Repository,
     M: Model,
 {
     async fn insert(&self, value: BaseModel<M>) -> RepositoryResult<BaseModel<M>>;
 }
 
+#[async_trait]
 pub trait SelectById<M>
 where
-    Self: Repository,
     M: Model,
 {
     async fn select_by_id(&self, id: Uuid) -> RepositoryResult<Option<BaseModel<M>>>;
 }
 
-impl<M> SelectById<PostgresRepository> for M
+#[async_trait]
+impl<M> SelectById<M> for PostgresRepository<M>
 where
-    Self: Model + for<'a> FromRow<'a, PgRow>,
+    M: Model + for<'a> FromRow<'a, PgRow>,
 {
-    async fn select_by_id(
-        repository: PostgresRepository,
-        id: Uuid,
-    ) -> RepositoryResult<Option<BaseModel<Self>>> {
-        let query = format!("SELECT * FROM {} WHERE id = $1;", Self::TABLE_NAME);
-        let row = sqlx::query_as::<_, BaseModel<Self>>(AssertSqlSafe(query))
+    async fn select_by_id(&self, id: Uuid) -> RepositoryResult<Option<BaseModel<M>>> {
+        let query = format!("SELECT * FROM {} WHERE id = $1;", M::TABLE_NAME);
+        let row = sqlx::query_as::<_, BaseModel<M>>(AssertSqlSafe(query))
             .bind(id)
-            .fetch_optional(&repository.pool)
+            .fetch_optional(&self.pool)
             .await?;
         Ok(row)
     }
 }
 
-pub trait SelectAll<R>
+#[async_trait]
+pub trait SelectAll<M>
 where
-    Self: Model,
-    R: Repository,
+    M: Model,
 {
-    async fn select_all(persistance: R) -> RepositoryResult<Vec<BaseModel<Self>>>;
+    async fn select_all(&self) -> RepositoryResult<Vec<BaseModel<M>>>;
 }
 
-impl<M> SelectAll<PostgresRepository> for M
+#[async_trait]
+impl<M> SelectAll<M> for PostgresRepository<M>
 where
     M: Model + for<'a> FromRow<'a, PgRow>,
 {
-    async fn select_all(repository: PostgresRepository) -> RepositoryResult<Vec<BaseModel<Self>>> {
-        let query = format!("SELECT * FROM {};", Self::TABLE_NAME);
-        let rows = sqlx::query_as::<_, BaseModel<Self>>(AssertSqlSafe(query))
-            .fetch_all(&repository.pool)
+    async fn select_all(&self) -> RepositoryResult<Vec<BaseModel<M>>> {
+        let query = format!("SELECT * FROM {};", M::TABLE_NAME);
+        let rows = sqlx::query_as::<_, BaseModel<M>>(AssertSqlSafe(query))
+            .fetch_all(&self.pool)
             .await?;
         Ok(rows)
     }
 }
 
-pub trait Update<R>
+#[async_trait]
+pub trait Update<M>
 where
-    Self: Model,
-    R: Repository,
+    M: Model,
 {
-    async fn update(repository: R, value: BaseModel<Self>) -> RepositoryResult<BaseModel<Self>>;
+    async fn update(&self, value: BaseModel<M>) -> RepositoryResult<BaseModel<M>>;
 }
 
-pub trait DeleteById<R>
+#[async_trait]
+pub trait DeleteById<M>
 where
-    Self: Model,
-    R: Repository,
+    M: Model,
 {
-    async fn delete_by_id(repository: R, id: Uuid) -> RepositoryResult<BaseModel<Self>>;
+    async fn delete_by_id(&self, id: Uuid) -> RepositoryResult<BaseModel<M>>;
 }
 
-impl<M> DeleteById<PostgresRepository> for M
+#[async_trait]
+impl<M> DeleteById<M> for PostgresRepository<M>
 where
-    Self: Model + for<'a> FromRow<'a, PgRow>,
+    M: Model + for<'a> FromRow<'a, PgRow>,
 {
-    async fn delete_by_id(
-        repository: PostgresRepository,
-        id: Uuid,
-    ) -> RepositoryResult<BaseModel<Self>> {
-        let query = format!(
-            "DELETE FROM {} WHERE id = $1 RETURNING *;",
-            Self::TABLE_NAME
-        );
-        let row = sqlx::query_as::<_, BaseModel<Self>>(AssertSqlSafe(query))
+    async fn delete_by_id(&self, id: Uuid) -> RepositoryResult<BaseModel<M>> {
+        let query = format!("DELETE FROM {} WHERE id = $1 RETURNING *;", M::TABLE_NAME);
+        let row = sqlx::query_as::<_, BaseModel<M>>(AssertSqlSafe(query))
             .bind(id)
-            .fetch_one(&repository.pool)
+            .fetch_one(&self.pool)
             .await?;
         Ok(row)
     }
