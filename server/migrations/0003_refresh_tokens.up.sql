@@ -3,8 +3,8 @@ CREATE TABLE refresh_tokens (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     parent_id UUID REFERENCES refresh_tokens(id),
     opaque_token_hash TEXT UNIQUE NOT NULL,
-    is_used BOOLEAN NOT NULL DEFAULT FALSE,
-    expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '2 months'),
+    is_used BOOLEAN NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

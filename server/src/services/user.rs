@@ -1,14 +1,12 @@
-use std::sync::Arc;
-
-use uuid::Uuid;
-
 use crate::{
     auth::password::get_hash,
     error::ServiceResult,
-    models::{BaseModel, User},
+    models::{BaseModel, user::User},
     repositories::user::UserRepository,
     schemas::user::{PatchUserRequest, PostUserRequest},
 };
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct UserService {
@@ -30,10 +28,8 @@ impl UserService {
 
     pub async fn create_user(&self, user: PostUserRequest) -> ServiceResult<BaseModel<User>> {
         let password_hash = get_hash(&user.password)?;
-        Ok(self
-            .user_repository
-            .insert(user.email, password_hash)
-            .await?)
+        let user = User::new(user.email, password_hash);
+        Ok(self.user_repository.insert(user).await?)
     }
 
     pub async fn update_user(
@@ -41,7 +37,7 @@ impl UserService {
         id: Uuid,
         user: PatchUserRequest,
     ) -> ServiceResult<BaseModel<User>> {
-        Ok(self.user_repository.update(id, user.email).await?)
+        Ok(self.user_repository.update(id, user).await?)
     }
 
     pub async fn delete_user(&self, id: Uuid) -> ServiceResult<BaseModel<User>> {

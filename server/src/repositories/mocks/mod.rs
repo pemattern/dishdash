@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     error::{RepositoryError, RepositoryResult},
     models::{BaseModel, Model},
-    repositories::{DeleteById, Insert, Repository, SelectAll, SelectById, Update},
+    repositories::{DeleteById, Insert, Repository, SelectAll, SelectById},
 };
 
 #[derive(Clone)]
@@ -35,10 +35,11 @@ impl<M> Insert<M> for MockRepository<M>
 where
     M: Model,
 {
-    async fn insert(&self, value: BaseModel<M>) -> RepositoryResult<BaseModel<M>> {
+    async fn insert(&self, value: M) -> RepositoryResult<BaseModel<M>> {
+        let model = BaseModel::new(value);
         let mut lock = self.rows.lock().unwrap();
-        lock.push(value.clone());
-        Ok(value)
+        lock.push(model.clone());
+        Ok(model)
     }
 }
 
@@ -62,20 +63,6 @@ where
     async fn select_all(&self) -> RepositoryResult<Vec<BaseModel<M>>> {
         let lock = self.rows.lock().unwrap();
         Ok(lock.clone())
-    }
-}
-
-#[async_trait]
-impl<M> Update<M> for MockRepository<M>
-where
-    M: Model,
-{
-    async fn update(&self, value: BaseModel<M>) -> RepositoryResult<BaseModel<M>> {
-        let mut lock = self.rows.lock().unwrap();
-        lock.iter_mut()
-            .filter(|row| row.id == value.id)
-            .for_each(|row| *row = value.clone());
-        Ok(value)
     }
 }
 

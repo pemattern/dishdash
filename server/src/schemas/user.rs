@@ -1,5 +1,5 @@
 use crate::{
-    models::{BaseModel, User},
+    models::{BaseModel, user::User},
     schemas::json,
 };
 use axum::{

@@ -11,7 +11,6 @@ use crate::error::ServiceResult;
 const ISSUER: &str = "dishdash";
 const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_secs(60 * 15);
 const KEY_LENGTH: usize = 32;
-
 static ENCRYPTION_KEY: LazyLock<[u8; KEY_LENGTH]> = LazyLock::new(generate_byte_key::<KEY_LENGTH>);
 
 #[derive(Clone, Serialize, Deserialize)]

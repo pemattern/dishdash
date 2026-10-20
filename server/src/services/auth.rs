@@ -1,15 +1,14 @@
-use std::sync::Arc;
-use uuid::Uuid;
-
 use crate::{
     auth::{
         password::{get_hash, is_valid_password},
         token::generate_refresh_token,
     },
     error::ServiceResult,
-    models::{BaseModel, RefreshToken, User},
+    models::{BaseModel, refresh_token::RefreshToken, user::User},
     repositories::{refresh_token::RefreshTokenRepository, user::UserRepository},
 };
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct AuthService {
@@ -75,10 +74,8 @@ impl AuthService {
     ) -> ServiceResult<String> {
         let opaque_token_raw = generate_refresh_token();
         let opaque_token_hash = get_hash(&opaque_token_raw)?;
-        let refresh_token = self
-            .refresh_token_repository
-            .insert(user_id, parent_id, opaque_token_hash)
-            .await?;
+        let refresh_token = RefreshToken::new(user_id, parent_id, opaque_token_hash);
+        let refresh_token = self.refresh_token_repository.insert(refresh_token).await?;
         let composite_refresh_token = format!("{}.{}", refresh_token.id, opaque_token_raw);
         Ok(composite_refresh_token)
     }

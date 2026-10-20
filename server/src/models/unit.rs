@@ -1,6 +1,8 @@
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
+use crate::models::Model;
+
 #[derive(Debug, Clone, FromRow)]
 pub struct Unit {
     pub physical_quantity_id: Uuid,
@@ -8,4 +10,8 @@ pub struct Unit {
     pub name: String,
     pub symbol: String,
     pub si_factor: f64,
+}
+
+impl Model for Unit {
+    const TABLE_NAME: &str = "units";
 }

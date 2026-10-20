@@ -3,7 +3,7 @@ use axum::{Extension, extract::State};
 use crate::{
     auth::token::generate_access_token,
     error::AppResult,
-    models::{BaseModel, RefreshToken, User},
+    models::{BaseModel, refresh_token::RefreshToken, user::User},
     schemas::token::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
 };

@@ -1,64 +1,31 @@
-use crate::{error::RepositoryResult, models::Recipe};
+use crate::{
+    error::RepositoryResult,
+    models::{BaseModel, recipe::Recipe},
+    repositories::{PostgresRepository, Repository},
+};
 use async_trait::async_trait;
-use sqlx::PgPool;
 use uuid::Uuid;
 
 #[async_trait]
-pub trait RecipeRepository: Send + Sync {
-    async fn find_by_id(&self, id: Uuid) -> RepositoryResult<Option<Recipe>>;
-    async fn get_all(&self) -> RepositoryResult<Vec<Recipe>>;
-    async fn create(&self, name: String, summary: String) -> RepositoryResult<Recipe>;
+pub trait RecipeRepository: Repository<Recipe> {
+    async fn create(&self, name: String, summary: String) -> RepositoryResult<BaseModel<Recipe>>;
     async fn update(
         &self,
         id: Uuid,
         name: Option<String>,
         summary: Option<String>,
-    ) -> RepositoryResult<Recipe>;
-    async fn delete(&self, id: Uuid) -> RepositoryResult<Recipe>;
-}
-
-#[derive(Clone)]
-pub struct PostgresRecipeRepository {
-    pool: PgPool,
-}
-
-impl PostgresRecipeRepository {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
-    }
+    ) -> RepositoryResult<BaseModel<Recipe>>;
 }
 
 #[async_trait]
-impl RecipeRepository for PostgresRecipeRepository {
-    async fn find_by_id(&self, id: Uuid) -> RepositoryResult<Option<Recipe>> {
-        let query = "
-            SELECT * FROM recipes
-            WHERE id = $1;
-        ";
-        let recipe = sqlx::query_as::<_, Recipe>(query)
-            .bind(id)
-            .fetch_optional(&self.pool)
-            .await?;
-        Ok(recipe)
-    }
-
-    async fn get_all(&self) -> RepositoryResult<Vec<Recipe>> {
-        let query = "
-            SELECT * FROM recipes;
-        ";
-        let recipes = sqlx::query_as::<_, Recipe>(query)
-            .fetch_all(&self.pool)
-            .await?;
-        Ok(recipes)
-    }
-
-    async fn create(&self, name: String, summary: String) -> RepositoryResult<Recipe> {
+impl RecipeRepository for PostgresRepository<Recipe> {
+    async fn create(&self, name: String, summary: String) -> RepositoryResult<BaseModel<Recipe>> {
         let query = "
             INSERT INTO recipes (name, summary)
             VALUES ($1, $2)
             RETURNING *;
         ";
-        let recipe = sqlx::query_as::<_, Recipe>(query)
+        let recipe = sqlx::query_as::<_, BaseModel<Recipe>>(query)
             .bind(&name)
             .bind(&summary)
             .fetch_one(&self.pool)
@@ -71,7 +38,7 @@ impl RecipeRepository for PostgresRecipeRepository {
         id: Uuid,
         name: Option<String>,
         summary: Option<String>,
-    ) -> RepositoryResult<Recipe> {
+    ) -> RepositoryResult<BaseModel<Recipe>> {
         let query = "
             UPDATE recipes
             SET
@@ -80,22 +47,9 @@ impl RecipeRepository for PostgresRecipeRepository {
             WHERE id = $3
             RETURNING *;
         ";
-        let recipe = sqlx::query_as::<_, Recipe>(query)
+        let recipe = sqlx::query_as::<_, BaseModel<Recipe>>(query)
             .bind(&name)
             .bind(&summary)
-            .bind(id)
-            .fetch_one(&self.pool)
-            .await?;
-        Ok(recipe)
-    }
-
-    async fn delete(&self, id: Uuid) -> RepositoryResult<Recipe> {
-        let query = "
-            DELETE FROM recipes
-            WHERE id = $1
-            RETURNING *;
-        ";
-        let recipe = sqlx::query_as::<_, Recipe>(query)
             .bind(id)
             .fetch_one(&self.pool)
             .await?;

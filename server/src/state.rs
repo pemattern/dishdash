@@ -1,12 +1,10 @@
-use std::env;
-
-use sqlx::postgres::PgPoolOptions;
-
 use crate::{
-    models::{RefreshToken, User},
+    models::{refresh_token::RefreshToken, user::User},
     repositories::PostgresRepository,
     services::{auth::AuthService, user::UserService},
 };
+use sqlx::postgres::PgPoolOptions;
+use std::env;
 
 #[derive(Clone)]
 pub struct AppState {

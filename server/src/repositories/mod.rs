@@ -1,22 +1,23 @@
-use std::{marker::PhantomData, sync::Arc};
-
-use async_trait::async_trait;
-use sqlx::{AssertSqlSafe, FromRow, PgPool, postgres::PgRow};
-use uuid::Uuid;
-
-use crate::{
-    error::RepositoryResult,
-    models::{BaseModel, Model},
-};
+pub mod ingredient;
+pub mod physical_quantity;
+pub mod recipe;
+pub mod recipe_ingredient;
+pub mod refresh_token;
+pub mod unit;
+pub mod unit_system;
+pub mod user;
 
 #[cfg(test)]
 pub mod mocks;
 
-pub mod ingredient;
-pub mod physical_quantities;
-pub mod recipe;
-pub mod refresh_token;
-pub mod user;
+use crate::{
+    error::RepositoryResult,
+    models::{BaseModel, Model, Patch},
+};
+use async_trait::async_trait;
+use sqlx::{AssertSqlSafe, FromRow, PgPool, postgres::PgRow};
+use std::{marker::PhantomData, sync::Arc};
+use uuid::Uuid;
 
 pub trait Repository<M>: SelectAll<M> + SelectById<M> + DeleteById<M> + Send + Sync
 where
@@ -52,7 +53,7 @@ pub trait Insert<M>
 where
     M: Model,
 {
-    async fn insert(&self, value: BaseModel<M>) -> RepositoryResult<BaseModel<M>>;
+    async fn insert(&self, value: M) -> RepositoryResult<BaseModel<M>>;
 }
 
 #[async_trait]
@@ -103,9 +104,9 @@ where
 #[async_trait]
 pub trait Update<M>
 where
-    M: Model,
+    M: Model + Patch,
 {
-    async fn update(&self, value: BaseModel<M>) -> RepositoryResult<BaseModel<M>>;
+    async fn update(&self, id: Uuid, value: M::PatchSchema) -> RepositoryResult<BaseModel<M>>;
 }
 
 #[async_trait]

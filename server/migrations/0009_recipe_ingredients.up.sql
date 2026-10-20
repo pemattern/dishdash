@@ -1,11 +1,11 @@
 CREATE TABLE recipe_ingredients (
-    recipe_id     UUID NOT NULL REFERENCES recipes(id),
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    recipe_id UUID NOT NULL REFERENCES recipes(id),
     ingredient_id UUID NOT NULL REFERENCES ingredients(id),
-    unit          UUID NOT NULL REFERENCES units(id),
-    quantity      NUMERIC(10, 2),
+    unit_id UUID NOT NULL REFERENCES units(id),
+    quantity NUMERIC(10, 2),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    PRIMARY KEY (recipe_id, ingredient_id)
 );
 
 CREATE TRIGGER update_recipe_ingredients_updated_at
