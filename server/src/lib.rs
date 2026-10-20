@@ -11,7 +11,10 @@ pub mod state;
 
 pub async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().compact().init();
-    let state = crate::state::AppState::postgres().await?;
+    let url = std::env::var("DATABASE_URL")?;
+    let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).await?;
+    sqlx::migrate!("./migrations").run(&pool).await?;
+    let state = crate::state::AppState::new(&pool);
     let app = routes::app(state);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     tracing::info!("server successfully started");

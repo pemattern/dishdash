@@ -18,10 +18,10 @@ impl PostgresRepository<RecipeIngredient> {
                 ($1, $2, $3, $4)
             RETURNING *;";
         let recipe_ingredient = sqlx::query_as::<_, BaseModel<RecipeIngredient>>(query)
-            .bind(&recipe_ingredient.recipe_id)
-            .bind(&recipe_ingredient.ingredient_id)
-            .bind(&recipe_ingredient.unit_id)
-            .bind(&recipe_ingredient.quantity)
+            .bind(recipe_ingredient.recipe_id)
+            .bind(recipe_ingredient.ingredient_id)
+            .bind(recipe_ingredient.unit_id)
+            .bind(recipe_ingredient.quantity)
             .fetch_one(&self.pool)
             .await?;
         Ok(recipe_ingredient)
@@ -42,10 +42,10 @@ impl PostgresRepository<RecipeIngredient> {
             WHERE id = $5
             RETURNING *;";
         let recipe_ingredient = sqlx::query_as::<_, BaseModel<RecipeIngredient>>(query)
-            .bind(&recipe_ingredient.recipe_id)
-            .bind(&recipe_ingredient.ingredient_id)
-            .bind(&recipe_ingredient.unit_id)
-            .bind(&recipe_ingredient.quantity)
+            .bind(recipe_ingredient.recipe_id)
+            .bind(recipe_ingredient.ingredient_id)
+            .bind(recipe_ingredient.unit_id)
+            .bind(recipe_ingredient.quantity)
             .bind(id)
             .fetch_one(&self.pool)
             .await?;
