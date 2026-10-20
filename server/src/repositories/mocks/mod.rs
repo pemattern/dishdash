@@ -1,14 +1,13 @@
 mod user;
 
-use async_trait::async_trait;
-use std::sync::{Arc, Mutex};
-use uuid::Uuid;
-
 use crate::{
     error::{RepositoryError, RepositoryResult},
     models::{BaseModel, Model},
     repositories::{DeleteById, Insert, Repository, SelectAll, SelectById},
 };
+use async_trait::async_trait;
+use std::sync::{Arc, Mutex};
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct MockRepository<M>

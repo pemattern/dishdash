@@ -1,9 +1,8 @@
-use sqlx::prelude::FromRow;
-
 use crate::{
     models::{Model, Patch},
     schemas::user::PatchUserRequest,
 };
+use sqlx::prelude::FromRow;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct User {

@@ -1,5 +1,3 @@
-use axum::{Extension, extract::State};
-
 use crate::{
     auth::token::generate_access_token,
     error::AppResult,
@@ -7,6 +5,7 @@ use crate::{
     schemas::token::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
 };
+use axum::{Extension, extract::State};
 
 #[axum::debug_handler]
 #[utoipa::path(post, path = "/auth/login")]

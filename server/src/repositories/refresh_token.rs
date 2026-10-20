@@ -1,11 +1,10 @@
-use async_trait::async_trait;
-use uuid::Uuid;
-
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, refresh_token::RefreshToken},
     repositories::{Insert, PostgresRepository, Repository},
 };
+use async_trait::async_trait;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait RefreshTokenRepository: Repository<RefreshToken> + Insert<RefreshToken> {

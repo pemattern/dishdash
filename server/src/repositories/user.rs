@@ -1,12 +1,11 @@
-use async_trait::async_trait;
-use uuid::Uuid;
-
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, user::User},
     repositories::{Insert, PostgresRepository, Repository, Update},
     schemas::user::PatchUserRequest,
 };
+use async_trait::async_trait;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait UserRepository: Repository<User> + Insert<User> + Update<User> {

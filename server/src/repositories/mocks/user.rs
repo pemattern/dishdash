@@ -1,6 +1,3 @@
-use async_trait::async_trait;
-use uuid::Uuid;
-
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, user::User},
@@ -11,6 +8,8 @@ use crate::{
     },
     schemas::user::PatchUserRequest,
 };
+use async_trait::async_trait;
+use uuid::Uuid;
 
 #[async_trait]
 impl UserRepository for MockRepository<User> {

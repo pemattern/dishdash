@@ -1,6 +1,5 @@
-use sqlx::prelude::FromRow;
-
 use crate::models::Model;
+use sqlx::prelude::FromRow;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct UnitSystem {

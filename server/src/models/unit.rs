@@ -1,7 +1,6 @@
+use crate::models::Model;
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
-
-use crate::models::Model;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct Unit {
