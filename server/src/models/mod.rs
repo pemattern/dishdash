@@ -35,3 +35,20 @@ where
     #[sqlx(flatten)]
     pub model: M,
 }
+
+impl<M> BaseModel<M>
+where
+    M: Model,
+{
+    pub fn new(model: M) -> Self {
+        let id = Uuid::now_v7();
+        let created_at = Utc::now();
+        let updated_at = Utc::now();
+        Self {
+            id,
+            created_at,
+            updated_at,
+            model,
+        }
+    }
+}

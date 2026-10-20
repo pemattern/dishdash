@@ -14,6 +14,7 @@ use axum_extra::{
 };
 
 use crate::{
+    auth::token::get_valid_access_token_claims,
     error::{AppResult, ClientError},
     state::AppState,
 };
@@ -22,17 +23,13 @@ pub const REFRESH_TOKEN_COOKIE: &str = "refresh_token";
 
 #[axum::debug_middleware]
 pub async fn validate_access_token(
-    State(state): State<AppState>,
     header_result: Result<TypedHeader<Authorization<Bearer>>, TypedHeaderRejection>,
     mut request: Request,
     next: Next,
 ) -> AppResult<impl IntoResponse> {
     let authorization_header = header_result.map_err(|_| ClientError::Unauthorized)?;
     let access_token = authorization_header.token();
-    let claims = state
-        .auth_service
-        .get_valid_access_token_claims(access_token)
-        .ok_or(ClientError::Unauthorized)?;
+    let claims = get_valid_access_token_claims(access_token).ok_or(ClientError::Unauthorized)?;
     request.extensions_mut().insert(claims);
     Ok(next.run(request).await)
 }

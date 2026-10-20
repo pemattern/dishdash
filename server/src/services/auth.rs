@@ -1,49 +1,15 @@
-use argon2::{
-    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
-    password_hash::{SaltString, rand_core::OsRng},
-};
-use base64::{Engine, prelude::BASE64_URL_SAFE_NO_PAD};
-use chrono::Utc;
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
-use serde::{Deserialize, Serialize};
-use std::{
-    sync::{Arc, LazyLock},
-    time::Duration,
-};
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
+    auth::{
+        password::{get_hash, is_valid_password},
+        token::generate_refresh_token,
+    },
     error::ServiceResult,
     models::{BaseModel, RefreshToken, User},
     repositories::{refresh_token::RefreshTokenRepository, user::UserRepository},
 };
-
-const ISSUER: &str = "dishdash";
-const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_secs(60 * 15); // 15 minutes
-const KEY_LENGTH: usize = 32;
-
-static ARGON2: LazyLock<Argon2<'static>> = LazyLock::new(Argon2::default);
-static ENCRYPTION_KEY: LazyLock<[u8; KEY_LENGTH]> = LazyLock::new(generate_byte_key::<KEY_LENGTH>);
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: String,
-    pub iss: String,
-    pub exp: usize,
-    pub iat: usize,
-}
-
-impl Claims {
-    pub fn new(user_id: Uuid) -> Self {
-        let now = Utc::now();
-        let access_token_expires_at = now + ACCESS_TOKEN_VALIDITY_DURATION;
-        let sub = user_id.to_string();
-        let exp = access_token_expires_at.timestamp() as usize;
-        let iat = now.timestamp() as usize;
-        let iss = String::from(ISSUER);
-        Self { sub, iss, exp, iat }
-    }
-}
 
 #[derive(Clone)]
 pub struct AuthService {
@@ -75,23 +41,8 @@ impl AuthService {
         Ok(None)
     }
 
-    pub fn generate_access_token(&self, user_id: Uuid) -> ServiceResult<String> {
-        let claims = Claims::new(user_id);
-        let key = EncodingKey::from_secret(&*ENCRYPTION_KEY);
-        Ok(encode(&Header::default(), &claims, &key)?)
-    }
-
-    pub fn get_valid_access_token_claims(&self, access_token: &str) -> Option<Claims> {
-        let key = DecodingKey::from_secret(&*ENCRYPTION_KEY);
-        let mut validation = Validation::new(jsonwebtoken::Algorithm::HS256);
-        validation.set_issuer(&[ISSUER]);
-        decode::<Claims>(access_token, &key, &validation)
-            .ok()
-            .map(|token_data| token_data.claims)
-    }
-
     pub async fn generate_refresh_token_from_login(&self, user_id: Uuid) -> ServiceResult<String> {
-        self.generate_refresh_token(user_id, None).await
+        self.generate_and_insert_refresh_token(user_id, None).await
     }
 
     pub async fn cycle_refresh_token(
@@ -102,8 +53,7 @@ impl AuthService {
             .refresh_token_repository
             .mark_as_used(refresh_token.id)
             .await?;
-
-        self.generate_refresh_token(refresh_token.model.user_id, Some(refresh_token.id))
+        self.generate_and_insert_refresh_token(refresh_token.model.user_id, Some(refresh_token.id))
             .await
     }
 
@@ -118,14 +68,13 @@ impl AuthService {
         Ok(refresh_token)
     }
 
-    async fn generate_refresh_token(
+    async fn generate_and_insert_refresh_token(
         &self,
         user_id: Uuid,
         parent_id: Option<Uuid>,
     ) -> ServiceResult<String> {
-        let opaque_token_bytes = generate_byte_key::<KEY_LENGTH>();
-        let opaque_token_raw = BASE64_URL_SAFE_NO_PAD.encode(opaque_token_bytes);
-        let opaque_token_hash = generate_hash(&opaque_token_raw)?;
+        let opaque_token_raw = generate_refresh_token();
+        let opaque_token_hash = get_hash(&opaque_token_raw)?;
         let refresh_token = self
             .refresh_token_repository
             .insert(user_id, parent_id, opaque_token_hash)
@@ -152,28 +101,4 @@ impl AuthService {
         };
         Ok(None)
     }
-}
-
-fn is_valid_password(password: &str, password_hash: &str) -> bool {
-    if let Ok(parsed_hash) = PasswordHash::new(password_hash)
-        && ARGON2
-            .verify_password(password.as_bytes(), &parsed_hash)
-            .is_ok()
-    {
-        return true;
-    }
-    false
-}
-
-pub fn generate_hash(password: &str) -> ServiceResult<String> {
-    let salt_string = SaltString::generate(&mut OsRng);
-    Ok(ARGON2
-        .hash_password(password.as_bytes(), &salt_string)
-        .map(|hash| hash.to_string())?)
-}
-
-fn generate_byte_key<const N: usize>() -> [u8; N] {
-    let mut key = [0u8; N];
-    getrandom::fill(&mut key).unwrap();
-    key
 }

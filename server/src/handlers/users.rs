@@ -5,12 +5,12 @@ use axum::{
 use uuid::Uuid;
 
 use crate::{
+    auth::token::Claims,
     error::{AppResult, ClientError},
     schemas::user::{
         DeleteUserResponse, GetUserResponse, PatchUserRequest, PatchUserResponse, PostUserRequest,
         PostUserResponse,
     },
-    services::auth::Claims,
     state::AppState,
 };
 

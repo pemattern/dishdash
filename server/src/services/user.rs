@@ -3,6 +3,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
+    auth::password::get_hash,
     error::ServiceResult,
     models::{BaseModel, User},
     repositories::user::UserRepository,
@@ -28,8 +29,7 @@ impl UserService {
     }
 
     pub async fn create_user(&self, user: PostUserRequest) -> ServiceResult<BaseModel<User>> {
-        // TODO: Hash Password
-        let password_hash = user.password;
+        let password_hash = get_hash(&user.password)?;
         Ok(self
             .user_repository
             .insert(user.email, password_hash)
