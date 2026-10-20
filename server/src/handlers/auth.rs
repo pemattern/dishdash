@@ -1,7 +1,7 @@
 use crate::{
     auth::token::generate_access_token,
     error::AppResult,
-    models::{BaseModel, refresh_token::RefreshToken, user::User},
+    models::{refresh_token::RefreshToken, user::User},
     schemas::token::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
 };
@@ -11,7 +11,7 @@ use axum::{Extension, extract::State};
 #[utoipa::path(post, path = "/auth/login")]
 pub async fn login(
     State(state): State<AppState>,
-    Extension(user): Extension<BaseModel<User>>,
+    Extension(user): Extension<User>,
 ) -> AppResult<LoginResponse> {
     let access_token = generate_access_token(user.id)?;
     let refresh_token = state
@@ -25,9 +25,9 @@ pub async fn login(
 #[utoipa::path(post, path = "/auth/refresh")]
 pub async fn refresh(
     State(state): State<AppState>,
-    Extension(refresh_token): Extension<BaseModel<RefreshToken>>,
+    Extension(refresh_token): Extension<RefreshToken>,
 ) -> AppResult<RefreshResponse> {
-    let access_token = generate_access_token(refresh_token.model.user_id)?;
+    let access_token = generate_access_token(refresh_token.user_id)?;
     let composite_refresh_token = state
         .auth_service
         .cycle_refresh_token(&refresh_token)
@@ -39,7 +39,7 @@ pub async fn refresh(
 #[utoipa::path(post, path = "/auth/logout")]
 pub async fn logout(
     State(state): State<AppState>,
-    Extension(refresh_token): Extension<BaseModel<RefreshToken>>,
+    Extension(refresh_token): Extension<RefreshToken>,
 ) -> AppResult<LogoutResponse> {
     let _ = state
         .auth_service

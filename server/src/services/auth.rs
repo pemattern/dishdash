@@ -4,7 +4,7 @@ use crate::{
         token::generate_refresh_token,
     },
     error::ServiceResult,
-    models::{BaseModel, refresh_token::RefreshToken, user::User},
+    models::{refresh_token::RefreshToken, user::User},
     repositories::PostgresRepository,
 };
 use sqlx::PgPool;
@@ -30,9 +30,9 @@ impl AuthService {
         &self,
         email: &str,
         password: &str,
-    ) -> ServiceResult<Option<BaseModel<User>>> {
+    ) -> ServiceResult<Option<User>> {
         if let Some(user) = self.user_repository.select_by_email(email).await?
-            && is_valid_password(password, &user.model.password_hash)
+            && is_valid_password(password, &user.password_hash)
         {
             return Ok(Some(user));
         };
@@ -43,22 +43,19 @@ impl AuthService {
         self.generate_and_insert_refresh_token(user_id, None).await
     }
 
-    pub async fn cycle_refresh_token(
-        &self,
-        refresh_token: &BaseModel<RefreshToken>,
-    ) -> ServiceResult<String> {
+    pub async fn cycle_refresh_token(&self, refresh_token: &RefreshToken) -> ServiceResult<String> {
         let _ = self
             .refresh_token_repository
             .mark_as_used(refresh_token.id)
             .await?;
-        self.generate_and_insert_refresh_token(refresh_token.model.user_id, Some(refresh_token.id))
+        self.generate_and_insert_refresh_token(refresh_token.user_id, Some(refresh_token.id))
             .await
     }
 
     pub async fn mark_refresh_token_as_used(
         &self,
-        refresh_token: &BaseModel<RefreshToken>,
-    ) -> ServiceResult<BaseModel<RefreshToken>> {
+        refresh_token: &RefreshToken,
+    ) -> ServiceResult<RefreshToken> {
         let refresh_token = self
             .refresh_token_repository
             .mark_as_used(refresh_token.id)
@@ -73,8 +70,10 @@ impl AuthService {
     ) -> ServiceResult<String> {
         let opaque_token_raw = generate_refresh_token();
         let opaque_token_hash = get_hash(&opaque_token_raw)?;
-        let refresh_token = RefreshToken::new(user_id, parent_id, opaque_token_hash);
-        let refresh_token = self.refresh_token_repository.insert(refresh_token).await?;
+        let refresh_token = self
+            .refresh_token_repository
+            .insert(user_id, parent_id, opaque_token_hash)
+            .await?;
         let composite_refresh_token = format!("{}.{}", refresh_token.id, opaque_token_raw);
         Ok(composite_refresh_token)
     }
@@ -82,7 +81,7 @@ impl AuthService {
     pub async fn get_valid_refresh_token(
         &self,
         composite_refresh_token: &str,
-    ) -> ServiceResult<Option<BaseModel<RefreshToken>>> {
+    ) -> ServiceResult<Option<RefreshToken>> {
         if let Some((refresh_token_id_raw, opaque_token_raw)) =
             composite_refresh_token.split_once('.')
             && let Ok(refresh_token_id) = Uuid::parse_str(refresh_token_id_raw)
@@ -90,8 +89,8 @@ impl AuthService {
                 .refresh_token_repository
                 .select_by_id(refresh_token_id)
                 .await?
-            && refresh_token.model.is_valid()
-            && is_valid_password(opaque_token_raw, &refresh_token.model.opaque_token_hash)
+            && refresh_token.is_valid()
+            && is_valid_password(opaque_token_raw, &refresh_token.opaque_token_hash)
         {
             return Ok(Some(refresh_token));
         };

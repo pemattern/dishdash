@@ -1,19 +1,15 @@
 use crate::models::Model;
+use chrono::{DateTime, Utc};
 use sqlx::prelude::FromRow;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, FromRow)]
 pub struct User {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub email: String,
     pub password_hash: String,
-}
-
-impl User {
-    pub fn new(email: String, password_hash: String) -> Self {
-        Self {
-            email,
-            password_hash,
-        }
-    }
 }
 
 impl Model for User {

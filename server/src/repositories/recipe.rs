@@ -1,22 +1,14 @@
-use crate::{
-    error::RepositoryResult,
-    models::{BaseModel, recipe::Recipe},
-    repositories::PostgresRepository,
-};
+use crate::{error::RepositoryResult, models::recipe::Recipe, repositories::PostgresRepository};
 use uuid::Uuid;
 
 impl PostgresRepository<Recipe> {
-    pub async fn create(
-        &self,
-        name: String,
-        summary: String,
-    ) -> RepositoryResult<BaseModel<Recipe>> {
+    pub async fn create(&self, name: String, summary: String) -> RepositoryResult<Recipe> {
         let query = "
             INSERT INTO recipes (name, summary)
             VALUES ($1, $2)
             RETURNING *;
         ";
-        let recipe = sqlx::query_as::<_, BaseModel<Recipe>>(query)
+        let recipe = sqlx::query_as::<_, Recipe>(query)
             .bind(&name)
             .bind(&summary)
             .fetch_one(&self.pool)
@@ -29,7 +21,7 @@ impl PostgresRepository<Recipe> {
         id: Uuid,
         name: Option<String>,
         summary: Option<String>,
-    ) -> RepositoryResult<BaseModel<Recipe>> {
+    ) -> RepositoryResult<Recipe> {
         let query = "
             UPDATE recipes
             SET
@@ -38,7 +30,7 @@ impl PostgresRepository<Recipe> {
             WHERE id = $3
             RETURNING *;
         ";
-        let recipe = sqlx::query_as::<_, BaseModel<Recipe>>(query)
+        let recipe = sqlx::query_as::<_, Recipe>(query)
             .bind(&name)
             .bind(&summary)
             .bind(id)
