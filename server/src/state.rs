@@ -1,8 +1,4 @@
-use crate::{
-    models::{refresh_token::RefreshToken, user::User},
-    repositories::PostgresRepository,
-    services::{auth::AuthService, user::UserService},
-};
+use crate::services::{auth::AuthService, user::UserService};
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 
@@ -17,11 +13,8 @@ impl AppState {
         let db_url = db_url_from_envs();
         let pool = PgPoolOptions::new().connect(&db_url).await?;
         sqlx::migrate!("./migrations").run(&pool).await?;
-        let user_repository = PostgresRepository::<User>::new(pool.clone());
-        let refresh_token_repository = PostgresRepository::<RefreshToken>::new(pool.clone());
-        let auth_service =
-            AuthService::new(user_repository.clone(), refresh_token_repository.clone());
-        let user_service = UserService::new(user_repository.clone());
+        let auth_service = AuthService::new(&pool);
+        let user_service = UserService::new(&pool);
         Ok(Self {
             auth_service,
             user_service,

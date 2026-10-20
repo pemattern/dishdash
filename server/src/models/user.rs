@@ -1,7 +1,4 @@
-use crate::{
-    models::{Model, Patch},
-    schemas::user::PatchUserRequest,
-};
+use crate::models::Model;
 use sqlx::prelude::FromRow;
 
 #[derive(Debug, Clone, FromRow)]
@@ -21,8 +18,4 @@ impl User {
 
 impl Model for User {
     const TABLE_NAME: &str = "users";
-}
-
-impl Patch for User {
-    type PatchSchema = PatchUserRequest;
 }

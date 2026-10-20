@@ -1,8 +1,3 @@
-use crate::{
-    models::unit::Unit,
-    repositories::{PostgresRepository, Repository},
-};
+use crate::{models::unit::Unit, repositories::PostgresRepository};
 
-pub trait UnitRepository: Repository<Unit> {}
-
-impl UnitRepository for PostgresRepository<Unit> {}
+impl PostgresRepository<Unit> {}

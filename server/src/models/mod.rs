@@ -8,15 +8,11 @@ pub mod unit_system;
 pub mod user;
 
 use chrono::{DateTime, Utc};
-use sqlx::prelude::FromRow;
+use sqlx::{postgres::PgRow, prelude::FromRow};
 use uuid::Uuid;
 
-pub trait Model: Send + Sync + Unpin + Clone {
+pub trait Model: Send + Sync + Unpin + Clone + for<'a> FromRow<'a, PgRow> {
     const TABLE_NAME: &str;
-}
-
-pub trait Patch {
-    type PatchSchema;
 }
 
 #[derive(Debug, Clone, FromRow)]

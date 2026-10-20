@@ -1,24 +1,13 @@
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, recipe_ingredient::RecipeIngredient},
-    repositories::{Insert, PostgresRepository, Repository, Update},
+    repositories::PostgresRepository,
     schemas::recipe_ingredient::PatchRecipeIngredientRequest,
 };
-use async_trait::async_trait;
 use uuid::Uuid;
 
-#[async_trait]
-pub trait RecipeIngredientRepository:
-    Repository<RecipeIngredient> + Insert<RecipeIngredient> + Update<RecipeIngredient>
-{
-}
-
-#[async_trait]
-impl RecipeIngredientRepository for PostgresRepository<RecipeIngredient> {}
-
-#[async_trait]
-impl Insert<RecipeIngredient> for PostgresRepository<RecipeIngredient> {
-    async fn insert(
+impl PostgresRepository<RecipeIngredient> {
+    pub async fn insert(
         &self,
         recipe_ingredient: RecipeIngredient,
     ) -> RepositoryResult<BaseModel<RecipeIngredient>> {
@@ -37,11 +26,8 @@ impl Insert<RecipeIngredient> for PostgresRepository<RecipeIngredient> {
             .await?;
         Ok(recipe_ingredient)
     }
-}
 
-#[async_trait]
-impl Update<RecipeIngredient> for PostgresRepository<RecipeIngredient> {
-    async fn update(
+    pub async fn update(
         &self,
         id: Uuid,
         recipe_ingredient: PatchRecipeIngredientRequest,

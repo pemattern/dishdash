@@ -1,25 +1,16 @@
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, recipe::Recipe},
-    repositories::{PostgresRepository, Repository},
+    repositories::PostgresRepository,
 };
-use async_trait::async_trait;
 use uuid::Uuid;
 
-#[async_trait]
-pub trait RecipeRepository: Repository<Recipe> {
-    async fn create(&self, name: String, summary: String) -> RepositoryResult<BaseModel<Recipe>>;
-    async fn update(
+impl PostgresRepository<Recipe> {
+    pub async fn create(
         &self,
-        id: Uuid,
-        name: Option<String>,
-        summary: Option<String>,
-    ) -> RepositoryResult<BaseModel<Recipe>>;
-}
-
-#[async_trait]
-impl RecipeRepository for PostgresRepository<Recipe> {
-    async fn create(&self, name: String, summary: String) -> RepositoryResult<BaseModel<Recipe>> {
+        name: String,
+        summary: String,
+    ) -> RepositoryResult<BaseModel<Recipe>> {
         let query = "
             INSERT INTO recipes (name, summary)
             VALUES ($1, $2)
@@ -33,7 +24,7 @@ impl RecipeRepository for PostgresRepository<Recipe> {
         Ok(recipe)
     }
 
-    async fn update(
+    pub async fn update(
         &self,
         id: Uuid,
         name: Option<String>,

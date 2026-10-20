@@ -1,7 +1,4 @@
-use crate::{
-    models::{Model, Patch},
-    schemas::recipe_ingredient::PatchRecipeIngredientRequest,
-};
+use crate::models::Model;
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
@@ -15,8 +12,4 @@ pub struct RecipeIngredient {
 
 impl Model for RecipeIngredient {
     const TABLE_NAME: &str = "recipe_ingredients";
-}
-
-impl Patch for RecipeIngredient {
-    type PatchSchema = PatchRecipeIngredientRequest;
 }

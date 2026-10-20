@@ -5,22 +5,21 @@ use crate::{
     },
     error::ServiceResult,
     models::{BaseModel, refresh_token::RefreshToken, user::User},
-    repositories::{refresh_token::RefreshTokenRepository, user::UserRepository},
+    repositories::PostgresRepository,
 };
-use std::sync::Arc;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct AuthService {
-    user_repository: Arc<dyn UserRepository>,
-    refresh_token_repository: Arc<dyn RefreshTokenRepository>,
+    user_repository: PostgresRepository<User>,
+    refresh_token_repository: PostgresRepository<RefreshToken>,
 }
 
 impl AuthService {
-    pub fn new(
-        user_repository: Arc<dyn UserRepository>,
-        refresh_token_repository: Arc<dyn RefreshTokenRepository>,
-    ) -> Self {
+    pub fn new(pool: &PgPool) -> Self {
+        let user_repository = PostgresRepository::<User>::new(pool.clone());
+        let refresh_token_repository = PostgresRepository::<RefreshToken>::new(pool.clone());
         Self {
             user_repository,
             refresh_token_repository,

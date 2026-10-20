@@ -1,20 +1,13 @@
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, user::User},
-    repositories::{Insert, PostgresRepository, Repository, Update},
+    repositories::PostgresRepository,
     schemas::user::PatchUserRequest,
 };
-use async_trait::async_trait;
 use uuid::Uuid;
 
-#[async_trait]
-pub trait UserRepository: Repository<User> + Insert<User> + Update<User> {
-    async fn select_by_email(&self, email: &str) -> RepositoryResult<Option<BaseModel<User>>>;
-}
-
-#[async_trait]
-impl UserRepository for PostgresRepository<User> {
-    async fn select_by_email(&self, email: &str) -> RepositoryResult<Option<BaseModel<User>>> {
+impl PostgresRepository<User> {
+    pub async fn select_by_email(&self, email: &str) -> RepositoryResult<Option<BaseModel<User>>> {
         let query = "
             SELECT * FROM users
             WHERE email = $1;";
@@ -24,11 +17,8 @@ impl UserRepository for PostgresRepository<User> {
             .await?;
         Ok(user)
     }
-}
 
-#[async_trait]
-impl Insert<User> for PostgresRepository<User> {
-    async fn insert(&self, user: User) -> RepositoryResult<BaseModel<User>> {
+    pub async fn insert(&self, user: User) -> RepositoryResult<BaseModel<User>> {
         let query = "
             INSERT INTO users (email, password_hash)
             VALUES ($1, $2)
@@ -40,11 +30,12 @@ impl Insert<User> for PostgresRepository<User> {
             .await?;
         Ok(user)
     }
-}
 
-#[async_trait]
-impl Update<User> for PostgresRepository<User> {
-    async fn update(&self, id: Uuid, user: PatchUserRequest) -> RepositoryResult<BaseModel<User>> {
+    pub async fn update(
+        &self,
+        id: Uuid,
+        user: PatchUserRequest,
+    ) -> RepositoryResult<BaseModel<User>> {
         let query = "
             UPDATE users
             SET

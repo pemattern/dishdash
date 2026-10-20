@@ -1,19 +1,12 @@
 use crate::{
     error::RepositoryResult,
     models::{BaseModel, refresh_token::RefreshToken},
-    repositories::{Insert, PostgresRepository, Repository},
+    repositories::PostgresRepository,
 };
-use async_trait::async_trait;
 use uuid::Uuid;
 
-#[async_trait]
-pub trait RefreshTokenRepository: Repository<RefreshToken> + Insert<RefreshToken> {
-    async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<BaseModel<RefreshToken>>;
-}
-
-#[async_trait]
-impl RefreshTokenRepository for PostgresRepository<RefreshToken> {
-    async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<BaseModel<RefreshToken>> {
+impl PostgresRepository<RefreshToken> {
+    pub async fn mark_as_used(&self, id: Uuid) -> RepositoryResult<BaseModel<RefreshToken>> {
         let query = "
             UPDATE refresh_tokens
             SET is_used = true
@@ -25,11 +18,8 @@ impl RefreshTokenRepository for PostgresRepository<RefreshToken> {
             .await?;
         Ok(refresh_token)
     }
-}
 
-#[async_trait]
-impl Insert<RefreshToken> for PostgresRepository<RefreshToken> {
-    async fn insert(
+    pub async fn insert(
         &self,
         refresh_token: RefreshToken,
     ) -> RepositoryResult<BaseModel<RefreshToken>> {

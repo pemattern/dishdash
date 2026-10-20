@@ -2,19 +2,20 @@ use crate::{
     auth::password::get_hash,
     error::ServiceResult,
     models::{BaseModel, user::User},
-    repositories::user::UserRepository,
+    repositories::PostgresRepository,
     schemas::user::{PatchUserRequest, PostUserRequest},
 };
-use std::sync::Arc;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct UserService {
-    user_repository: Arc<dyn UserRepository>,
+    user_repository: PostgresRepository<User>,
 }
 
 impl UserService {
-    pub fn new(user_repository: Arc<dyn UserRepository>) -> Self {
+    pub fn new(pool: &PgPool) -> Self {
+        let user_repository = PostgresRepository::<User>::new(pool.clone());
         Self { user_repository }
     }
 

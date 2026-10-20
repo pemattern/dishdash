@@ -1,8 +1,3 @@
-use crate::{
-    models::physical_quantity::PhysicalQuantity,
-    repositories::{PostgresRepository, Repository},
-};
+use crate::{models::physical_quantity::PhysicalQuantity, repositories::PostgresRepository};
 
-pub trait PhysicalQuantityRepository: Repository<PhysicalQuantity> {}
-
-impl PhysicalQuantityRepository for PostgresRepository<PhysicalQuantity> {}
+impl PostgresRepository<PhysicalQuantity> {}
