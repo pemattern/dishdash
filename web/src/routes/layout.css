@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-*: initial;
+  --color-white: #fcfcfe;
+  --color-black: #3a3a3a;
+  --color-dark-gray: #3d3f44;
+  --color-gray: #dddddd;
+  --color-light-gray: #f8f8fe;
+  --color-dark-blue: #4250af;
+  --color-blue: #accbfa;
+  --color-light-blue: #bddcff;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  :focus {
+    @apply ring-offset-0 ring-0 outline-2 outline-blue outline-offset-2;
+  }
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./assets/fonts/Inter/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./assets/fonts/Inter/Inter-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./assets/fonts/JetBrainsMono/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./assets/fonts/JetBrainsMono/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

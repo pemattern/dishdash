@@ -101,6 +101,7 @@ fn access_token_auth_router(state: AppState) -> Router<AppState> {
 }
 
 fn web_service() -> ServeDir<ServeFile> {
+    // TODO: middleware that sets cache headers
     ServeDir::new(STATIC_ASSETS_PATH).fallback(ServeFile::new(INDEX_HTML_PATH))
 }
 
