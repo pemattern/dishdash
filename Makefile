@@ -1,14 +1,11 @@
-dev:
-	docker compose --file docker/docker-compose.dev.yml up --build --remove-orphans
+include .env
+export
 
-dev-down:
-	docker compose --file docker/docker-compose.dev.yml down
-
-prod:
-	docker compose --file docker/docker-compose.yml up --build --remove-orphans --detach
-
-prod-down:
-	docker compose --file docker/docker-compose.yml down
+.PHONY: db-connect db-reset
 
 db-connect:
-	psql -h localhost -p 5432 -U postgres -d postgres
+	psql "$$DATABASE_URL"
+
+db-reset:
+	psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
+	sqlx migrate run --source server/migrations

@@ -1,45 +1,48 @@
+use sqlx::PgPool;
+use uuid::Uuid;
+
 use crate::{
     auth::password::get_hash,
     error::ServiceResult,
     models::user::User,
-    repositories::PostgresRepository,
+    repositories::users::Users,
     schemas::user::{PatchUserRequest, PostUserRequest},
 };
-use sqlx::PgPool;
-use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct UserService {
-    user_repository: PostgresRepository<User>,
+pub struct PostgresService {
+    pool: PgPool,
 }
 
-impl UserService {
+impl PostgresService {
     pub fn new(pool: &PgPool) -> Self {
-        let user_repository = PostgresRepository::<User>::new(pool.clone());
-        Self { user_repository }
+        let pool = pool.clone();
+        Self { pool }
     }
 
     pub async fn find_user_by_id(&self, id: Uuid) -> ServiceResult<Option<User>> {
-        Ok(self.user_repository.select_by_id(id).await?)
+        let user = Users::select_by_id(&self.pool, id).await?;
+        Ok(user)
     }
 
     pub async fn find_user_by_email(&self, email: &str) -> ServiceResult<Option<User>> {
-        Ok(self.user_repository.select_by_email(email).await?)
+        let user = Users::select_by_email(&self.pool, email).await?;
+        Ok(user)
     }
 
     pub async fn create_user(&self, user: PostUserRequest) -> ServiceResult<User> {
         let password_hash = get_hash(&user.password)?;
-        Ok(self
-            .user_repository
-            .insert(user.email, password_hash)
-            .await?)
+        let user = Users::insert(&self.pool, &user.email, &password_hash).await?;
+        Ok(user)
     }
 
     pub async fn update_user(&self, id: Uuid, user: PatchUserRequest) -> ServiceResult<User> {
-        Ok(self.user_repository.update(id, user).await?)
+        let user = Users::update(&self.pool, id, user).await?;
+        Ok(user)
     }
 
     pub async fn delete_user(&self, id: Uuid) -> ServiceResult<User> {
-        Ok(self.user_repository.delete_by_id(id).await?)
+        let user = Users::delete_by_id(&self.pool, id).await?;
+        Ok(user)
     }
 }

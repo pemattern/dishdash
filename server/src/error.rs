@@ -54,6 +54,7 @@ impl IntoResponse for ClientError {
 #[derive(Debug)]
 pub enum ServiceError {
     Repository(RepositoryError),
+    Sqlx(sqlx::Error),
     Hash(argon2::password_hash::Error),
     Token(jsonwebtoken::errors::Error),
     Uuid(uuid::Error),
@@ -72,6 +73,12 @@ impl IntoResponse for ServiceError {
 impl From<RepositoryError> for ServiceError {
     fn from(value: RepositoryError) -> Self {
         Self::Repository(value)
+    }
+}
+
+impl From<sqlx::Error> for ServiceError {
+    fn from(value: sqlx::Error) -> Self {
+        Self::Sqlx(value)
     }
 }
 

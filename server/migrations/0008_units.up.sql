@@ -4,7 +4,7 @@ CREATE TABLE units (
     unit_system_id UUID NOT NULL REFERENCES unit_systems(id) ON DELETE CASCADE,
     name TEXT UNIQUE NOT NULL,
     symbol TEXT NOT NULL,
-    si_factor NUMERIC NOT NULL CHECK (si_factor > 0),
+    si_factor FLOAT8 NOT NULL CHECK (si_factor > 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

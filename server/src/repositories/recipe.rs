@@ -1,7 +1,9 @@
-use crate::{error::RepositoryResult, models::recipe::Recipe, repositories::PostgresRepository};
+use crate::{error::RepositoryResult, models::recipe::Recipe};
 use uuid::Uuid;
 
-impl PostgresRepository<Recipe> {
+pub struct Recipes;
+
+impl Recipes {
     pub async fn create(&self, name: String, summary: String) -> RepositoryResult<Recipe> {
         let query = "
             INSERT INTO recipes (name, summary)
