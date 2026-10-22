@@ -36,7 +36,7 @@ impl Users {
             VALUES ($1, $2)
             RETURNING *;",
             email,
-            password_hash
+            password_hash,
         )
         .fetch_one(executor)
         .await?;
@@ -55,7 +55,7 @@ impl Users {
             WHERE id = $2
             RETURNING *;",
             user.email,
-            id
+            id,
         )
         .fetch_one(executor)
         .await?;

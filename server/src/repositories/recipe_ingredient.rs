@@ -20,7 +20,7 @@ impl RecipeIngredients {
             recipe_id,
             ingredient_id,
             unit_id,
-            quantity
+            quantity,
         )
         .fetch_one(executor)
         .await?;

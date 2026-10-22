@@ -13,7 +13,7 @@ impl RefreshTokens {
             RefreshToken,
             "SELECT * FROM refresh_tokens
             WHERE id = $1;",
-            id
+            id,
         )
         .fetch_optional(executor)
         .await?;
@@ -30,7 +30,7 @@ impl RefreshTokens {
             SET is_used = true
             WHERE id = $1
             RETURNING *;",
-            id
+            id,
         )
         .fetch_one(executor)
         .await?;
@@ -50,7 +50,7 @@ impl RefreshTokens {
             RETURNING *;",
             user_id,
             parent_id,
-            opaque_token_hash
+            opaque_token_hash,
         )
         .fetch_one(executor)
         .await?;

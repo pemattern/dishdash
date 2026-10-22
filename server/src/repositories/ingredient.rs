@@ -1,33 +1,43 @@
-use crate::{
-    error::RepositoryResult, models::ingredient::Ingredient, repositories::PostgresRepository,
-};
+use crate::{error::RepositoryResult, models::ingredient::Ingredient};
+use sqlx::PgExecutor;
 use uuid::Uuid;
 
-impl PostgresRepository<Ingredient> {
-    pub async fn create(&self, name: String) -> RepositoryResult<Ingredient> {
-        let query = "
-            INSERT INTO ingredients (name)
+pub struct Ingredients;
+
+impl Ingredients {
+    pub async fn create<'a>(
+        executor: impl PgExecutor<'a>,
+        name: String,
+    ) -> RepositoryResult<Ingredient> {
+        let ingredient = sqlx::query_as!(
+            Ingredient,
+            "INSERT INTO ingredients (name)
             VALUES ($1)
-            RETURNING *;";
-        let ingredient = sqlx::query_as::<_, Ingredient>(query)
-            .bind(&name)
-            .fetch_one(&self.pool)
-            .await?;
+            RETURNING *;",
+            name,
+        )
+        .fetch_one(executor)
+        .await?;
         Ok(ingredient)
     }
 
-    pub async fn update(&self, id: Uuid, name: Option<String>) -> RepositoryResult<Ingredient> {
-        let query = "
-            UPDATE ingredients
+    pub async fn update<'a>(
+        executor: impl PgExecutor<'a>,
+        id: Uuid,
+        name: Option<String>,
+    ) -> RepositoryResult<Ingredient> {
+        let ingredient = sqlx::query_as!(
+            Ingredient,
+            "UPDATE ingredients
             SET
-                name = COALESCE($1, name),
+                name = COALESCE($1, name)
             WHERE id = $2
-            RETURNING *;";
-        let ingredient = sqlx::query_as::<_, Ingredient>(query)
-            .bind(&name)
-            .bind(id)
-            .fetch_one(&self.pool)
-            .await?;
+            RETURNING *;",
+            name,
+            id,
+        )
+        .fetch_one(executor)
+        .await?;
         Ok(ingredient)
     }
 }
