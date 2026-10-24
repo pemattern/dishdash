@@ -30,7 +30,6 @@ export const auth = {
 
 		try {
 			const credentials = btoa(`${email}:${password}`);
-
 			const response = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: {
@@ -38,13 +37,10 @@ export const auth = {
 				},
 				credentials: 'include'
 			});
-
 			if (!response.ok) {
 				throw new Error(response.status === 401 ? 'Invalid email or password' : 'Login failed');
 			}
-
 			const data: LoginResponse = await response.json();
-
 			accessToken = data.accessToken;
 			user = data.user;
 		} finally {
