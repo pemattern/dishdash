@@ -1,7 +1,10 @@
 include .env
 export
 
-.PHONY: db-connect db-reset
+.PHONY: dev db-connect db-reset
+
+dev:
+	npm run dev
 
 db-connect:
 	psql "$$DATABASE_URL"

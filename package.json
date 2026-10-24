@@ -1,0 +1,14 @@
+{
+  "name": "dishdash-monorepo",
+  "version": "1.0.0",
+  "description": "shares tooling across the workspace",
+  "scripts": {
+    "dev": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm run dev --prefix web\" \"cargo run --manifest-path server/Cargo.toml\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6",
+    "prettier": "^3.9.10",
+    "prettier-plugin-svelte": "^4.1.1",
+    "prettier-plugin-tailwindcss": "^0.8.1"
+  }
+}

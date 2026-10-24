@@ -2,4 +2,6 @@
 **/target/
 **/dist/
 .env
-*.iso
+node_modules
+.vscode
+build

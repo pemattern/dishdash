@@ -12,9 +12,17 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-      adapter: adapter({
-        fallback: 'index.html'
+			adapter: adapter({
+				fallback: 'index.html'
 			})
 		})
-	]
+	],
+	server: {
+		proxy: {
+			'/api': {
+				target: 'http://0.0.0.0:3000',
+				changeOrigin: true
+			}
+		}
+	}
 });
