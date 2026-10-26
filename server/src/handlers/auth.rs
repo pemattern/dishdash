@@ -1,6 +1,6 @@
 use crate::{
     auth::token::generate_access_token,
-    error::AppResult,
+    error::{AppResult, ClientError},
     models::{refresh_token::RefreshToken, user::User},
     schemas::token::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
@@ -18,7 +18,7 @@ pub async fn login(
         .auth_service
         .generate_refresh_token_from_login(user.id)
         .await?;
-    Ok(LoginResponse::new(access_token, refresh_token))
+    Ok(LoginResponse::new(access_token, refresh_token, user))
 }
 
 #[axum::debug_handler]
@@ -27,12 +27,21 @@ pub async fn refresh(
     State(state): State<AppState>,
     Extension(refresh_token): Extension<RefreshToken>,
 ) -> AppResult<RefreshResponse> {
+    let user = state
+        .postgres_service
+        .find_user_by_id(refresh_token.user_id)
+        .await?
+        .ok_or(ClientError::Unauthorized)?;
     let access_token = generate_access_token(refresh_token.user_id)?;
     let composite_refresh_token = state
         .auth_service
         .cycle_refresh_token(&refresh_token)
         .await?;
-    Ok(RefreshResponse::new(access_token, composite_refresh_token))
+    Ok(RefreshResponse::new(
+        access_token,
+        composite_refresh_token,
+        user,
+    ))
 }
 
 #[axum::debug_handler]
