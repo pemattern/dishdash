@@ -29,8 +29,8 @@ const LOGOUT_PATH: &str = "/logout";
 const REFRESH_PATH: &str = "/refresh";
 const USERS_PATH: &str = "/users";
 
-const STATIC_ASSETS_PATH: &str = "/web/dist";
-const INDEX_HTML_PATH: &str = "/web/dist/index.html";
+const STATIC_ASSETS_PATH: &str = "web/build";
+const INDEX_HTML: &str = "/index.html";
 
 pub fn app(state: AppState) -> Router {
     Router::new()
@@ -102,7 +102,8 @@ fn access_token_auth_router(state: AppState) -> Router<AppState> {
 
 fn web_service() -> ServeDir<ServeFile> {
     // TODO: middleware that sets cache headers
-    ServeDir::new(STATIC_ASSETS_PATH).fallback(ServeFile::new(INDEX_HTML_PATH))
+    let index_html_path = format!("{}{}", STATIC_ASSETS_PATH, INDEX_HTML);
+    ServeDir::new(STATIC_ASSETS_PATH).fallback(ServeFile::new(index_html_path))
 }
 
 async fn method_not_allowed_fallback() -> AppResult<()> {

@@ -11,6 +11,7 @@ pub mod state;
 
 pub async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().compact().init();
+    dotenvy::dotenv()?;
     let url = std::env::var("DATABASE_URL")?;
     let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;

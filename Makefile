@@ -1,10 +1,16 @@
 include .env
 export
 
-.PHONY: dev db-connect db-reset
+.PHONY: dev dev-setup prod db-connect db-reset
 
 dev:
 	npm run dev
+
+dev-setup:
+	npm install && cargo install sqlx-cli --no-default-features --features native-tls,postgres && cd web && npm install
+
+prod:
+	npm run prod
 
 db-connect:
 	psql "$$DATABASE_URL"

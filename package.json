@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "shares tooling across the workspace",
   "scripts": {
-    "dev": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm run dev --prefix web\" \"cargo run --manifest-path server/Cargo.toml\""
+    "dev": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm --prefix web run dev\" \"cargo run -p server\"",
+    "prod": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm --prefix web run build\" \"cargo run --release -p server\""
   },
   "devDependencies": {
     "concurrently": "^10.0.6",
