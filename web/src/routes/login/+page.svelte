@@ -1,8 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { auth, Input } from '#lib';
+	import { auth, Input, routes } from '#lib';
 	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
 
+	onMount(() => {
+		void checkAuth();
+	});
+
+	async function checkAuth() {
+		await auth.refresh();
+		if (!auth.user) {
+			return;
+		}
+		await goto(resolve(routes.home));
+	}
 	let email = $state('');
 	let password = $state('');
 	let error = $state('');
@@ -13,7 +25,7 @@
 
 		try {
 			await auth.login(email, password);
-     	    await goto(resolve('/'));
+			await goto(resolve(routes.home));
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Something went wrong';
 		}
@@ -33,7 +45,7 @@
 					<Input name="email" type="text" placeholder="E-Mail" bind:value={email} />
 					<Input name="password" type="password" placeholder="Password" bind:value={password} />
 					<div class="flex justify-end text-xs text-dark-blue hover:underline">
-						<a href={resolve('/')} class="rounded-sm"> "Forgot your password?" </a>
+						<a href={resolve(routes.home)} class="rounded-sm"> "Forgot your password?" </a>
 					</div>
 					<input
 						class="mt-1 cursor-pointer rounded-sm bg-blue py-1 text-dark-gray hover:bg-light-blue"
