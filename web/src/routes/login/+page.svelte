@@ -45,7 +45,7 @@
 					<Input name="email" type="text" placeholder="E-Mail" bind:value={email} />
 					<Input name="password" type="password" placeholder="Password" bind:value={password} />
 					<div class="flex justify-end text-xs text-dark-blue hover:underline">
-						<a href={resolve(routes.home)} class="rounded-sm"> "Forgot your password?" </a>
+						<a href={resolve(routes.home)} class="rounded-sm">Forgot your password?</a>
 					</div>
 					<input
 						class="mt-1 cursor-pointer rounded-sm bg-blue py-1 text-dark-gray hover:bg-light-blue"

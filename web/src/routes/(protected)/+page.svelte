@@ -1,5 +1,1 @@
-<script>
-	import { Navbar } from '#lib';
-</script>
-
-<Navbar />
+<p>Home</p>
