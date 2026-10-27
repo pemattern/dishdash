@@ -26,7 +26,7 @@
 		<Navbar />
 		<div class="flex w-full flex-1 flex-col">
 			<HeaderBar />
-			<main class="m-4 rounded-md bg-white p-4 shadow-xl">
+			<main class="m-4 rounded-md bg-white p-4 font-serif text-xl shadow-xl">
 				{@render children()}
 			</main>
 		</div>
