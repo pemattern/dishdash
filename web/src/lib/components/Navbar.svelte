@@ -35,7 +35,7 @@
 	}
 </script>
 
-<nav class="h-screen w-64">
+<nav class="h-screen w-56">
 	<Logo />
 	<div class="flex flex-col gap-y-2">
 		{#each navbarData as group (group.header)}
