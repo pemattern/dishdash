@@ -39,7 +39,7 @@
 		<div class="h-full w-full bg-radial from-transparent to-white">
 			<div class="flex h-screen items-center justify-center">
 				<form
-					class="flex flex-col gap-y-1 rounded-lg bg-white p-4 shadow-xl"
+					class="flex flex-col gap-y-4 rounded-lg bg-white p-4 shadow-xl"
 					onsubmit={handleSubmit}
 				>
 					<Input name="email" type="text" placeholder="E-Mail" bind:value={email} />
@@ -48,11 +48,13 @@
 						<a href={resolve(routes.home)} class="rounded-sm">Forgot your password?</a>
 					</div>
 					<input
-						class="mt-1 cursor-pointer rounded-sm bg-blue py-1 text-dark-gray hover:bg-light-blue"
+						class="cursor-pointer rounded-sm bg-blue py-2 text-dark-gray hover:bg-light-blue"
 						type="submit"
 						value="Submit"
 					/>
-					<p>{error}</p>
+					{#if error}
+					    <p>{error}</p>
+					{/if}
 				</form>
 			</div>
 		</div>

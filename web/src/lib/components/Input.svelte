@@ -20,6 +20,6 @@
 		{type}
 		{placeholder}
 		bind:value
-		class="mt-1 rounded-md border border-gray px-2 py-1"
+		class="rounded-md border border-gray px-2 py-2"
 	/>
 </div>
