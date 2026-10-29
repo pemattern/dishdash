@@ -15,6 +15,14 @@ impl Ingredients {
             .await?;
         Ok(user)
     }
+    pub async fn select_all<'a>(
+        executor: impl PgExecutor<'a>,
+    ) -> RepositoryResult<Vec<Ingredient>> {
+        let unit_systems = sqlx::query_as!(Ingredient, "SELECT * FROM ingredients;")
+            .fetch_all(executor)
+            .await?;
+        Ok(unit_systems)
+    }
 
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,

@@ -14,7 +14,7 @@ pub fn router() -> Router<AppState> {
     Router::new().nest(
         USERS_PATH,
         Router::new()
-            .route("", post(post_user))
+            .route("/", post(post_user))
             .route("/me", get(get_me))
             .route(
                 "/{uuid}",

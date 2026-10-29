@@ -24,6 +24,11 @@ impl IngredientService {
         Ok(ingredient)
     }
 
+    pub async fn all_ingredients(&self) -> ServiceResult<Vec<Ingredient>> {
+        let ingredients = Ingredients::select_all(&self.pool).await?;
+        Ok(ingredients)
+    }
+
     pub async fn create_ingredient(
         &self,
         ingredient: PostIngredientRequest,

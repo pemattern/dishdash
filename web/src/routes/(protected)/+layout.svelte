@@ -8,22 +8,27 @@
 	import { routes } from '#lib/const/routes.ts';
 	import Navbar from '#lib/components/Navbar.svelte';
 
-	onMount(() => {
-		void checkAuth();
-	});
+	let loading = $state(true);
 
-	async function checkAuth() {
-		await auth.refresh();
-		if (auth.user) {
-			return;
+	onMount(async () => {
+		try {
+			if (!auth.accessToken) {
+				await auth.refresh();
+			}
+
+			if (!auth.accessToken) {
+				await goto(resolve(routes.login), { replace: true });
+				return;
+			}
+		} finally {
+			loading = false;
 		}
-		await goto(resolve(routes.login));
-	}
+	});
 </script>
 
-{#if !auth.user}
-	<div>Checking your session…</div>
-{:else if auth.user}
+{#if loading}
+	<div>authenticating…</div>
+{:else if auth.accessToken}
 	<div class="flex bg-light-gray">
 		<Navbar />
 		<div class="flex w-full flex-1 flex-col">

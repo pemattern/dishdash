@@ -8,12 +8,12 @@ use crate::{
     state::AppState,
 };
 
-const INGREDIENTS_PATH: &str = "/users";
+const INGREDIENTS_PATH: &str = "/ingredients";
 
 pub fn router() -> Router<AppState> {
     Router::new().nest(
         INGREDIENTS_PATH,
-        Router::new().route("", post(post_ingredient)).route(
+        Router::new().route("/", post(post_ingredient)).route(
             "/{uuid}",
             get(get_ingredient)
                 .patch(patch_ingredient)

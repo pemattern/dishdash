@@ -8,7 +8,7 @@ use crate::{
     auth::token::Claims,
     error::{AppResult, ClientError},
     schemas::{
-        DeleteResponse, GetResponse, PatchResponse, PostResponse,
+        DeleteResponse, GetOneResponse, PatchResponse, PostResponse,
         user::{PatchUserRequest, PostUserRequest, UserResponse},
     },
     state::AppState,
@@ -18,7 +18,7 @@ use crate::{
 pub async fn get_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> AppResult<GetResponse<UserResponse>> {
+) -> AppResult<GetOneResponse<UserResponse>> {
     let user = state
         .user_service
         .find_user_by_id(id)
@@ -31,7 +31,7 @@ pub async fn get_user(
 pub async fn get_me(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
-) -> AppResult<GetResponse<UserResponse>> {
+) -> AppResult<GetOneResponse<UserResponse>> {
     let id = Uuid::parse_str(&claims.sub).unwrap();
     let user = state
         .user_service

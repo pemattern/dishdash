@@ -12,9 +12,6 @@
 
 	async function checkAuth() {
 		await auth.refresh();
-		if (!auth.user) {
-			return;
-		}
 		await goto(resolve(routes.home));
 	}
 	let email = $state('');

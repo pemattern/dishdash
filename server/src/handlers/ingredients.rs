@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     error::{AppResult, ClientError},
     schemas::{
-        DeleteResponse, GetResponse, PatchResponse, PostResponse,
+        DeleteResponse, GetManyResponse, GetOneResponse, PatchResponse, PostResponse,
         ingredient::{IngredientResponse, PatchIngredientRequest, PostIngredientRequest},
     },
     state::AppState,
@@ -17,13 +17,21 @@ use crate::{
 pub async fn get_ingredient(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> AppResult<GetResponse<IngredientResponse>> {
+) -> AppResult<GetOneResponse<IngredientResponse>> {
     let ingredient = state
         .ingredient_service
         .find_ingredient_by_id(id)
         .await?
         .ok_or(ClientError::NotFound)?;
     Ok(ingredient.into())
+}
+
+#[axum::debug_handler]
+pub async fn get_all_ingredients(
+    State(state): State<AppState>,
+) -> AppResult<GetManyResponse<IngredientResponse>> {
+    let ingredients = state.ingredient_service.all_ingredients().await?;
+    Ok(ingredients.into())
 }
 
 #[axum::debug_handler]
