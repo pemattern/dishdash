@@ -7,12 +7,17 @@ use axum::{
     routing::{get, post},
 };
 
+const USERS_PATH: &str = "/users";
+
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/", post(post_user))
-        .route("/me", get(get_me))
-        .route(
-            "/{uuid}",
-            get(get_user).patch(patch_user).delete(delete_user),
-        )
+    Router::new().nest(
+        USERS_PATH,
+        Router::new()
+            .route("", post(post_user))
+            .route("/me", get(get_me))
+            .route(
+                "/{uuid}",
+                get(get_user).patch(patch_user).delete(delete_user),
+            ),
+    )
 }

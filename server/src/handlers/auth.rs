@@ -1,14 +1,13 @@
 use crate::{
     auth::token::generate_access_token,
-    error::{AppResult, ClientError},
+    error::AppResult,
     models::{refresh_token::RefreshToken, user::User},
-    schemas::token::{LoginResponse, LogoutResponse, RefreshResponse},
+    schemas::auth::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
 };
 use axum::{Extension, extract::State};
 
 #[axum::debug_handler]
-#[utoipa::path(post, path = "/auth/login")]
 pub async fn login(
     State(state): State<AppState>,
     Extension(user): Extension<User>,
@@ -18,34 +17,23 @@ pub async fn login(
         .auth_service
         .generate_refresh_token_from_login(user.id)
         .await?;
-    Ok(LoginResponse::new(access_token, refresh_token, user))
+    Ok(LoginResponse::new(access_token, refresh_token))
 }
 
 #[axum::debug_handler]
-#[utoipa::path(post, path = "/auth/refresh")]
 pub async fn refresh(
     State(state): State<AppState>,
     Extension(refresh_token): Extension<RefreshToken>,
 ) -> AppResult<RefreshResponse> {
-    let user = state
-        .postgres_service
-        .find_user_by_id(refresh_token.user_id)
-        .await?
-        .ok_or(ClientError::Unauthorized)?;
     let access_token = generate_access_token(refresh_token.user_id)?;
     let composite_refresh_token = state
         .auth_service
         .cycle_refresh_token(&refresh_token)
         .await?;
-    Ok(RefreshResponse::new(
-        access_token,
-        composite_refresh_token,
-        user,
-    ))
+    Ok(RefreshResponse::new(access_token, composite_refresh_token))
 }
 
 #[axum::debug_handler]
-#[utoipa::path(post, path = "/auth/logout")]
 pub async fn logout(
     State(state): State<AppState>,
     Extension(refresh_token): Extension<RefreshToken>,

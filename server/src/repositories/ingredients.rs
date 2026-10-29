@@ -5,7 +5,17 @@ use uuid::Uuid;
 pub struct Ingredients;
 
 impl Ingredients {
-    pub async fn create<'a>(
+    pub async fn select_by_id<'a>(
+        executor: impl PgExecutor<'a>,
+        id: Uuid,
+    ) -> RepositoryResult<Option<Ingredient>> {
+        let user = sqlx::query_as!(Ingredient, "SELECT * FROM ingredients WHERE id = $1;", id)
+            .fetch_optional(executor)
+            .await?;
+        Ok(user)
+    }
+
+    pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
         name: String,
     ) -> RepositoryResult<Ingredient> {
@@ -39,5 +49,19 @@ impl Ingredients {
         .fetch_one(executor)
         .await?;
         Ok(ingredient)
+    }
+
+    pub async fn delete_by_id<'a>(
+        executor: impl PgExecutor<'a>,
+        id: Uuid,
+    ) -> RepositoryResult<Ingredient> {
+        let user = sqlx::query_as!(
+            Ingredient,
+            "DELETE FROM ingredients WHERE id = $1 RETURNING *;",
+            id
+        )
+        .fetch_one(executor)
+        .await?;
+        Ok(user)
     }
 }

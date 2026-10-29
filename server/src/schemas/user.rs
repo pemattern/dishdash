@@ -1,122 +1,38 @@
-use crate::{models::user::User, schemas::json};
-use axum::{
-    http::{StatusCode, header},
-    response::{IntoResponse, Response},
-};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+use crate::models::user::User;
+
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetUserResponse {
+pub struct UserResponse {
     pub id: Uuid,
     pub email: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Serialize, Deserialize)]
+impl From<User> for UserResponse {
+    fn from(user: User) -> Self {
+        Self {
+            id: user.id,
+            email: user.email,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+        }
+    }
+}
+
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PostUserRequest {
     pub email: String,
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PostUserResponse {
-    pub id: Uuid,
-    pub email: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PatchUserRequest {
     pub email: Option<String>,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PatchUserResponse {
-    pub id: Uuid,
-    pub email: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DeleteUserResponse {
-    pub id: Uuid,
-}
-
-impl IntoResponse for GetUserResponse {
-    fn into_response(self) -> Response {
-        (StatusCode::OK, json(self)).into_response()
-    }
-}
-
-impl From<User> for GetUserResponse {
-    fn from(value: User) -> Self {
-        Self {
-            id: value.id,
-            email: value.email,
-            created_at: value.created_at,
-            updated_at: value.updated_at,
-        }
-    }
-}
-
-impl IntoResponse for PostUserResponse {
-    fn into_response(self) -> Response {
-        (
-            StatusCode::CREATED,
-            [(header::LOCATION, format!("/{}", self.id))],
-            json(self),
-        )
-            .into_response()
-    }
-}
-
-impl From<User> for PostUserResponse {
-    fn from(value: User) -> Self {
-        Self {
-            id: value.id,
-            email: value.email,
-            created_at: value.created_at,
-            updated_at: value.updated_at,
-        }
-    }
-}
-
-impl IntoResponse for PatchUserResponse {
-    fn into_response(self) -> Response {
-        (StatusCode::OK, json(self)).into_response()
-    }
-}
-
-impl From<User> for PatchUserResponse {
-    fn from(value: User) -> Self {
-        Self {
-            id: value.id,
-            email: value.email,
-            created_at: value.created_at,
-            updated_at: value.updated_at,
-        }
-    }
-}
-
-impl IntoResponse for DeleteUserResponse {
-    fn into_response(self) -> Response {
-        StatusCode::NO_CONTENT.into_response()
-    }
-}
-
-impl From<User> for DeleteUserResponse {
-    fn from(value: User) -> Self {
-        Self { id: value.id }
-    }
 }

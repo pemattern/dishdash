@@ -2,9 +2,9 @@ use crate::{error::RepositoryResult, models::user::User, schemas::user::PatchUse
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-pub struct Users;
+pub struct Ingredients;
 
-impl Users {
+impl Ingredients {
     pub async fn select_by_id<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,

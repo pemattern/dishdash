@@ -1,27 +1,14 @@
-type User = {
-	id: string;
-	email: string;
-};
-
 type LoginResponse = {
 	accessToken: string;
-	user: User;
 };
 
 type RefreshResponse = {
 	accessToken: string;
-	tokenType: string;
-	user: User;
 };
 
 let accessToken = $state<string | null>(null);
-let user = $state<User | null>(null);
 
 export const auth = {
-	get user() {
-		return user;
-	},
-
 	async login(email: string, password: string) {
 		try {
 			const credentials = btoa(`${email}:${password}`);
@@ -36,9 +23,7 @@ export const auth = {
 			}
 			const data: LoginResponse = await response.json();
 			accessToken = data.accessToken;
-			user = data.user;
 		} catch {
-			user = null;
 			accessToken = null;
 		}
 	},
@@ -53,9 +38,7 @@ export const auth = {
 			}
 			const data: RefreshResponse = await response.json();
 			accessToken = data.accessToken;
-			user = data.user;
 		} catch {
-			user = null;
 			accessToken = null;
 		}
 	},
@@ -67,7 +50,6 @@ export const auth = {
 			});
 		} finally {
 			accessToken = null;
-			user = null;
 		}
 	},
 

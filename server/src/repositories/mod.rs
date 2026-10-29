@@ -1,8 +1,8 @@
-pub mod ingredient;
-pub mod physical_quantity;
-pub mod recipe;
-pub mod recipe_ingredient;
-pub mod refresh_token;
-pub mod unit;
+pub mod ingredients;
+pub mod physical_quantities;
+pub mod recipe_ingredients;
+pub mod recipes;
+pub mod refresh_tokens;
 pub mod unit_systems;
+pub mod units;
 pub mod users;

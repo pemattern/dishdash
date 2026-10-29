@@ -1,9 +1,10 @@
 use crate::{
     auth::token::Claims,
     error::{AppResult, ClientError},
-    schemas::user::{
-        DeleteUserResponse, GetUserResponse, PatchUserRequest, PatchUserResponse, PostUserRequest,
-        PostUserResponse,
+    models::user::User,
+    schemas::{
+        DeleteResponse, GetResponse, PatchResponse, PostResponse,
+        user::{PatchUserRequest, PostUserRequest, UserResponse},
     },
     state::AppState,
 };
@@ -17,9 +18,9 @@ use uuid::Uuid;
 pub async fn get_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> AppResult<GetUserResponse> {
+) -> AppResult<GetResponse<UserResponse>> {
     let user = state
-        .postgres_service
+        .user_service
         .find_user_by_id(id)
         .await?
         .ok_or(ClientError::NotFound)?;
@@ -30,10 +31,10 @@ pub async fn get_user(
 pub async fn get_me(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
-) -> AppResult<GetUserResponse> {
+) -> AppResult<GetResponse<UserResponse>> {
     let id = Uuid::parse_str(&claims.sub).unwrap();
     let user = state
-        .postgres_service
+        .user_service
         .find_user_by_id(id)
         .await?
         .ok_or(ClientError::NotFound)?;
@@ -44,8 +45,8 @@ pub async fn get_me(
 pub async fn post_user(
     State(state): State<AppState>,
     Json(user): Json<PostUserRequest>,
-) -> AppResult<PostUserResponse> {
-    let user = state.postgres_service.create_user(user).await?;
+) -> AppResult<PostResponse<UserResponse>> {
+    let user = state.user_service.create_user(user).await?;
     Ok(user.into())
 }
 
@@ -54,8 +55,8 @@ pub async fn patch_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
     Json(user): Json<PatchUserRequest>,
-) -> AppResult<PatchUserResponse> {
-    let user = state.postgres_service.update_user(id, user).await?;
+) -> AppResult<PatchResponse<UserResponse>> {
+    let user = state.user_service.update_user(id, user).await?;
     Ok(user.into())
 }
 
@@ -63,7 +64,7 @@ pub async fn patch_user(
 pub async fn delete_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> AppResult<DeleteUserResponse> {
-    let user = state.postgres_service.delete_user(id).await?;
+) -> AppResult<DeleteResponse> {
+    let user = state.user_service.delete_user(id).await?;
     Ok(user.into())
 }

@@ -1,9 +1,8 @@
-use crate::models::Model;
 use chrono::{DateTime, Utc};
-use sqlx::prelude::FromRow;
+use lib::Model;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, FromRow)]
+#[derive(Debug, Clone, Model)]
 pub struct RecipeIngredient {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -12,8 +11,4 @@ pub struct RecipeIngredient {
     pub ingredient_id: Uuid,
     pub unit_id: Uuid,
     pub quantity: f64,
-}
-
-impl Model for RecipeIngredient {
-    const TABLE_NAME: &str = "recipe_ingredients";
 }

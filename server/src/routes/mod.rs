@@ -1,4 +1,4 @@
-mod docs;
+mod ingredients;
 mod users;
 
 use crate::{
@@ -27,7 +27,6 @@ const AUTH_PATH: &str = "/auth";
 const LOGIN_PATH: &str = "/login";
 const LOGOUT_PATH: &str = "/logout";
 const REFRESH_PATH: &str = "/refresh";
-const USERS_PATH: &str = "/users";
 
 const STATIC_ASSETS_PATH: &str = "web/build";
 const INDEX_HTML: &str = "/index.html";
@@ -73,8 +72,7 @@ pub fn api_router(state: AppState) -> Router<AppState> {
                     .merge(basic_auth_router(state.clone()))
                     .merge(refresh_token_auth_router(state.clone())),
             )
-            .merge(access_token_auth_router(state.clone()))
-            .merge(docs::router()),
+            .merge(access_token_auth_router(state.clone())),
     )
 }
 
@@ -96,7 +94,8 @@ fn refresh_token_auth_router(state: AppState) -> Router<AppState> {
 
 fn access_token_auth_router(state: AppState) -> Router<AppState> {
     Router::new()
-        .nest(USERS_PATH, users::router())
+        .merge(users::router())
+        .merge(ingredients::router())
         .layer(middleware::from_fn_with_state(state, validate_access_token))
 }
 

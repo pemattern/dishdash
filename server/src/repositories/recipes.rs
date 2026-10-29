@@ -5,7 +5,7 @@ use uuid::Uuid;
 pub struct Recipes;
 
 impl Recipes {
-    pub async fn create<'a>(
+    pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
         name: String,
         summary: String,

@@ -1,9 +1,8 @@
-use crate::models::Model;
 use chrono::{DateTime, Utc};
-use sqlx::prelude::FromRow;
+use lib::Model;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, FromRow)]
+#[derive(Debug, Clone, Model)]
 pub struct Unit {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -13,8 +12,4 @@ pub struct Unit {
     pub name: String,
     pub symbol: String,
     pub si_factor: f64,
-}
-
-impl Model for Unit {
-    const TABLE_NAME: &str = "units";
 }

@@ -5,7 +5,7 @@ use crate::{
     },
     error::ServiceResult,
     models::{refresh_token::RefreshToken, user::User},
-    repositories::{refresh_token::RefreshTokens, users::Users},
+    repositories::{refresh_tokens::RefreshTokens, users::Ingredients},
 };
 use sqlx::{PgExecutor, PgPool};
 use uuid::Uuid;
@@ -26,7 +26,7 @@ impl AuthService {
         email: &str,
         password: &str,
     ) -> ServiceResult<Option<User>> {
-        if let Some(user) = Users::select_by_email(&self.pool, email).await?
+        if let Some(user) = Ingredients::select_by_email(&self.pool, email).await?
             && is_valid_password(password, &user.password_hash)
         {
             return Ok(Some(user));

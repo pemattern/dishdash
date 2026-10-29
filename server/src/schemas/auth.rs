@@ -1,56 +1,40 @@
-use crate::{
-    middleware::auth::REFRESH_TOKEN_COOKIE,
-    models::user::User,
-    schemas::{json, user::GetUserResponse},
-};
+use crate::{middleware::auth::REFRESH_TOKEN_COOKIE, schemas::json};
 use axum::{
     http::{StatusCode, header},
     response::{IntoResponse, Response},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginResponse {
     pub access_token: String,
     #[serde(skip)]
     pub refresh_token: String,
-    pub token_type: String,
-    pub user: GetUserResponse,
 }
 
 impl LoginResponse {
-    pub fn new(access_token: String, refresh_token: String, user: User) -> Self {
-        let token_type = String::from("Bearer");
-        let user = user.into();
+    pub fn new(access_token: String, refresh_token: String) -> Self {
         Self {
             access_token,
             refresh_token,
-            token_type,
-            user,
         }
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RefreshResponse {
     pub access_token: String,
     #[serde(skip)]
     pub refresh_token: String,
-    pub token_type: String,
-    pub user: GetUserResponse,
 }
 
 impl RefreshResponse {
-    pub fn new(access_token: String, refresh_token: String, user: User) -> Self {
-        let token_type = String::from("Bearer");
-        let user = user.into();
+    pub fn new(access_token: String, refresh_token: String) -> Self {
         Self {
             access_token,
             refresh_token,
-            token_type,
-            user,
         }
     }
 }
