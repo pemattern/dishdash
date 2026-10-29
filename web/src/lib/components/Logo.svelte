@@ -4,7 +4,7 @@
 </script>
 
 <div class="flex justify-center">
-	<a href={resolve(routes.home)} class="m-4 rounded-md font-serif text-3xl">
+	<a href={resolve(routes.home)} class="m-4 rounded-md font-serif text-4xl">
 		<span class="text-dark-blue">dish</span>
 		<span class="text-dark-gray">dash</span>
 	</a>

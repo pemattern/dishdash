@@ -29,7 +29,7 @@
 {#if loading}
 	<div>authenticating…</div>
 {:else if auth.accessToken}
-	<div class="flex bg-light-gray">
+	<div class="flex">
 		<Navbar />
 		<div class="flex w-full flex-1 flex-col">
 			<HeaderBar />

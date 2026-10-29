@@ -6,7 +6,7 @@
 
 	async function logout() {
 		await auth.logout();
-		await goto(resolve(routes.home));
+		await goto(resolve(routes.login));
 	}
 </script>
 
