@@ -1,3 +1,6 @@
+use sqlx::{PgExecutor, PgPool};
+use uuid::Uuid;
+
 use crate::{
     auth::{
         password::{get_hash, is_valid_password},
@@ -7,8 +10,6 @@ use crate::{
     models::{refresh_token::RefreshToken, user::User},
     repositories::{refresh_tokens::RefreshTokens, users::Ingredients},
 };
-use sqlx::{PgExecutor, PgPool};
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct AuthService {

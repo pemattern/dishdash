@@ -1,6 +1,7 @@
-use crate::error::ServiceResult;
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use std::sync::LazyLock;
+
+use crate::error::ServiceResult;
 
 static ARGON2: LazyLock<Argon2<'static>> = LazyLock::new(Argon2::default);
 

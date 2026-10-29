@@ -1,8 +1,3 @@
-use crate::{
-    auth::token::get_valid_access_token_claims,
-    error::{AppResult, ClientError},
-    state::AppState,
-};
 use axum::{
     extract::{Request, State},
     middleware::Next,
@@ -16,6 +11,12 @@ use axum_extra::{
         authorization::{Basic, Bearer},
     },
     typed_header::TypedHeaderRejection,
+};
+
+use crate::{
+    auth::token::get_valid_access_token_claims,
+    error::{AppResult, ClientError},
+    state::AppState,
 };
 
 pub const REFRESH_TOKEN_COOKIE: &str = "refresh_token";

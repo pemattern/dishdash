@@ -1,10 +1,12 @@
-use crate::error::ServiceResult;
+use std::{sync::LazyLock, time::Duration};
+
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
-use std::{sync::LazyLock, time::Duration};
 use uuid::Uuid;
+
+use crate::error::ServiceResult;
 
 const ISSUER: &str = "dishdash";
 const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_mins(15);

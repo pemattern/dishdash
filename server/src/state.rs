@@ -1,5 +1,6 @@
-use crate::services::{auth::AuthService, ingredient::IngredientService, user::UserService};
 use sqlx::PgPool;
+
+use crate::services::{auth::AuthService, ingredient::IngredientService, user::UserService};
 
 #[derive(Clone)]
 pub struct AppState {

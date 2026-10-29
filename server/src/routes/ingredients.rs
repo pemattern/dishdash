@@ -1,10 +1,11 @@
-use crate::{
-    handlers::ingredients::{delete_ingredient, get_ingredient, patch_ingredient, post_ingredient},
-    state::AppState,
-};
 use axum::{
     Router,
     routing::{get, post},
+};
+
+use crate::{
+    handlers::ingredients::{delete_ingredient, get_ingredient, patch_ingredient, post_ingredient},
+    state::AppState,
 };
 
 const INGREDIENTS_PATH: &str = "/users";

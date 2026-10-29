@@ -1,6 +1,7 @@
-use crate::{error::RepositoryResult, models::ingredient::Ingredient};
 use sqlx::PgExecutor;
 use uuid::Uuid;
+
+use crate::{error::RepositoryResult, models::ingredient::Ingredient};
 
 pub struct Ingredients;
 

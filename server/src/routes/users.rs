@@ -1,10 +1,11 @@
-use crate::{
-    handlers::users::{delete_user, get_me, get_user, patch_user, post_user},
-    state::AppState,
-};
 use axum::{
     Router,
     routing::{get, post},
+};
+
+use crate::{
+    handlers::users::{delete_user, get_me, get_user, patch_user, post_user},
+    state::AppState,
 };
 
 const USERS_PATH: &str = "/users";

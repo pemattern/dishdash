@@ -2,13 +2,14 @@ pub mod auth;
 pub mod ingredient;
 pub mod user;
 
-use crate::error::ServiceResult;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
 use lib::Model;
 use serde::Serialize;
+
+use crate::error::ServiceResult;
 
 fn json<T: Serialize>(value: T) -> ServiceResult<String> {
     Ok(serde_json::to_string_pretty(&value)?)

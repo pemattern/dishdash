@@ -1,9 +1,10 @@
-use crate::{middleware::auth::REFRESH_TOKEN_COOKIE, schemas::json};
 use axum::{
     http::{StatusCode, header},
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
+
+use crate::{middleware::auth::REFRESH_TOKEN_COOKIE, schemas::json};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]

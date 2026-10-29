@@ -1,17 +1,9 @@
 mod ingredients;
 mod users;
 
-use crate::{
-    error::{AppResult, ClientError},
-    handlers::auth::{login, logout, refresh},
-    middleware::{
-        auth::{validate_access_token, validate_basic_auth, validate_refresh_token},
-        log::log,
-    },
-    state::AppState,
-};
-use axum::{Router, http::StatusCode, middleware, routing::post};
 use std::time::Duration;
+
+use axum::{Router, http::StatusCode, middleware, routing::post};
 use tower::ServiceBuilder;
 use tower_http::{
     CompressionLevel,
@@ -21,6 +13,16 @@ use tower_http::{
     trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
 };
 use tracing::Level;
+
+use crate::{
+    error::{AppResult, ClientError},
+    handlers::auth::{login, logout, refresh},
+    middleware::{
+        auth::{validate_access_token, validate_basic_auth, validate_refresh_token},
+        log::log,
+    },
+    state::AppState,
+};
 
 const API_PATH: &str = "/api";
 const AUTH_PATH: &str = "/auth";

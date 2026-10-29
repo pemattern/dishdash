@@ -1,6 +1,7 @@
-use crate::{error::RepositoryResult, models::user::User, schemas::user::PatchUserRequest};
 use sqlx::PgExecutor;
 use uuid::Uuid;
+
+use crate::{error::RepositoryResult, models::user::User, schemas::user::PatchUserRequest};
 
 pub struct Ingredients;
 

@@ -1,5 +1,6 @@
-use crate::{error::RepositoryResult, models::physical_quantity::PhysicalQuantity};
 use sqlx::PgExecutor;
+
+use crate::{error::RepositoryResult, models::physical_quantity::PhysicalQuantity};
 
 pub struct PhysicalQuantities;
 

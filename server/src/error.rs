@@ -1,8 +1,9 @@
+use std::{io, sync::Arc};
+
 use axum::{
     body::Body,
     response::{IntoResponse, Response},
 };
-use std::{io, sync::Arc};
 
 pub type AppResult<T> = Result<T, AppError>;
 pub type ServiceResult<T> = Result<T, ServiceError>;

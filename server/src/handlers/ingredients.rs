@@ -1,3 +1,9 @@
+use axum::{
+    Json,
+    extract::{Path, State},
+};
+use uuid::Uuid;
+
 use crate::{
     error::{AppResult, ClientError},
     schemas::{
@@ -6,11 +12,6 @@ use crate::{
     },
     state::AppState,
 };
-use axum::{
-    Json,
-    extract::{Path, State},
-};
-use uuid::Uuid;
 
 #[axum::debug_handler]
 pub async fn get_ingredient(

@@ -1,6 +1,7 @@
-use crate::{error::RepositoryResult, models::refresh_token::RefreshToken};
 use sqlx::PgExecutor;
 use uuid::Uuid;
+
+use crate::{error::RepositoryResult, models::refresh_token::RefreshToken};
 
 pub struct RefreshTokens;
 

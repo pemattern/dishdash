@@ -1,3 +1,9 @@
+use axum::{
+    Extension, Json,
+    extract::{Path, State},
+};
+use uuid::Uuid;
+
 use crate::{
     auth::token::Claims,
     error::{AppResult, ClientError},
@@ -7,11 +13,6 @@ use crate::{
     },
     state::AppState,
 };
-use axum::{
-    Extension, Json,
-    extract::{Path, State},
-};
-use uuid::Uuid;
 
 #[axum::debug_handler]
 pub async fn get_user(
