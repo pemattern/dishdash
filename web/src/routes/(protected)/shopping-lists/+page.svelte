@@ -1,5 +1,6 @@
 <script>
-	import { FormModal } from '#lib';
+	import FormModal from '#lib/components/FormModal.svelte';
+
 	let open = $state(true);
 </script>
 

@@ -10,6 +10,7 @@ type LoginResponse = {
 
 type RefreshResponse = {
 	accessToken: string;
+	tokenType: string;
 	user: User;
 };
 
@@ -28,8 +29,7 @@ export const auth = {
 				method: 'POST',
 				headers: {
 					Authorization: `Basic ${credentials}`
-				},
-				credentials: 'include'
+				}
 			});
 			if (!response.ok) {
 				throw new Error(response.status === 401 ? 'Invalid email or password' : 'Login failed');
@@ -46,8 +46,7 @@ export const auth = {
 	async refresh() {
 		try {
 			const response = await fetch(`/api/auth/refresh`, {
-				method: 'POST',
-				credentials: 'include'
+				method: 'POST'
 			});
 			if (!response.ok) {
 				throw new Error(response.status === 401 ? 'Invalid refresh token' : 'Refresh failed');
@@ -64,8 +63,7 @@ export const auth = {
 	async logout() {
 		try {
 			await fetch(`/api/auth/logout`, {
-				method: 'POST',
-				credentials: 'include'
+				method: 'POST'
 			});
 		} finally {
 			accessToken = null;

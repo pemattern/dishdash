@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { auth } from '#lib/api/auth.svelte.ts';
+	import Input from '#lib/components/Input.svelte';
+	import { routes } from '#lib/const/routes.ts';
 	import { goto } from '$app/navigation';
-	import { auth, Input, routes } from '#lib';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
@@ -53,7 +55,7 @@
 						value="Submit"
 					/>
 					{#if error}
-					    <p>{error}</p>
+						<p>{error}</p>
 					{/if}
 				</form>
 			</div>

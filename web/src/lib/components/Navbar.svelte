@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { routes } from '#lib';
+	import { routes } from '#lib/const/routes.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import Logo from './Logo.svelte';

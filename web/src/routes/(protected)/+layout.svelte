@@ -2,9 +2,11 @@
 	let { children } = $props();
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { auth, Navbar, routes } from '#lib';
 	import { resolve } from '$app/paths';
 	import HeaderBar from '#lib/components/HeaderBar.svelte';
+	import { auth } from '#lib/api/auth.svelte.ts';
+	import { routes } from '#lib/const/routes.ts';
+	import Navbar from '#lib/components/Navbar.svelte';
 
 	onMount(() => {
 		void checkAuth();

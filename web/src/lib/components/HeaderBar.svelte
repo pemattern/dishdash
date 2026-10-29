@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { auth, routes } from '#lib';
+	import { auth } from '#lib/api/auth.svelte.ts';
+	import { routes } from '#lib/const/routes.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
