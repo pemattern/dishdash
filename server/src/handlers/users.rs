@@ -1,7 +1,6 @@
 use crate::{
     auth::token::Claims,
     error::{AppResult, ClientError},
-    models::user::User,
     schemas::{
         DeleteResponse, GetResponse, PatchResponse, PostResponse,
         user::{PatchUserRequest, PostUserRequest, UserResponse},
