@@ -11,8 +11,7 @@
   --color-blue: #accbfa;
   --color-light-blue: #bddcff;
   --font-sans: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-serif: 'EBGaramond', serif;
+  --font-serif: 'CormorantGaramond', serif;
 }
 
 @layer base {
@@ -23,48 +22,32 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url('./../lib/assets/fonts/Inter/Inter-Regular.woff2') format('woff2');
-  font-weight: 400;
+  src: url('./../lib/assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('ttf');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('./../lib/assets/fonts/Inter/Inter-Bold.woff2') format('woff2');
-  font-weight: 700;
+  src: url('./../lib/assets/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf') format('ttf');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CormorantGaramond';
+  src: url('./../lib/assets/fonts/CormorantGaramond/CormorantGaramond-VariableFont_wght.ttf') format('ttf');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('./../lib/assets/fonts/JetBrainsMono/JetBrainsMono-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('./../lib/assets/fonts/JetBrainsMono/JetBrainsMono-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'EBGaramond';
-  src: url('./../lib/assets/fonts/EBGaramond/EBGaramond-Regular.ttf') format('ttf');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'EBGaramond';
-  src: url('./../lib/assets/fonts/EBGaramond/EBGaramond-Bold.ttf') format('ttf');
-  font-weight: 700;
-  font-style: normal;
+  font-family: 'CormorantGaramond';
+  src: url('./../lib/assets/fonts/CormorantGaramond/CormorantGaramond-Italic-VariableFont_wght.ttf') format('ttf');
+  font-weight: 100 900;
+  font-style: italic;
   font-display: swap;
 }
