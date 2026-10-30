@@ -8,7 +8,7 @@ use crate::{
     auth::token::Claims,
     error::{AppResult, ClientError},
     models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
-    schemas::{DeleteResponse, GetOneResponse, PatchResponse, PostResponse},
+    responses::{DeleteResponse, GetOneResponse, PatchResponse, PostResponse},
     state::AppState,
 };
 

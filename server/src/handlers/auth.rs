@@ -4,7 +4,7 @@ use crate::{
     auth::token::generate_access_token,
     error::AppResult,
     models::{refresh_token::RefreshToken, user::User},
-    schemas::auth::{LoginResponse, LogoutResponse, RefreshResponse},
+    responses::auth::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
 };
 

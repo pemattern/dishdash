@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     error::{AppResult, ClientError},
     models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
-    schemas::{DeleteResponse, GetManyResponse, GetOneResponse, PatchResponse, PostResponse},
+    responses::{DeleteResponse, GetManyResponse, GetOneResponse, PatchResponse, PostResponse},
     state::AppState,
 };
 

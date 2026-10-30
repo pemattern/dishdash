@@ -4,7 +4,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::{middleware::auth::REFRESH_TOKEN_COOKIE, schemas::json};
+use crate::{middleware::auth::REFRESH_TOKEN_COOKIE, responses::json};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
