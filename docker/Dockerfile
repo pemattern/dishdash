@@ -3,7 +3,7 @@ FROM rust:1.98.1 AS base
 FROM base AS server-builder
 WORKDIR /server
 COPY server/Cargo.lock server/Cargo.toml ./
-COPY lib /lib
+COPY crates/lib /crates/lib
 RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo build --release && rm -rf src
 COPY server/src ./src
 COPY server/migrations ./migrations

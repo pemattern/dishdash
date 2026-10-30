@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "shares tooling across the workspace",
   "scripts": {
-    "dev": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm --prefix web run dev\" \"cargo run -p server\"",
+    "dev": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm --prefix web run dev\" \"nodemon --watch server --ext rs,toml --exec 'cargo run -p server'\"",
     "prod": "concurrently --names frontend,backend --prefix-colors cyan,green --kill-others-on-fail \"npm --prefix web run build\" \"cargo run --release -p server\""
   },
   "devDependencies": {
     "concurrently": "^10.0.6",
+    "nodemon": "^3.1.14",
     "prettier": "^3.9.10",
     "prettier-plugin-svelte": "^4.1.1",
     "prettier-plugin-tailwindcss": "^0.8.1"
