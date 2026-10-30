@@ -5,4 +5,4 @@ edition = "2024"
 
 [dependencies]
 uuid = { version = "1", features = ["v4"] }
-generate_schemas_derive = { path = "../generate_schemas_derive" }
+generate_schemas_derive = { path = "macros/generate_schemas_derive" }

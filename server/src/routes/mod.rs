@@ -1,12 +1,15 @@
+mod auth;
 mod ingredients;
+mod recipes;
 mod users;
 
 use std::time::Duration;
 
-use axum::{Router, http::StatusCode, middleware, routing::post};
+use axum::{Router, http::StatusCode, middleware};
 use tower::ServiceBuilder;
 use tower_http::{
     CompressionLevel,
+    classify::{ServerErrorsAsFailures, SharedClassifier},
     compression::CompressionLayer,
     services::{ServeDir, ServeFile},
     timeout::TimeoutLayer,
@@ -16,88 +19,69 @@ use tracing::Level;
 
 use crate::{
     error::{AppResult, ClientError},
-    handlers::auth::{login, logout, refresh},
-    middleware::{
-        auth::{validate_access_token, validate_basic_auth, validate_refresh_token},
-        log::log,
-    },
+    middleware::{auth::validate_access_token, log::log},
     state::AppState,
 };
 
 const API_PATH: &str = "/api";
-const AUTH_PATH: &str = "/auth";
-const LOGIN_PATH: &str = "/login";
-const LOGOUT_PATH: &str = "/logout";
-const REFRESH_PATH: &str = "/refresh";
+const ID_PATH: &str = "/{uuid}";
+const EMPTY_PATH: &str = "/";
 
 const STATIC_ASSETS_PATH: &str = "web/build";
 const INDEX_HTML: &str = "/index.html";
 
 pub fn app(state: AppState) -> Router {
-    Router::new()
+    default_router_layers()
         .merge(api_router(state.clone()))
         .fallback_service(web_service())
         .method_not_allowed_fallback(method_not_allowed_fallback)
-        .layer(
-            ServiceBuilder::new()
-                .layer(
-                    TraceLayer::new_for_http()
-                        .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
-                        .on_request(DefaultOnRequest::new().level(Level::INFO))
-                        .on_response(DefaultOnResponse::new().level(Level::INFO)),
-                )
-                // so far from testing brotli + default quality is best performer
-                .layer(
-                    CompressionLayer::new()
-                        .quality(CompressionLevel::Default)
-                        .br(true)
-                        .no_gzip()
-                        .no_deflate()
-                        .no_zstd(),
-                )
-                .layer(TimeoutLayer::with_status_code(
-                    StatusCode::REQUEST_TIMEOUT,
-                    Duration::from_secs(5),
-                ))
-                .layer(middleware::from_fn(log)),
-        )
         .with_state(state)
 }
 
-pub fn api_router(state: AppState) -> Router<AppState> {
+fn default_router_layers() -> Router<AppState> {
+    Router::new().layer(
+        ServiceBuilder::new()
+            .layer(trace_layer())
+            .layer(compression_layer())
+            .layer(timeout_layer())
+            .layer(middleware::from_fn(log)),
+    )
+}
+
+fn trace_layer() -> TraceLayer<SharedClassifier<ServerErrorsAsFailures>> {
+    TraceLayer::new_for_http()
+        .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+        .on_request(DefaultOnRequest::new().level(Level::INFO))
+        .on_response(DefaultOnResponse::new().level(Level::INFO))
+}
+
+fn compression_layer() -> CompressionLayer {
+    CompressionLayer::new()
+        .quality(CompressionLevel::Default)
+        .br(true)
+        .no_gzip()
+        .no_deflate()
+        .no_zstd()
+}
+
+fn timeout_layer() -> TimeoutLayer {
+    TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, Duration::from_secs(5))
+}
+
+fn api_router(state: AppState) -> Router<AppState> {
     Router::new().nest(
         API_PATH,
         Router::new()
-            .nest(
-                AUTH_PATH,
-                Router::new()
-                    .merge(basic_auth_router(state.clone()))
-                    .merge(refresh_token_auth_router(state.clone())),
-            )
+            .merge(auth::router(state.clone()))
             .merge(access_token_auth_router(state.clone())),
     )
 }
 
-fn basic_auth_router(state: AppState) -> Router<AppState> {
-    Router::new()
-        .route(LOGIN_PATH, post(login))
-        .layer(middleware::from_fn_with_state(state, validate_basic_auth))
-}
-
-fn refresh_token_auth_router(state: AppState) -> Router<AppState> {
-    Router::new()
-        .route(REFRESH_PATH, post(refresh))
-        .route(LOGOUT_PATH, post(logout))
-        .layer(middleware::from_fn_with_state(
-            state,
-            validate_refresh_token,
-        ))
-}
-
 fn access_token_auth_router(state: AppState) -> Router<AppState> {
     Router::new()
-        .merge(users::router())
         .merge(ingredients::router())
+        .merge(recipes::router())
+        .merge(users::router())
         .layer(middleware::from_fn_with_state(state, validate_access_token))
 }
 
