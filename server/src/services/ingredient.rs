@@ -3,9 +3,11 @@ use uuid::Uuid;
 
 use crate::{
     error::ServiceResult,
-    models::ingredient::Ingredient,
+    models::ingredient::{
+        Ingredient,
+        schemas::{PatchIngredientSchema, PostIngredientSchema},
+    },
     repositories::ingredients::Ingredients,
-    schemas::ingredient::{PatchIngredientRequest, PostIngredientRequest},
 };
 
 #[derive(Clone)]
@@ -31,7 +33,7 @@ impl IngredientService {
 
     pub async fn create_ingredient(
         &self,
-        ingredient: PostIngredientRequest,
+        ingredient: PostIngredientSchema,
     ) -> ServiceResult<Ingredient> {
         let ingredient = Ingredients::insert(&self.pool, ingredient.name).await?;
         Ok(ingredient)
@@ -40,7 +42,7 @@ impl IngredientService {
     pub async fn update_ingredient(
         &self,
         id: Uuid,
-        ingredient: PatchIngredientRequest,
+        ingredient: PatchIngredientSchema,
     ) -> ServiceResult<Ingredient> {
         let user = Ingredients::update(&self.pool, id, ingredient.name).await?;
         Ok(user)

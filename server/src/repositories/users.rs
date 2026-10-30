@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::RepositoryResult, models::user::User, schemas::user::PatchUserRequest};
+use crate::{error::RepositoryResult, models::user::User};
 
 pub struct Ingredients;
 
@@ -47,15 +47,19 @@ impl Ingredients {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-        user: PatchUserRequest,
+        email: Option<String>,
+        password_hash: Option<String>,
     ) -> RepositoryResult<User> {
         let user = sqlx::query_as!(
             User,
             "UPDATE users
-            SET email = COALESCE($1, email)
-            WHERE id = $2
+            SET
+                email = COALESCE($1, email),
+                password_hash = COALESCE($2, password_hash)
+            WHERE id = $3
             RETURNING *;",
-            user.email,
+            email,
+            password_hash,
             id,
         )
         .fetch_one(executor)

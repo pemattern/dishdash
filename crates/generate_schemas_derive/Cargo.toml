@@ -1,5 +1,5 @@
 [package]
-name = "model_derive"
+name = "generate_schemas_derive"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,5 +7,6 @@ edition = "2024"
 proc-macro = true
 
 [dependencies]
-syn = { version = "2", features = ["derive"] }
+syn = { version = "2", features = ["full"] }
 quote = "1"
+proc-macro2 = "1"

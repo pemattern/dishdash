@@ -6,10 +6,8 @@ use uuid::Uuid;
 
 use crate::{
     error::{AppResult, ClientError},
-    schemas::{
-        DeleteResponse, GetManyResponse, GetOneResponse, PatchResponse, PostResponse,
-        ingredient::{IngredientResponse, PatchIngredientRequest, PostIngredientRequest},
-    },
+    models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
+    schemas::{DeleteResponse, GetManyResponse, GetOneResponse, PatchResponse, PostResponse},
     state::AppState,
 };
 
@@ -17,7 +15,7 @@ use crate::{
 pub async fn get_ingredient(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> AppResult<GetOneResponse<IngredientResponse>> {
+) -> AppResult<GetOneResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service
         .find_ingredient_by_id(id)
@@ -29,7 +27,7 @@ pub async fn get_ingredient(
 #[axum::debug_handler]
 pub async fn get_all_ingredients(
     State(state): State<AppState>,
-) -> AppResult<GetManyResponse<IngredientResponse>> {
+) -> AppResult<GetManyResponse<IngredientSchema>> {
     let ingredients = state.ingredient_service.all_ingredients().await?;
     Ok(ingredients.into())
 }
@@ -37,8 +35,8 @@ pub async fn get_all_ingredients(
 #[axum::debug_handler]
 pub async fn post_ingredient(
     State(state): State<AppState>,
-    Json(user): Json<PostIngredientRequest>,
-) -> AppResult<PostResponse<IngredientResponse>> {
+    Json(user): Json<PostIngredientSchema>,
+) -> AppResult<PostResponse<IngredientSchema>> {
     let ingredient = state.ingredient_service.create_ingredient(user).await?;
     Ok(ingredient.into())
 }
@@ -47,8 +45,8 @@ pub async fn post_ingredient(
 pub async fn patch_ingredient(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-    Json(user): Json<PatchIngredientRequest>,
-) -> AppResult<PatchResponse<IngredientResponse>> {
+    Json(user): Json<PatchIngredientSchema>,
+) -> AppResult<PatchResponse<IngredientSchema>> {
     let ingredient = state.ingredient_service.update_ingredient(id, user).await?;
     Ok(ingredient.into())
 }

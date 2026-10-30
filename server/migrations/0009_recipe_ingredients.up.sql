@@ -1,8 +1,8 @@
 CREATE TABLE recipe_ingredients (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
-    recipe_id UUID NOT NULL REFERENCES recipes(id),
-    ingredient_id UUID NOT NULL REFERENCES ingredients(id),
-    unit_id UUID NOT NULL REFERENCES units(id),
+    recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    ingredient_id UUID NOT NULL REFERENCES ingredients(id) ON DELETE RESTRICT,
+    unit_id UUID NOT NULL REFERENCES units(id) ON DELETE RESTRICT,
     quantity FLOAT8 NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

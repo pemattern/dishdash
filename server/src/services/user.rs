@@ -4,9 +4,11 @@ use uuid::Uuid;
 use crate::{
     auth::password::get_hash,
     error::ServiceResult,
-    models::user::User,
+    models::user::{
+        User,
+        schemas::{PatchUserSchema, PostUserSchema},
+    },
     repositories::users::Ingredients,
-    schemas::user::{PatchUserRequest, PostUserRequest},
 };
 
 #[derive(Clone)]
@@ -30,14 +32,18 @@ impl UserService {
         Ok(user)
     }
 
-    pub async fn create_user(&self, user: PostUserRequest) -> ServiceResult<User> {
+    pub async fn create_user(&self, user: PostUserSchema) -> ServiceResult<User> {
         let password_hash = get_hash(&user.password)?;
         let user = Ingredients::insert(&self.pool, &user.email, &password_hash).await?;
         Ok(user)
     }
 
-    pub async fn update_user(&self, id: Uuid, user: PatchUserRequest) -> ServiceResult<User> {
-        let user = Ingredients::update(&self.pool, id, user).await?;
+    pub async fn update_user(&self, id: Uuid, user: PatchUserSchema) -> ServiceResult<User> {
+        let mut password_hash = None;
+        if let Some(password) = user.password {
+            password_hash = Some(get_hash(&password)?);
+        }
+        let user = Ingredients::update(&self.pool, id, user.email, password_hash).await?;
         Ok(user)
     }
 

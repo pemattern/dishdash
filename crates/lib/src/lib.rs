@@ -1,6 +1,3 @@
-pub use model_derive::Model;
-use uuid::Uuid;
+pub use generate_schemas_derive::GenerateSchemas;
 
-pub trait Model {
-    fn id(&self) -> Uuid;
-}
+pub trait GenerateSchemas {}

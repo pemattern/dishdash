@@ -1,7 +1,7 @@
 CREATE TABLE units (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
-    physical_quantity_id UUID NOT NULL REFERENCES physical_quantities(id) ON DELETE CASCADE,
-    unit_system_id UUID NOT NULL REFERENCES unit_systems(id) ON DELETE CASCADE,
+    physical_quantity_id UUID NOT NULL REFERENCES physical_quantities(id) ON DELETE RESTRICT,
+    unit_system_id UUID NOT NULL REFERENCES unit_systems(id) ON DELETE RESTRICT,
     name TEXT UNIQUE NOT NULL,
     symbol TEXT NOT NULL,
     si_factor FLOAT8 NOT NULL CHECK (si_factor > 0),

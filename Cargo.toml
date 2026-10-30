@@ -2,7 +2,7 @@
 members = [
     "server",
     "crates/lib",
-    "crates/model_derive",
+    "crates/generate_schemas_derive",
 ]
 resolver = "3"
 

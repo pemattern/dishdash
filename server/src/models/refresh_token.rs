@@ -1,8 +1,7 @@
 use chrono::{DateTime, Utc};
-use lib::Model;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Model)]
+#[derive(Debug, Clone)]
 pub struct RefreshToken {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

@@ -1,12 +1,10 @@
 pub mod auth;
-pub mod ingredient;
-pub mod user;
 
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use lib::Model;
+use lib::GenerateSchemas;
 use serde::Serialize;
 
 use crate::error::ServiceResult;
@@ -15,108 +13,108 @@ fn json<T: Serialize>(value: T) -> ServiceResult<String> {
     Ok(serde_json::to_string_pretty(&value)?)
 }
 
-pub struct GetOneResponse<S>
+pub struct GetOneResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
-    schema: S,
+    schema: Schema,
 }
 
-impl<S, M> From<M> for GetOneResponse<S>
+impl<Schema, Model> From<Model> for GetOneResponse<Schema>
 where
-    S: Serialize + From<M>,
-    M: Model,
+    Schema: Serialize + From<Model>,
+    Model: GenerateSchemas,
 {
-    fn from(model: M) -> Self {
+    fn from(model: Model) -> Self {
         let schema = From::from(model);
         Self { schema }
     }
 }
 
-impl<S> IntoResponse for GetOneResponse<S>
+impl<Schema> IntoResponse for GetOneResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
     fn into_response(self) -> Response {
         (StatusCode::OK, json(self.schema)).into_response()
     }
 }
 
-pub struct GetManyResponse<S>
+pub struct GetManyResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
-    schemas: Vec<S>,
+    schemas: Vec<Schema>,
 }
 
-impl<S, M> From<Vec<M>> for GetManyResponse<S>
+impl<Schema, Model> From<Vec<Model>> for GetManyResponse<Schema>
 where
-    S: Serialize + From<M>,
-    M: Model,
+    Schema: Serialize + From<Model>,
+    Model: GenerateSchemas,
 {
-    fn from(models: Vec<M>) -> Self {
+    fn from(models: Vec<Model>) -> Self {
         let schemas = models.into_iter().map(|model| From::from(model)).collect();
         Self { schemas }
     }
 }
 
-impl<S> IntoResponse for GetManyResponse<S>
+impl<Schema> IntoResponse for GetManyResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
     fn into_response(self) -> Response {
         (StatusCode::OK, json(self.schemas)).into_response()
     }
 }
 
-pub struct PostResponse<S>
+pub struct PostResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
-    schema: S,
+    schema: Schema,
 }
 
-impl<S, M> From<M> for PostResponse<S>
+impl<Schema, Model> From<Model> for PostResponse<Schema>
 where
-    S: Serialize + From<M>,
-    M: Model,
+    Schema: Serialize + From<Model>,
+    Model: GenerateSchemas,
 {
-    fn from(model: M) -> Self {
+    fn from(model: Model) -> Self {
         let schema = From::from(model);
         Self { schema }
     }
 }
 
-impl<S> IntoResponse for PostResponse<S>
+impl<Schema> IntoResponse for PostResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
     fn into_response(self) -> Response {
         (StatusCode::CREATED, json(self.schema)).into_response()
     }
 }
 
-pub struct PatchResponse<S>
+pub struct PatchResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
-    schema: S,
+    schema: Schema,
 }
 
-impl<S, M> From<M> for PatchResponse<S>
+impl<Schema, Model> From<Model> for PatchResponse<Schema>
 where
-    S: Serialize + From<M>,
-    M: Model,
+    Schema: Serialize + From<Model>,
+    Model: GenerateSchemas,
 {
-    fn from(model: M) -> Self {
+    fn from(model: Model) -> Self {
         let schema = From::from(model);
         Self { schema }
     }
 }
 
-impl<S> IntoResponse for PatchResponse<S>
+impl<Schema> IntoResponse for PatchResponse<Schema>
 where
-    S: Serialize,
+    Schema: Serialize,
 {
     fn into_response(self) -> Response {
         (StatusCode::OK, json(self.schema)).into_response()
@@ -125,11 +123,11 @@ where
 
 pub struct DeleteResponse;
 
-impl<M> From<M> for DeleteResponse
+impl<Model> From<Model> for DeleteResponse
 where
-    M: Model,
+    Model: GenerateSchemas,
 {
-    fn from(_model: M) -> Self {
+    fn from(_model: Model) -> Self {
         Self
     }
 }
