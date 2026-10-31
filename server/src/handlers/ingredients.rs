@@ -14,11 +14,11 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_ingredient(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(ingredient_id): Path<Uuid>,
 ) -> AppResult<GetOneResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service
-        .find_ingredient_by_id(id)
+        .find_ingredient_by_id(ingredient_id)
         .await?
         .ok_or(ClientError::NotFound)?;
     Ok(ingredient.into())
@@ -44,18 +44,24 @@ pub async fn post_ingredient(
 #[axum::debug_handler]
 pub async fn patch_ingredient(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(ingredient_id): Path<Uuid>,
     Json(user): Json<PatchIngredientSchema>,
 ) -> AppResult<PatchResponse<IngredientSchema>> {
-    let ingredient = state.ingredient_service.update_ingredient(id, user).await?;
+    let ingredient = state
+        .ingredient_service
+        .update_ingredient(ingredient_id, user)
+        .await?;
     Ok(ingredient.into())
 }
 
 #[axum::debug_handler]
 pub async fn delete_ingredient(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Path(ingredient_id): Path<Uuid>,
 ) -> AppResult<DeleteResponse> {
-    let ingredient = state.ingredient_service.delete_ingredient(id).await?;
+    let ingredient = state
+        .ingredient_service
+        .delete_ingredient(ingredient_id)
+        .await?;
     Ok(ingredient.into())
 }

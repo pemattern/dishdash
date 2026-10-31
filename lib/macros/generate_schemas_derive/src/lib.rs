@@ -5,7 +5,23 @@ use syn::{DeriveInput, parse_macro_input};
 #[proc_macro_derive(GenerateSchemas, attributes(schema))]
 pub fn generate_schemas(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+    let struct_read_only = input.attrs.iter().any(|attr| {
+        if !attr.path().is_ident("schema") {
+            return false;
+        }
 
+        let mut read_only = false;
+
+        let _ = attr.parse_nested_meta(|meta| {
+            if meta.path.is_ident("read_only") {
+                read_only = true;
+            }
+
+            Ok(())
+        });
+
+        read_only
+    });
     let name = &input.ident;
 
     let fields = match &input.data {
@@ -105,6 +121,24 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
             }
         });
 
+    let write_schemas = if struct_read_only {
+        quote! {}
+    } else {
+        quote! {
+            #[derive(Debug, Clone, serde::Deserialize)]
+            #[serde(rename_all = "camelCase")]
+            pub struct #post_name {
+                #(#post_fields,)*
+            }
+
+            #[derive(Debug, Clone, serde::Deserialize)]
+            #[serde(rename_all = "camelCase")]
+            pub struct #patch_name {
+                #(#patch_fields,)*
+            }
+        }
+    };
+
     quote! {
         pub mod schemas {
             use super::*;
@@ -127,17 +161,7 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
                 }
             }
 
-            #[derive(Debug, Clone, serde::Deserialize)]
-            #[serde(rename_all = "camelCase")]
-            pub struct #post_name {
-                #(#post_fields,)*
-            }
-
-            #[derive(Debug, Clone, serde::Deserialize)]
-            #[serde(rename_all = "camelCase")]
-            pub struct #patch_name {
-                #(#patch_fields,)*
-            }
+            #write_schemas
         }
     }
     .into()

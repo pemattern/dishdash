@@ -24,7 +24,6 @@ use crate::{
 };
 
 const API_PATH: &str = "/api";
-const ID_PATH: &str = "/{uuid}";
 const EMPTY_PATH: &str = "/";
 
 const STATIC_ASSETS_PATH: &str = "web/build";
