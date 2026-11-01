@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[axum::debug_handler]
-pub async fn get_recipe_ingredients(
+pub async fn get_recipe_ingredients_by_recipe_id(
     State(state): State<AppState>,
     Path(recipe_id): Path<Uuid>,
 ) -> AppResult<GetManyResponse<RecipeSchema>> {

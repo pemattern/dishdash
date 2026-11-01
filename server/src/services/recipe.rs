@@ -1,13 +1,20 @@
-use sqlx::PgPool;
+use sqlx::{PgConnection, PgPool};
 use uuid::Uuid;
 
 use crate::{
     error::ServiceResult,
-    models::recipe::{
-        Recipe,
-        schemas::{PatchRecipeSchema, PostRecipeSchema},
+    models::{
+        recipe::{
+            Recipe,
+            schemas::{PatchRecipeSchema, PostRecipeSchema},
+        },
+        recipe_ingredient::{
+            RecipeIngredient, join::RecipeIngredientJoinIngredient,
+            schemas::PostRecipeIngredientSchema,
+        },
     },
-    repositories::recipes::Recipes,
+    repositories::{recipe_ingredients::RecipeIngredients, recipes::Recipes},
+    services::insert_many_transaction,
 };
 
 #[derive(Clone)]
@@ -21,8 +28,8 @@ impl RecipeService {
         Self { pool }
     }
 
-    pub async fn find_recipe_by_id(&self, id: Uuid) -> ServiceResult<Option<Recipe>> {
-        let recipe = Recipes::select_by_id(&self.pool, id).await?;
+    pub async fn find_recipe_by_id(&self, recipe_id: Uuid) -> ServiceResult<Option<Recipe>> {
+        let recipe = Recipes::select_by_recipe_id(&self.pool, recipe_id).await?;
         Ok(recipe)
     }
 
@@ -31,9 +38,51 @@ impl RecipeService {
         Ok(recipes)
     }
 
+    pub async fn find_recipe_ingredients_by_recipe_id(
+        &self,
+        recipe_id: Uuid,
+    ) -> ServiceResult<Vec<RecipeIngredientJoinIngredient>> {
+        let recipe_ingredients =
+            RecipeIngredients::select_by_recipe_id(&self.pool, recipe_id).await?;
+        Ok(recipe_ingredients)
+    }
+
     pub async fn create_recipe(&self, recipe: PostRecipeSchema) -> ServiceResult<Recipe> {
         let recipe = Recipes::insert(&self.pool, recipe.name, recipe.summary).await?;
         Ok(recipe)
+    }
+
+    pub async fn create_recipe_ingredients(
+        &self,
+        recipe_ingredients: Vec<PostRecipeIngredientSchema>,
+    ) -> ServiceResult<Vec<RecipeIngredient>> {
+        let insert_query =
+            |conn: &mut PgConnection, recipe_ingredient: PostRecipeIngredientSchema| {
+                RecipeIngredients::insert(
+                    conn,
+                    recipe_ingredient.recipe_id,
+                    recipe_ingredient.ingredient_id,
+                    recipe_ingredient.unit_id,
+                    recipe_ingredient.quantity,
+                )
+            };
+
+        insert_many_transaction(&self.pool, recipe_ingredients, insert_query).await
+        // let mut tx = self.pool.begin().await?;
+        // let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
+        // for recipe_ingredient in recipe_ingredients {
+        //     let inserted_recipe_ingredient = RecipeIngredients::insert(
+        //         &mut *tx,
+        //         recipe_ingredient.recipe_id,
+        //         recipe_ingredient.ingredient_id,
+        //         recipe_ingredient.unit_id,
+        //         recipe_ingredient.quantity,
+        //     )
+        //     .await?;
+        //     inserted_recipe_ingredients.push(inserted_recipe_ingredient);
+        // }
+        // tx.commit().await?;
+        // Ok(inserted_recipe_ingredients)
     }
 
     pub async fn update_recipe(

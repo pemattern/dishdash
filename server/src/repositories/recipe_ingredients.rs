@@ -1,11 +1,32 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::RepositoryResult, models::recipe_ingredient::RecipeIngredient};
+use crate::{
+    error::RepositoryResult,
+    models::recipe_ingredient::{RecipeIngredient, join::RecipeIngredientJoinIngredient},
+};
 
 pub struct RecipeIngredients;
 
 impl RecipeIngredients {
+    pub async fn select_by_recipe_id<'a>(
+        executor: impl PgExecutor<'a>,
+        recipe_id: Uuid,
+    ) -> RepositoryResult<Vec<RecipeIngredientJoinIngredient>> {
+        let recipe_ingredients = sqlx::query_as!(
+            RecipeIngredientJoinIngredient,
+            "SELECT ri.*, i.name AS ingredient_name
+            FROM recipe_ingredients ri
+            INNER JOIN ingredients i
+            ON ri.ingredient_id = i.id
+            WHERE ri.recipe_id = $1",
+            recipe_id,
+        )
+        .fetch_all(executor)
+        .await?;
+        Ok(recipe_ingredients)
+    }
+
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,

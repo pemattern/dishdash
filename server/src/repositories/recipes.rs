@@ -6,7 +6,7 @@ use crate::{error::RepositoryResult, models::recipe::Recipe};
 pub struct Recipes;
 
 impl Recipes {
-    pub async fn select_by_id<'a>(
+    pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
     ) -> RepositoryResult<Option<Recipe>> {
