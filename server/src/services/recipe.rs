@@ -56,18 +56,7 @@ impl RecipeService {
         &self,
         recipe_ingredients: Vec<PostRecipeIngredientSchema>,
     ) -> ServiceResult<Vec<RecipeIngredient>> {
-        let insert_query =
-            |conn: &mut PgConnection, recipe_ingredient: PostRecipeIngredientSchema| {
-                RecipeIngredients::insert(
-                    conn,
-                    recipe_ingredient.recipe_id,
-                    recipe_ingredient.ingredient_id,
-                    recipe_ingredient.unit_id,
-                    recipe_ingredient.quantity,
-                )
-            };
-
-        insert_many_transaction(&self.pool, recipe_ingredients, insert_query).await
+        insert_many_transaction(&self.pool, recipe_ingredients, RecipeIngredients::insert).await
         // let mut tx = self.pool.begin().await?;
         // let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
         // for recipe_ingredient in recipe_ingredients {

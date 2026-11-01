@@ -3,7 +3,10 @@ use uuid::Uuid;
 
 use crate::{
     error::RepositoryResult,
-    models::recipe_ingredient::{RecipeIngredient, join::RecipeIngredientJoinIngredient},
+    models::recipe_ingredient::{
+        self, RecipeIngredient, join::RecipeIngredientJoinIngredient,
+        schemas::PostRecipeIngredientSchema,
+    },
 };
 
 pub struct RecipeIngredients;
@@ -29,20 +32,17 @@ impl RecipeIngredients {
 
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
-        recipe_id: Uuid,
-        ingredient_id: Uuid,
-        unit_id: Uuid,
-        quantity: f64,
+        recipe_ingredient: PostRecipeIngredientSchema,
     ) -> RepositoryResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
             "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, unit_id, quantity)
             VALUES ($1, $2, $3, $4)
             RETURNING *;",
-            recipe_id,
-            ingredient_id,
-            unit_id,
-            quantity,
+            recipe_ingredient.recipe_id,
+            recipe_ingredient.ingredient_id,
+            recipe_ingredient.unit_id,
+            recipe_ingredient.quantity,
         )
         .fetch_one(executor)
         .await?;
