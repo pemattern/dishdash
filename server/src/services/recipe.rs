@@ -1,4 +1,4 @@
-use sqlx::{PgConnection, PgPool};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::{
@@ -56,22 +56,15 @@ impl RecipeService {
         &self,
         recipe_ingredients: Vec<PostRecipeIngredientSchema>,
     ) -> ServiceResult<Vec<RecipeIngredient>> {
-        insert_many_transaction(&self.pool, recipe_ingredients, RecipeIngredients::insert).await
-        // let mut tx = self.pool.begin().await?;
-        // let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        // for recipe_ingredient in recipe_ingredients {
-        //     let inserted_recipe_ingredient = RecipeIngredients::insert(
-        //         &mut *tx,
-        //         recipe_ingredient.recipe_id,
-        //         recipe_ingredient.ingredient_id,
-        //         recipe_ingredient.unit_id,
-        //         recipe_ingredient.quantity,
-        //     )
-        //     .await?;
-        //     inserted_recipe_ingredients.push(inserted_recipe_ingredient);
-        // }
-        // tx.commit().await?;
-        // Ok(inserted_recipe_ingredients)
+        let mut tx = self.pool.begin().await?;
+        let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
+        for recipe_ingredient in recipe_ingredients {
+            let inserted_recipe_ingredient =
+                RecipeIngredients::insert(&mut *tx, recipe_ingredient).await?;
+            inserted_recipe_ingredients.push(inserted_recipe_ingredient);
+        }
+        tx.commit().await?;
+        Ok(inserted_recipe_ingredients)
     }
 
     pub async fn update_recipe(

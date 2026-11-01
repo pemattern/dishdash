@@ -4,8 +4,9 @@ use uuid::Uuid;
 use crate::{
     error::RepositoryResult,
     models::recipe_ingredient::{
-        self, RecipeIngredient, join::RecipeIngredientJoinIngredient,
-        schemas::PostRecipeIngredientSchema,
+        RecipeIngredient,
+        join::RecipeIngredientJoinIngredient,
+        schemas::{PatchRecipeIngredientSchema, PostRecipeIngredientSchema},
     },
 };
 
@@ -52,10 +53,7 @@ impl RecipeIngredients {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-        recipe_id: Option<Uuid>,
-        ingredient_id: Option<Uuid>,
-        unit_id: Option<Uuid>,
-        quantity: Option<f64>,
+        recipe_ingredient: PatchRecipeIngredientSchema,
     ) -> RepositoryResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
@@ -67,10 +65,10 @@ impl RecipeIngredients {
                 quantity = COALESCE($4, quantity)
             WHERE id = $5
             RETURNING *;",
-            recipe_id,
-            ingredient_id,
-            unit_id,
-            quantity,
+            recipe_ingredient.recipe_id,
+            recipe_ingredient.ingredient_id,
+            recipe_ingredient.unit_id,
+            recipe_ingredient.quantity,
             id,
         )
         .fetch_one(executor)
