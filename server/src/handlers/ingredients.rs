@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     error::{AppResult, ClientError},
     models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
-    responses::{DeleteResponse, GetManyResponse, GetOneResponse, PatchResponse, PostResponse},
+    responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
 
@@ -15,7 +15,7 @@ use crate::{
 pub async fn get_ingredient(
     State(state): State<AppState>,
     Path(ingredient_id): Path<Uuid>,
-) -> AppResult<GetOneResponse<IngredientSchema>> {
+) -> AppResult<GetResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service
         .find_ingredient_by_id(ingredient_id)

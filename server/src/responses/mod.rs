@@ -13,14 +13,14 @@ fn json<T: Serialize>(value: T) -> ServiceResult<String> {
     Ok(serde_json::to_string_pretty(&value)?)
 }
 
-pub struct GetOneResponse<Schema>
+pub struct GetResponse<Schema>
 where
     Schema: Serialize,
 {
     schema: Schema,
 }
 
-impl<Schema, Model> From<Model> for GetOneResponse<Schema>
+impl<Schema, Model> From<Model> for GetResponse<Schema>
 where
     Schema: Serialize + From<Model>,
     Model: GenerateSchemas,
@@ -31,7 +31,7 @@ where
     }
 }
 
-impl<Schema> IntoResponse for GetOneResponse<Schema>
+impl<Schema> IntoResponse for GetResponse<Schema>
 where
     Schema: Serialize,
 {
@@ -91,6 +91,33 @@ where
 {
     fn into_response(self) -> Response {
         (StatusCode::CREATED, json(self.schema)).into_response()
+    }
+}
+
+pub struct PostManyResponse<Schema>
+where
+    Schema: Serialize,
+{
+    schemas: Vec<Schema>,
+}
+
+impl<Schema, Model> From<Vec<Model>> for PostManyResponse<Schema>
+where
+    Schema: Serialize + From<Model>,
+    Model: GenerateSchemas,
+{
+    fn from(models: Vec<Model>) -> Self {
+        let schemas = models.into_iter().map(|model| From::from(model)).collect();
+        Self { schemas }
+    }
+}
+
+impl<Schema> IntoResponse for PostManyResponse<Schema>
+where
+    Schema: Serialize,
+{
+    fn into_response(self) -> Response {
+        (StatusCode::CREATED, json(self.schemas)).into_response()
     }
 }
 
