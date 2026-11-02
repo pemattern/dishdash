@@ -28,11 +28,10 @@ pub fn router() -> Router<AppState> {
 pub fn recipe_ingredients_router() -> Router<AppState> {
     Router::new().nest(
         INGREDIENTS_PATH,
-        Router::new()
-            .route(EMPTY_PATH, get(get_all_recipes).post(post_recipe))
-            .route(
-                INGREDIENT_ID_PATH,
-                get(get_recipe).patch(patch_recipe).delete(delete_recipe),
-            ),
+        Router::new(), // .route(EMPTY_PATH, get(get_all_recipes).post(post_recipe))
+                       // .route(
+                       //     INGREDIENT_ID_PATH,
+                       //     get(get_recipe).patch(patch_recipe).delete(delete_recipe),
+                       // ),
     )
 }
