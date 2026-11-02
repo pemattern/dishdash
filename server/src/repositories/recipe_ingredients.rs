@@ -33,16 +33,19 @@ impl RecipeIngredients {
 
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
         recipe_ingredient: PostRecipeIngredientSchema,
     ) -> RepositoryResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
-            "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, unit_id, quantity)
-            VALUES ($1, $2, $3, $4)
+            "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, unit_id, position, quantity)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *;",
-            recipe_ingredient.recipe_id,
-            recipe_ingredient.ingredient_id,
+            recipe_id,
+            ingredient_id,
             recipe_ingredient.unit_id,
+            recipe_ingredient.position,
             recipe_ingredient.quantity,
         )
         .fetch_one(executor)
@@ -52,24 +55,24 @@ impl RecipeIngredients {
 
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
-        recipe_ingredient_id: Uuid,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
         recipe_ingredient: PatchRecipeIngredientSchema,
     ) -> RepositoryResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
             "UPDATE recipe_ingredients
             SET
-                recipe_id = COALESCE($1, recipe_id),
-                ingredient_id = COALESCE($2, ingredient_id),
-                unit_id = COALESCE($3, unit_id),
-                quantity = COALESCE($4, quantity)
-            WHERE id = $5
+                unit_id = COALESCE($1, unit_id),
+                position = COALESCE($2, position),
+                quantity = COALESCE($3, quantity)
+            WHERE recipe_id = $4 AND ingredient_id = $5
             RETURNING *;",
-            recipe_ingredient.recipe_id,
-            recipe_ingredient.ingredient_id,
             recipe_ingredient.unit_id,
+            recipe_ingredient.position,
             recipe_ingredient.quantity,
-            recipe_ingredient_id,
+            recipe_id,
+            ingredient_id,
         )
         .fetch_one(executor)
         .await?;

@@ -12,6 +12,7 @@ pub mod handlers;
 pub mod middleware;
 pub mod models;
 pub mod repositories;
+pub mod requests;
 pub mod responses;
 pub mod routes;
 pub mod services;

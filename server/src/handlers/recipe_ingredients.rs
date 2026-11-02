@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use axum::{
     Json,
     extract::{Path, State},
@@ -8,14 +6,14 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::{
-        recipe::schemas::{PatchRecipeSchema, RecipeSchema},
-        recipe_ingredient::{
-            join::schemas::RecipeIngredientJoinIngredientSchema,
-            schemas::{PostRecipeIngredientSchema, RecipeIngredientSchema},
+    models::recipe_ingredient::{
+        join::schemas::RecipeIngredientJoinIngredientSchema,
+        schemas::{
+            PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredientSchema,
         },
     },
-    responses::{DeleteResponse, GetManyResponse, PatchResponse, PostManyResponse, PostResponse},
+    requests::UuidMap,
+    responses::{GetManyResponse, PatchManyResponse, PostManyResponse},
     state::AppState,
 };
 
@@ -34,11 +32,12 @@ pub async fn get_recipe_ingredients_by_recipe_id(
 #[axum::debug_handler]
 pub async fn post_recipe_ingredients(
     State(state): State<AppState>,
-    Json(recipe_ingredients): Json<Vec<PostRecipeIngredientSchema>>,
+    Path(recipe_id): Path<Uuid>,
+    Json(recipe_ingredients): Json<UuidMap<PostRecipeIngredientSchema>>,
 ) -> AppResult<PostManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service
-        .create_recipe_ingredients(recipe_ingredients)
+        .create_recipe_ingredients(recipe_id, recipe_ingredients)
         .await?;
     Ok(recipe_ingredients.into())
 }
@@ -47,11 +46,11 @@ pub async fn post_recipe_ingredients(
 pub async fn patch_recipe_ingredients(
     State(state): State<AppState>,
     Path(recipe_id): Path<Uuid>,
-    Json(recipe_ingredients): Json<HashMap<Uuid, PatchRecipeSchema>>,
-) -> AppResult<PatchResponse<RecipeSchema>> {
+    Json(recipe_ingredients): Json<UuidMap<PatchRecipeIngredientSchema>>,
+) -> AppResult<PatchManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service
-        .update_recipe_ingredients(recipe_id, recipe_ingredient)
+        .update_recipe_ingredients(recipe_id, recipe_ingredients)
         .await?;
     Ok(recipe_ingredients.into())
 }

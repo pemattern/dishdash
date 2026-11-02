@@ -1,7 +1,13 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::RepositoryResult, models::recipe::Recipe};
+use crate::{
+    error::RepositoryResult,
+    models::recipe::{
+        Recipe,
+        schemas::{PatchRecipeSchema, PostRecipeSchema},
+    },
+};
 
 pub struct Recipes;
 
@@ -25,16 +31,15 @@ impl Recipes {
 
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
-        name: String,
-        summary: String,
+        recipe: PostRecipeSchema,
     ) -> RepositoryResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
             "INSERT INTO recipes (name, summary)
             VALUES ($1, $2)
             RETURNING *;",
-            name,
-            summary,
+            recipe.name,
+            recipe.summary,
         )
         .fetch_one(executor)
         .await?;
@@ -43,9 +48,8 @@ impl Recipes {
 
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
-        id: Uuid,
-        name: Option<String>,
-        summary: Option<String>,
+        recipe_id: Uuid,
+        recipe: PatchRecipeSchema,
     ) -> RepositoryResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
@@ -55,9 +59,9 @@ impl Recipes {
                 summary = COALESCE($2, summary)
             WHERE id = $3
             RETURNING *;",
-            name,
-            summary,
-            id,
+            recipe.name,
+            recipe.summary,
+            recipe_id,
         )
         .fetch_one(executor)
         .await?;

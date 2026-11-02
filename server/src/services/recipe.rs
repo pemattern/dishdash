@@ -15,6 +15,7 @@ use crate::{
         },
     },
     repositories::{recipe_ingredients::RecipeIngredients, recipes::Recipes},
+    requests::UuidMap,
 };
 
 #[derive(Clone)]
@@ -48,35 +49,46 @@ impl RecipeService {
     }
 
     pub async fn create_recipe(&self, recipe: PostRecipeSchema) -> ServiceResult<Recipe> {
-        let recipe = Recipes::insert(&self.pool, recipe.name, recipe.summary).await?;
+        let recipe = Recipes::insert(&self.pool, recipe).await?;
         Ok(recipe)
     }
 
     pub async fn create_recipe_ingredients(
         &self,
-        recipe_ingredients: Vec<PostRecipeIngredientSchema>,
+        recipe_id: Uuid,
+        recipe_ingredients: UuidMap<PostRecipeIngredientSchema>,
     ) -> ServiceResult<Vec<RecipeIngredient>> {
         let mut tx = self.pool.begin().await?;
         let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for recipe_ingredient in recipe_ingredients {
+        for (ingredient_id, recipe_ingredient) in recipe_ingredients {
             let inserted_recipe_ingredient =
-                RecipeIngredients::insert(&mut *tx, recipe_ingredient).await?;
+                RecipeIngredients::insert(&mut *tx, recipe_id, ingredient_id, recipe_ingredient)
+                    .await?;
             inserted_recipe_ingredients.push(inserted_recipe_ingredient);
         }
         tx.commit().await?;
         Ok(inserted_recipe_ingredients)
     }
 
+    pub async fn update_recipe(
+        &self,
+        recipe_id: Uuid,
+        recipe: PatchRecipeSchema,
+    ) -> ServiceResult<Recipe> {
+        let recipe = Recipes::update(&self.pool, recipe_id, recipe).await?;
+        Ok(recipe)
+    }
+
     pub async fn update_recipe_ingredients(
         &self,
-        recipe_ingredient_id: Uuid,
-        recipe_ingredients: Vec<PatchRecipeIngredientSchema>,
+        recipe_id: Uuid,
+        recipe_ingredients: UuidMap<PatchRecipeIngredientSchema>,
     ) -> ServiceResult<Vec<RecipeIngredient>> {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for recipe_ingredient in recipe_ingredients {
+        for (ingredient_id, recipe_ingredient) in recipe_ingredients {
             let updated_recipe_ingredient =
-                RecipeIngredients::update(&mut *tx, recipe_ingredient_id, recipe_ingredient)
+                RecipeIngredients::update(&mut *tx, recipe_id, ingredient_id, recipe_ingredient)
                     .await?;
             updated_recipe_ingredients.push(updated_recipe_ingredient);
         }
