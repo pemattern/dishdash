@@ -13,6 +13,22 @@ fn json<T: Serialize>(value: T) -> ServiceResult<String> {
     Ok(serde_json::to_string_pretty(&value)?)
 }
 
+fn get_into_response<S: Serialize>(schema: S) -> Response {
+    (StatusCode::OK, json(schema)).into_response()
+}
+
+fn post_into_response<S: Serialize>(schema: S) -> Response {
+    (StatusCode::CREATED, json(schema)).into_response()
+}
+
+fn patch_into_response<S: Serialize>(schema: S) -> Response {
+    (StatusCode::OK, json(schema)).into_response()
+}
+
+fn delete_into_response() -> Response {
+    StatusCode::NO_CONTENT.into_response()
+}
+
 pub struct GetResponse<Schema>
 where
     Schema: Serialize,
@@ -36,7 +52,7 @@ where
     Schema: Serialize,
 {
     fn into_response(self) -> Response {
-        (StatusCode::OK, json(self.schema)).into_response()
+        get_into_response(self.schema)
     }
 }
 
@@ -63,7 +79,7 @@ where
     Schema: Serialize,
 {
     fn into_response(self) -> Response {
-        (StatusCode::OK, json(self.schemas)).into_response()
+        get_into_response(self.schemas)
     }
 }
 
@@ -90,7 +106,7 @@ where
     Schema: Serialize,
 {
     fn into_response(self) -> Response {
-        (StatusCode::CREATED, json(self.schema)).into_response()
+        post_into_response(self.schema)
     }
 }
 
@@ -117,7 +133,7 @@ where
     Schema: Serialize,
 {
     fn into_response(self) -> Response {
-        (StatusCode::CREATED, json(self.schemas)).into_response()
+        post_into_response(self.schemas)
     }
 }
 
@@ -144,7 +160,33 @@ where
     Schema: Serialize,
 {
     fn into_response(self) -> Response {
-        (StatusCode::OK, json(self.schema)).into_response()
+        patch_into_response(self.schema)
+    }
+}
+pub struct PatchManyResponse<Schema>
+where
+    Schema: Serialize,
+{
+    schemas: Vec<Schema>,
+}
+
+impl<Schema, Model> From<Vec<Model>> for PatchManyResponse<Schema>
+where
+    Schema: Serialize + From<Model>,
+    Model: GenerateSchemas,
+{
+    fn from(models: Vec<Model>) -> Self {
+        let schemas = models.into_iter().map(|model| From::from(model)).collect();
+        Self { schemas }
+    }
+}
+
+impl<Schema> IntoResponse for PatchManyResponse<Schema>
+where
+    Schema: Serialize,
+{
+    fn into_response(self) -> Response {
+        patch_into_response(self.schemas)
     }
 }
 
@@ -161,6 +203,6 @@ where
 
 impl IntoResponse for DeleteResponse {
     fn into_response(self) -> Response {
-        StatusCode::NO_CONTENT.into_response()
+        delete_into_response()
     }
 }

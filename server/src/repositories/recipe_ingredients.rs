@@ -52,7 +52,7 @@ impl RecipeIngredients {
 
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
-        id: Uuid,
+        recipe_ingredient_id: Uuid,
         recipe_ingredient: PatchRecipeIngredientSchema,
     ) -> RepositoryResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
@@ -69,7 +69,7 @@ impl RecipeIngredients {
             recipe_ingredient.ingredient_id,
             recipe_ingredient.unit_id,
             recipe_ingredient.quantity,
-            id,
+            recipe_ingredient_id,
         )
         .fetch_one(executor)
         .await?;

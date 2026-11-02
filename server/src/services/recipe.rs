@@ -9,8 +9,9 @@ use crate::{
             schemas::{PatchRecipeSchema, PostRecipeSchema},
         },
         recipe_ingredient::{
-            RecipeIngredient, join::RecipeIngredientJoinIngredient,
-            schemas::PostRecipeIngredientSchema,
+            RecipeIngredient,
+            join::RecipeIngredientJoinIngredient,
+            schemas::{PatchRecipeIngredientSchema, PostRecipeIngredientSchema},
         },
     },
     repositories::{recipe_ingredients::RecipeIngredients, recipes::Recipes},
@@ -66,13 +67,21 @@ impl RecipeService {
         Ok(inserted_recipe_ingredients)
     }
 
-    pub async fn update_recipe(
+    pub async fn update_recipe_ingredients(
         &self,
-        id: Uuid,
-        recipe: PatchRecipeSchema,
-    ) -> ServiceResult<Recipe> {
-        let recipe = Recipes::update(&self.pool, id, recipe.name, recipe.summary).await?;
-        Ok(recipe)
+        recipe_ingredient_id: Uuid,
+        recipe_ingredients: Vec<PatchRecipeIngredientSchema>,
+    ) -> ServiceResult<Vec<RecipeIngredient>> {
+        let mut tx = self.pool.begin().await?;
+        let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
+        for recipe_ingredient in recipe_ingredients {
+            let updated_recipe_ingredient =
+                RecipeIngredients::update(&mut *tx, recipe_ingredient_id, recipe_ingredient)
+                    .await?;
+            updated_recipe_ingredients.push(updated_recipe_ingredient);
+        }
+        tx.commit().await?;
+        Ok(updated_recipe_ingredients)
     }
 
     pub async fn delete_recipe(&self, id: Uuid) -> ServiceResult<Recipe> {
