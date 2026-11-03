@@ -1,4 +1,4 @@
-import { auth } from './auth.svelte';
+import { appState } from '#lib/state.svelte.ts';
 
 const apiPath = '/api';
 
@@ -8,7 +8,7 @@ const AUTHORIZATION_HEADER_KEY = 'Authorization';
 
 const APPLICATION_JSON_HEADER_VALUE = 'application/json';
 
-function getHeaders(withContent = false): HeadersInit {
+function getHeaders(withContent: boolean): HeadersInit {
 	let headers: HeadersInit = {
 		[ACCEPT_HEADER_KEY]: APPLICATION_JSON_HEADER_VALUE,
 		[AUTHORIZATION_HEADER_KEY]: getBearerTokenHeaderValue()
@@ -23,7 +23,7 @@ function getHeaders(withContent = false): HeadersInit {
 }
 
 function getBearerTokenHeaderValue(): string {
-	return `Bearer ${auth.accessToken}`;
+	return `Bearer ${appState.accessToken}`;
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -40,7 +40,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const api = {
 	get: <T>(path: string) =>
 		request<T>(path, {
-			headers: getHeaders()
+			headers: getHeaders(false)
 		}),
 
 	post: <T>(path: string, body: unknown) =>
@@ -57,9 +57,9 @@ export const api = {
 			headers: getHeaders(true)
 		}),
 
-	delete: <T>(path: string) =>
-		request<T>(path, {
+	delete: (path: string) =>
+		request<null>(path, {
 			method: 'DELETE',
-			headers: getHeaders()
+			headers: getHeaders(false)
 		})
 };

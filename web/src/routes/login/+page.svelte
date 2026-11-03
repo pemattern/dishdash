@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { auth } from '#lib/api/auth.svelte.ts';
+	import { auth } from '#lib/api/auth.ts';
 	import Input from '#lib/components/Input.svelte';
 	import Logo from '#lib/components/Logo.svelte';
 	import { routes } from '#lib/const/routes.ts';
+	import { appState } from '#lib/state.svelte.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
 		await auth.refresh();
-		if (auth.accessToken) {
+		if (appState.accessToken) {
 			await goto(resolve(routes.home), { replace: true });
 		}
 	});

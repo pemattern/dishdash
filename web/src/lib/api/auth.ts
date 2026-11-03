@@ -1,6 +1,5 @@
+import { appState } from '#lib/state.svelte.ts';
 import type { LoginSchema, RefreshSchema } from '$bindings';
-
-let accessToken = $state<string | null>(null);
 
 export const auth = {
 	async login(email: string, password: string) {
@@ -16,9 +15,9 @@ export const auth = {
 				throw new Error(response.status === 401 ? 'Invalid email or password' : 'Login failed');
 			}
 			const data: LoginSchema = await response.json();
-			accessToken = data.accessToken;
+			appState.accessToken = data.accessToken;
 		} catch {
-			accessToken = null;
+			appState.accessToken = null;
 		}
 	},
 
@@ -31,9 +30,9 @@ export const auth = {
 				throw new Error(response.status === 401 ? 'Invalid refresh token' : 'Refresh failed');
 			}
 			const data: RefreshSchema = await response.json();
-			accessToken = data.accessToken;
+			appState.accessToken = data.accessToken;
 		} catch {
-			accessToken = null;
+			appState.accessToken = null;
 		}
 	},
 
@@ -43,11 +42,7 @@ export const auth = {
 				method: 'POST'
 			});
 		} finally {
-			accessToken = null;
+			appState.accessToken = null;
 		}
-	},
-
-	get accessToken() {
-		return accessToken;
 	}
 };

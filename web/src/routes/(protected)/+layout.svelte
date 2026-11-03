@@ -4,19 +4,20 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import HeaderBar from '#lib/components/HeaderBar.svelte';
-	import { auth } from '#lib/api/auth.svelte.ts';
+	import { auth } from '#lib/api/auth.ts';
 	import { routes } from '#lib/const/routes.ts';
 	import Navbar from '#lib/components/Navbar.svelte';
+	import { appState } from '#lib/state.svelte.ts';
 
 	let loading = $state(true);
 
 	onMount(async () => {
 		try {
-			if (!auth.accessToken) {
+			if (!appState.accessToken) {
 				await auth.refresh();
 			}
 
-			if (!auth.accessToken) {
+			if (!appState.accessToken) {
 				await goto(resolve(routes.login), { replace: true });
 				return;
 			}
@@ -28,7 +29,7 @@
 
 {#if loading}
 	<div>authenticating…</div>
-{:else if auth.accessToken}
+{:else if appState.accessToken}
 	<div class="flex">
 		<Navbar />
 		<div class="flex w-full flex-1 flex-col">

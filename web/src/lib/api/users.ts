@@ -1,16 +1,12 @@
-import { auth } from './auth.svelte';
+import type { UserSchema } from '$bindings';
 import { api } from './request';
 
-export type GetUserResponse = {
-	id: string;
-	email: string;
-	createdAt: string;
-	updatedAt: string;
-};
+const usersPath = '/users';
+const userMePath = `${usersPath}/me`;
+// const userPath = (id: string) => `${usersPath}/${id}`;
 
 export const users = {
 	async me() {
-		console.log(`Bearer ${auth.accessToken}`);
-		return await api.get<GetUserResponse>('/users/me');
+		return await api.get<UserSchema>(userMePath);
 	}
 };
