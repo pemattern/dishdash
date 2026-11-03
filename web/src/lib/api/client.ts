@@ -8,6 +8,8 @@ const AUTHORIZATION_HEADER_KEY = 'Authorization';
 
 const APPLICATION_JSON_HEADER_VALUE = 'application/json';
 
+export class ApiException extends Error {}
+
 function id_path(path: string, id: string): string {
 	return `${path}/${id}`;
 }
@@ -71,12 +73,18 @@ export const api = {
 };
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-	const response = await fetch(`${apiPath}${path}`, options);
+	let response: Response;
+	try {
+		response = await fetch(`${apiPath}${path}`, options);
+	} catch (error) {
+		// TODO: Network error
+		console.error(error);
+		throw error;
+	}
 
-	if (options.headers)
-		if (!response.ok) {
-			throw new Error(`API error: ${response.status}`);
-		}
+	if (!response.ok) {
+		throw new Error(`API error: ${response.status}`);
+	}
 	if (response.status === 204) return undefined as T;
 	return response.json() as Promise<T>;
 }
