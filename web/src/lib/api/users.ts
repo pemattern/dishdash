@@ -1,12 +1,8 @@
 import type { UserSchema } from '$bindings';
-import { api } from './request';
+import { api } from './client';
 
 const usersPath = '/users';
-const userMePath = `${usersPath}/me`;
-// const userPath = (id: string) => `${usersPath}/${id}`;
 
 export const users = {
-	async me() {
-		return await api.get<UserSchema>(userMePath);
-	}
+	me: () => api.get<UserSchema>(`${usersPath}/me`)
 };
