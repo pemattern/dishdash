@@ -25,7 +25,7 @@ pub async fn get_ingredient(
 }
 
 #[axum::debug_handler]
-pub async fn get_all_ingredients(
+pub async fn get_ingredients(
     State(state): State<AppState>,
 ) -> AppResult<GetManyResponse<IngredientSchema>> {
     let ingredients = state.ingredient_service.all_ingredients().await?;

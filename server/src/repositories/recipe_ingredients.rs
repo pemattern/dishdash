@@ -13,6 +13,27 @@ use crate::{
 pub struct RecipeIngredients;
 
 impl RecipeIngredients {
+    pub async fn select_by_id<'a>(
+        executor: impl PgExecutor<'a>,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
+    ) -> RepositoryResult<Option<RecipeIngredientJoinIngredient>> {
+        let recipe_ingredient = sqlx::query_as!(
+            RecipeIngredientJoinIngredient,
+            "SELECT ri.*, i.name AS ingredient_name
+            FROM recipe_ingredients ri
+            INNER JOIN ingredients i
+            ON ri.ingredient_id = i.id
+            WHERE ri.recipe_id = $1
+            AND ri.ingredient_id = $2;",
+            recipe_id,
+            ingredient_id,
+        )
+        .fetch_optional(executor)
+        .await?;
+        Ok(recipe_ingredient)
+    }
+
     pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
@@ -71,6 +92,24 @@ impl RecipeIngredients {
             recipe_ingredient.unit_id,
             recipe_ingredient.position,
             recipe_ingredient.quantity,
+            recipe_id,
+            ingredient_id,
+        )
+        .fetch_one(executor)
+        .await?;
+        Ok(recipe_ingredient)
+    }
+
+    pub async fn delete_by_id<'a>(
+        executor: impl PgExecutor<'a>,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
+    ) -> RepositoryResult<RecipeIngredient> {
+        let recipe_ingredient = sqlx::query_as!(
+            RecipeIngredient,
+            "DELETE FROM recipe_ingredients
+            WHERE recipe_id = $1 AND ingredient_id = $2
+            RETURNING *;",
             recipe_id,
             ingredient_id,
         )

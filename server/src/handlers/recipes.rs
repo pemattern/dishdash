@@ -28,7 +28,7 @@ pub async fn get_recipe(
 pub async fn get_all_recipes(
     State(state): State<AppState>,
 ) -> AppResult<GetManyResponse<RecipeSchema>> {
-    let recipes = state.recipe_service.all_recipes().await?;
+    let recipes = state.recipe_service.get_recipes().await?;
     Ok(recipes.into())
 }
 

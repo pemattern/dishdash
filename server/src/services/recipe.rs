@@ -34,9 +34,19 @@ impl RecipeService {
         Ok(recipe)
     }
 
-    pub async fn all_recipes(&self) -> ServiceResult<Vec<Recipe>> {
+    pub async fn get_recipes(&self) -> ServiceResult<Vec<Recipe>> {
         let recipes = Recipes::select_all(&self.pool).await?;
         Ok(recipes)
+    }
+
+    pub async fn find_recipe_ingredient_by_id(
+        &self,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
+    ) -> ServiceResult<Option<RecipeIngredientJoinIngredient>> {
+        let recipe_ingredient =
+            RecipeIngredients::select_by_id(&self.pool, recipe_id, ingredient_id).await?;
+        Ok(recipe_ingredient)
     }
 
     pub async fn find_recipe_ingredients_by_recipe_id(
@@ -51,6 +61,18 @@ impl RecipeService {
     pub async fn create_recipe(&self, recipe: PostRecipeSchema) -> ServiceResult<Recipe> {
         let recipe = Recipes::insert(&self.pool, recipe).await?;
         Ok(recipe)
+    }
+
+    pub async fn create_recipe_ingredient(
+        &self,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
+        recipe_ingredient: PostRecipeIngredientSchema,
+    ) -> ServiceResult<RecipeIngredient> {
+        let recipe_ingredient =
+            RecipeIngredients::insert(&self.pool, recipe_id, ingredient_id, recipe_ingredient)
+                .await?;
+        Ok(recipe_ingredient)
     }
 
     pub async fn create_recipe_ingredients(
@@ -79,6 +101,18 @@ impl RecipeService {
         Ok(recipe)
     }
 
+    pub async fn update_recipe_ingredient(
+        &self,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
+        recipe_ingredient: PatchRecipeIngredientSchema,
+    ) -> ServiceResult<RecipeIngredient> {
+        let recipe_ingredient =
+            RecipeIngredients::update(&self.pool, recipe_id, ingredient_id, recipe_ingredient)
+                .await?;
+        Ok(recipe_ingredient)
+    }
+
     pub async fn update_recipe_ingredients(
         &self,
         recipe_id: Uuid,
@@ -96,8 +130,18 @@ impl RecipeService {
         Ok(updated_recipe_ingredients)
     }
 
-    pub async fn delete_recipe(&self, id: Uuid) -> ServiceResult<Recipe> {
-        let recipe = Recipes::delete_by_id(&self.pool, id).await?;
+    pub async fn delete_recipe(&self, recipe_id: Uuid) -> ServiceResult<Recipe> {
+        let recipe = Recipes::delete_by_id(&self.pool, recipe_id).await?;
         Ok(recipe)
+    }
+
+    pub async fn delete_recipe_ingredient(
+        &self,
+        recipe_id: Uuid,
+        ingredient_id: Uuid,
+    ) -> ServiceResult<RecipeIngredient> {
+        let recipe_ingredient =
+            RecipeIngredients::delete_by_id(&self.pool, recipe_id, ingredient_id).await?;
+        Ok(recipe_ingredient)
     }
 }

@@ -13,6 +13,9 @@ CREATE TABLE recipe_ingredients (
         DEFERRABLE INITIALLY DEFERRED
 );
 
+CREATE INDEX ingredient_id_index
+    ON recipe_ingredients (ingredient_id);
+
 CREATE TRIGGER update_recipe_ingredients_updated_at
     BEFORE UPDATE ON recipe_ingredients
     FOR EACH ROW
