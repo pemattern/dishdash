@@ -6,8 +6,9 @@ use serde::Serialize;
 
 use crate::{middleware::auth::REFRESH_TOKEN_COOKIE, responses::json};
 
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = lib::BINDINGS_PATH, rename = "LoginSchema")]
 pub struct LoginResponse {
     pub access_token: String,
     #[serde(skip)]
@@ -23,8 +24,9 @@ impl LoginResponse {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = lib::BINDINGS_PATH, rename = "RefreshSchema")]
 pub struct RefreshResponse {
     pub access_token: String,
     #[serde(skip)]

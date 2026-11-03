@@ -1,10 +1,4 @@
-type LoginResponse = {
-	accessToken: string;
-};
-
-type RefreshResponse = {
-	accessToken: string;
-};
+import type { LoginSchema, RefreshSchema } from '$bindings';
 
 let accessToken = $state<string | null>(null);
 
@@ -21,7 +15,7 @@ export const auth = {
 			if (!response.ok) {
 				throw new Error(response.status === 401 ? 'Invalid email or password' : 'Login failed');
 			}
-			const data: LoginResponse = await response.json();
+			const data: LoginSchema = await response.json();
 			accessToken = data.accessToken;
 		} catch {
 			accessToken = null;
@@ -36,7 +30,7 @@ export const auth = {
 			if (!response.ok) {
 				throw new Error(response.status === 401 ? 'Invalid refresh token' : 'Refresh failed');
 			}
-			const data: RefreshResponse = await response.json();
+			const data: RefreshSchema = await response.json();
 			accessToken = data.accessToken;
 		} catch {
 			accessToken = null;

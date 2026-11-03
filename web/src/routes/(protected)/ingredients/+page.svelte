@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { users, type GetUserResponse } from "#lib/api/users.ts";
-	import { onMount } from "svelte";
+	import { users } from '#lib/api/users.ts';
+	import type { UserSchema } from '$bindings';
+	import { onMount } from 'svelte';
 
-	let user = $state<GetUserResponse>();
+	let user = $state<UserSchema>();
 
-    onMount(async () => {
-      user = await users.me();
-    });
+	onMount(async () => {
+		user = await users.me();
+	});
 </script>
 
 <p>Ingredients</p>

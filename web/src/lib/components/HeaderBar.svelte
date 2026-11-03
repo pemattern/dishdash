@@ -12,6 +12,8 @@
 
 <header class="flex pt-2 pr-4 pl-4">
 	<div class="flex flex-1/4 justify-end">
-		<button class="rounded-md bg-blue px-4 py-2" onclick={logout}> Logout </button>
+		<button class="rounded-md bg-light-blue px-4 py-2 font-bold text-dark-blue" onclick={logout}>
+			Logout
+		</button>
 	</div>
 </header>

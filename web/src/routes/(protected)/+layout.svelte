@@ -38,5 +38,4 @@
 			</main>
 		</div>
 	</div>
-	<Navbar />
 {/if}
