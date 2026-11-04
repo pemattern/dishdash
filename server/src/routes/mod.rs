@@ -30,21 +30,18 @@ const STATIC_ASSETS_PATH: &str = "web/build";
 const INDEX_HTML: &str = "/index.html";
 
 pub fn app(state: AppState) -> Router {
-    default_router_layers()
+    Router::new()
         .merge(api_router(state.clone()))
         .fallback_service(web_service())
         .method_not_allowed_fallback(method_not_allowed_fallback)
+        .layer(
+            ServiceBuilder::new()
+                .layer(trace_layer())
+                .layer(compression_layer())
+                .layer(timeout_layer())
+                .layer(middleware::from_fn(errors)),
+        )
         .with_state(state)
-}
-
-fn default_router_layers() -> Router<AppState> {
-    Router::new().layer(
-        ServiceBuilder::new()
-            .layer(trace_layer())
-            .layer(compression_layer())
-            .layer(timeout_layer())
-            .layer(middleware::from_fn(errors)),
-    )
 }
 
 fn trace_layer() -> TraceLayer<SharedClassifier<ServerErrorsAsFailures>> {

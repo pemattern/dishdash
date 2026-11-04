@@ -25,6 +25,14 @@ impl ErrorSchema {
         self
     }
 
+    pub fn bad_request() -> Self {
+        Self {
+            title: String::from("Bad Request"),
+            status: 400,
+            ..Self::default()
+        }
+    }
+
     pub fn unauthorized() -> Self {
         Self {
             title: String::from("Unauthorized"),
@@ -53,6 +61,9 @@ impl ErrorSchema {
         Self {
             title: String::from("Unexpected error"),
             status: 500,
+            detail: Some(String::from(
+                "An unexpected error occured while processing the request",
+            )),
             ..Self::default()
         }
     }

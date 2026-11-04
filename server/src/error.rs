@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use axum::{
     Extension,
+    extract::rejection::PathRejection,
     response::{IntoResponse, Response},
 };
 
@@ -32,11 +33,17 @@ impl From<ServiceError> for AppError {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum ClientError {
+    BadRequest(BadRequestError),
     MethodNotAllowed,
     NotFound,
     Unauthorized,
+}
+
+#[derive(Debug)]
+pub enum BadRequestError {
+    PathRejection(PathRejection),
 }
 
 #[derive(Debug)]
