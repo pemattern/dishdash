@@ -1,5 +1,5 @@
 use axum::{
-    http::StatusCode,
+    http::{StatusCode, Uri},
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
@@ -15,6 +15,16 @@ pub struct ErrorSchema {
 }
 
 impl ErrorSchema {
+    pub fn detail(mut self, detail: &str) -> Self {
+        self.detail = Some(detail.into());
+        self
+    }
+
+    pub fn instance(mut self, instance: Uri) -> Self {
+        self.instance = Some(instance.to_string());
+        self
+    }
+
     pub fn unauthorized() -> Self {
         Self {
             title: String::from("Unauthorized"),
