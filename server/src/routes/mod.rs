@@ -19,7 +19,7 @@ use tracing::Level;
 
 use crate::{
     error::{AppResult, ClientError},
-    middleware::{auth::validate_access_token, log::log_errors},
+    middleware::{auth::validate_access_token, errors::errors},
     state::AppState,
 };
 
@@ -43,7 +43,7 @@ fn default_router_layers() -> Router<AppState> {
             .layer(trace_layer())
             .layer(compression_layer())
             .layer(timeout_layer())
-            .layer(middleware::from_fn(log_errors)),
+            .layer(middleware::from_fn(errors)),
     )
 }
 

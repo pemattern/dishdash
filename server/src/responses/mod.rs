@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod error;
 
 use axum::{
     http::StatusCode,
@@ -7,10 +8,10 @@ use axum::{
 use lib::GenerateSchemas;
 use serde::Serialize;
 
-use crate::error::ServiceResult;
+use crate::error::{AppResult, ServiceError};
 
-fn json<T: Serialize>(value: T) -> ServiceResult<String> {
-    Ok(serde_json::to_string_pretty(&value)?)
+fn json<T: Serialize>(value: T) -> AppResult<String> {
+    Ok(serde_json::to_string_pretty(&value).map_err(|e| ServiceError::Serialization(e))?)
 }
 
 fn get_into_response<S: Serialize>(schema: S) -> Response {

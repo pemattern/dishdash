@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    body::Body,
+    Extension,
     response::{IntoResponse, Response},
 };
 
@@ -16,10 +16,7 @@ pub enum AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        match self {
-            AppError::Client(client_error) => client_error.into_response(),
-            AppError::Service(service_error) => service_error.into_response(),
-        }
+        Extension(Arc::new(self)).into_response()
     }
 }
 
@@ -35,21 +32,11 @@ impl From<ServiceError> for AppError {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum ClientError {
     MethodNotAllowed,
     NotFound,
     Unauthorized,
-}
-
-impl IntoResponse for ClientError {
-    fn into_response(self) -> Response {
-        let error_response = match &self {
-            ClientError::MethodNotAllowed => ErrorResponse::method_not_allowed(),
-            ClientError::NotFound => ErrorResponse::not_found(),
-            ClientError::Unauthorized => ErrorResponse::unauthorized(),
-        };
-        error_response.into_response()
-    }
 }
 
 #[derive(Debug)]
@@ -61,14 +48,6 @@ pub enum ServiceError {
     Uuid(uuid::Error),
     Serialization(serde_json::Error),
     Validation,
-}
-
-impl IntoResponse for ServiceError {
-    fn into_response(self) -> Response {
-        let mut error_response = ErrorResponse::internal_server_error().into_response();
-        error_response.extensions_mut().insert(Arc::new(self));
-        error_response
-    }
 }
 
 impl From<RepositoryError> for ServiceError {
@@ -115,49 +94,5 @@ pub enum RepositoryError {
 impl From<sqlx::Error> for RepositoryError {
     fn from(value: sqlx::Error) -> Self {
         Self::Sqlx(value)
-    }
-}
-
-struct ErrorResponse {
-    status_code: u16,
-    message: String,
-}
-
-impl ErrorResponse {
-    pub fn unauthorized() -> Self {
-        Self {
-            status_code: 401,
-            message: String::from("unauthorized access requested"),
-        }
-    }
-
-    pub fn not_found() -> Self {
-        Self {
-            status_code: 404,
-            message: String::from("the requested resource was not found"),
-        }
-    }
-
-    pub fn method_not_allowed() -> Self {
-        Self {
-            status_code: 405,
-            message: String::from("used http method is not allowed for the requested resource"),
-        }
-    }
-
-    pub fn internal_server_error() -> Self {
-        Self {
-            status_code: 500,
-            message: String::from("an unexpected error occured"),
-        }
-    }
-}
-
-impl IntoResponse for ErrorResponse {
-    fn into_response(self) -> Response {
-        Response::builder()
-            .status(self.status_code)
-            .body(Body::new(self.message.to_string()))
-            .unwrap()
     }
 }
