@@ -6,7 +6,7 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::error::ServiceResult;
+use crate::error::AppResult;
 
 const ISSUER: &str = "dishdash";
 const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_mins(15);
@@ -39,7 +39,7 @@ fn generate_byte_key<const N: usize>() -> [u8; N] {
     key
 }
 
-pub fn generate_access_token(user_id: Uuid) -> ServiceResult<String> {
+pub fn generate_access_token(user_id: Uuid) -> AppResult<String> {
     let claims = Claims::new(user_id);
     let key = EncodingKey::from_secret(&*ENCRYPTION_KEY);
     Ok(encode(&Header::default(), &claims, &key)?)
@@ -50,11 +50,10 @@ pub fn generate_refresh_token() -> String {
     URL_SAFE_NO_PAD.encode(opaque_token_bytes)
 }
 
-pub fn get_valid_access_token_claims(access_token: &str) -> Option<Claims> {
+pub fn get_valid_access_token_claims(access_token: &str) -> AppResult<Claims> {
     let key = DecodingKey::from_secret(&*ENCRYPTION_KEY);
     let mut validation = Validation::new(jsonwebtoken::Algorithm::HS256);
     validation.set_issuer(&[ISSUER]);
-    decode::<Claims>(access_token, &key, &validation)
-        .ok()
-        .map(|token_data| token_data.claims)
+    let token_data = decode::<Claims>(access_token, &key, &validation)?;
+    Ok(token_data.claims)
 }

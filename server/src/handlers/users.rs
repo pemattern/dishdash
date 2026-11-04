@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::{
     auth::token::Claims,
-    error::{AppResult, ClientError},
+    error::AppResult,
     models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
     responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
@@ -17,11 +17,7 @@ pub async fn get_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<GetResponse<UserSchema>> {
-    let user = state
-        .user_service
-        .find_user_by_id(id)
-        .await?
-        .ok_or(ClientError::NotFound)?;
+    let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
 }
 
@@ -30,12 +26,8 @@ pub async fn get_me(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
 ) -> AppResult<GetResponse<UserSchema>> {
-    let id = Uuid::parse_str(&claims.sub).unwrap();
-    let user = state
-        .user_service
-        .find_user_by_id(id)
-        .await?
-        .ok_or(ClientError::NotFound)?;
+    let id = Uuid::parse_str(&claims.sub)?;
+    let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
 }
 

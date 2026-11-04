@@ -2,17 +2,25 @@ use std::sync::Arc;
 
 use axum::{
     Extension,
-    extract::rejection::PathRejection,
+    extract::rejection::{JsonRejection, PathRejection},
     response::{IntoResponse, Response},
 };
+use axum_extra::typed_header::TypedHeaderRejection;
 
 pub type AppResult<T> = Result<T, AppError>;
-pub type ServiceResult<T> = Result<T, ServiceError>;
-pub type RepositoryResult<T> = Result<T, RepositoryError>;
 
 pub enum AppError {
-    Client(ClientError),
-    Service(ServiceError),
+    Sqlx(sqlx::Error),
+    Argon2(argon2::password_hash::Error),
+    Jsonwebtoken(jsonwebtoken::errors::Error),
+    Uuid(uuid::Error),
+    SerdeJson(serde_json::Error),
+    JsonRejection(JsonRejection),
+    PathRejection(PathRejection),
+    TypedHeaderRejection(TypedHeaderRejection),
+    IncorrectPassword,
+    InvalidRefreshToken,
+    NoRefreshTokenCookie,
 }
 
 impl IntoResponse for AppError {
@@ -21,85 +29,32 @@ impl IntoResponse for AppError {
     }
 }
 
-impl From<ClientError> for AppError {
-    fn from(value: ClientError) -> Self {
-        Self::Client(value)
-    }
-}
-
-impl From<ServiceError> for AppError {
-    fn from(value: ServiceError) -> Self {
-        Self::Service(value)
-    }
-}
-
-#[derive(Debug)]
-pub enum ClientError {
-    BadRequest(BadRequestError),
-    MethodNotAllowed,
-    NotFound,
-    Unauthorized,
-}
-
-#[derive(Debug)]
-pub enum BadRequestError {
-    PathRejection(PathRejection),
-}
-
-#[derive(Debug)]
-pub enum ServiceError {
-    Repository(RepositoryError),
-    Sqlx(sqlx::Error),
-    Hash(argon2::password_hash::Error),
-    Token(jsonwebtoken::errors::Error),
-    Uuid(uuid::Error),
-    Serialization(serde_json::Error),
-    Validation,
-}
-
-impl From<RepositoryError> for ServiceError {
-    fn from(value: RepositoryError) -> Self {
-        Self::Repository(value)
-    }
-}
-
-impl From<sqlx::Error> for ServiceError {
+impl From<sqlx::Error> for AppError {
     fn from(value: sqlx::Error) -> Self {
         Self::Sqlx(value)
     }
 }
 
-impl From<argon2::password_hash::Error> for ServiceError {
+impl From<argon2::password_hash::Error> for AppError {
     fn from(value: argon2::password_hash::Error) -> Self {
-        Self::Hash(value)
+        Self::Argon2(value)
     }
 }
 
-impl From<jsonwebtoken::errors::Error> for ServiceError {
+impl From<jsonwebtoken::errors::Error> for AppError {
     fn from(value: jsonwebtoken::errors::Error) -> Self {
-        Self::Token(value)
+        Self::Jsonwebtoken(value)
     }
 }
 
-impl From<uuid::Error> for ServiceError {
+impl From<uuid::Error> for AppError {
     fn from(value: uuid::Error) -> Self {
         Self::Uuid(value)
     }
 }
 
-impl From<serde_json::Error> for ServiceError {
+impl From<serde_json::Error> for AppError {
     fn from(value: serde_json::Error) -> Self {
-        Self::Serialization(value)
-    }
-}
-
-#[derive(Debug)]
-pub enum RepositoryError {
-    Sqlx(sqlx::Error),
-}
-
-impl From<sqlx::Error> for RepositoryError {
-    fn from(value: sqlx::Error) -> Self {
-        Self::Sqlx(value)
+        Self::SerdeJson(value)
     }
 }

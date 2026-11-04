@@ -1,7 +1,7 @@
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use std::sync::LazyLock;
 
-use crate::error::ServiceResult;
+use crate::error::AppResult;
 
 static ARGON2: LazyLock<Argon2<'static>> = LazyLock::new(Argon2::default);
 
@@ -16,7 +16,7 @@ pub fn is_valid_password(password: &str, password_hash: &str) -> bool {
     false
 }
 
-pub fn get_hash(password: &str) -> ServiceResult<String> {
+pub fn get_hash(password: &str) -> AppResult<String> {
     Ok(ARGON2
         .hash_password(password.as_bytes())
         .map(|hash| hash.to_string())?)

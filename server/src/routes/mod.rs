@@ -18,8 +18,8 @@ use tower_http::{
 use tracing::Level;
 
 use crate::{
-    error::{AppResult, ClientError},
-    middleware::{auth::validate_access_token, errors::errors},
+    error::AppResult,
+    middleware::{auth::validate_access_token, errors::handle_errors},
     state::AppState,
 };
 
@@ -39,7 +39,7 @@ pub fn app(state: AppState) -> Router {
                 .layer(trace_layer())
                 .layer(compression_layer())
                 .layer(timeout_layer())
-                .layer(middleware::from_fn(errors)),
+                .layer(middleware::from_fn(handle_errors)),
         )
         .with_state(state)
 }

@@ -1,5 +1,6 @@
-pub mod valid_json;
-pub mod valid_path;
+pub mod app_json;
+pub mod app_path;
+pub mod app_typed_header;
 
 use std::collections::HashMap;
 

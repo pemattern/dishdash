@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::RepositoryResult, models::ingredient::Ingredient};
+use crate::{error::AppResult, models::ingredient::Ingredient};
 
 pub struct Ingredients;
 
@@ -9,25 +9,20 @@ impl Ingredients {
     pub async fn select_by_id<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-    ) -> RepositoryResult<Option<Ingredient>> {
+    ) -> AppResult<Ingredient> {
         let user = sqlx::query_as!(Ingredient, "SELECT * FROM ingredients WHERE id = $1;", id)
-            .fetch_optional(executor)
+            .fetch_one(executor)
             .await?;
         Ok(user)
     }
-    pub async fn select_all<'a>(
-        executor: impl PgExecutor<'a>,
-    ) -> RepositoryResult<Vec<Ingredient>> {
+    pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> AppResult<Vec<Ingredient>> {
         let unit_systems = sqlx::query_as!(Ingredient, "SELECT * FROM ingredients;")
             .fetch_all(executor)
             .await?;
         Ok(unit_systems)
     }
 
-    pub async fn insert<'a>(
-        executor: impl PgExecutor<'a>,
-        name: String,
-    ) -> RepositoryResult<Ingredient> {
+    pub async fn insert<'a>(executor: impl PgExecutor<'a>, name: String) -> AppResult<Ingredient> {
         let ingredient = sqlx::query_as!(
             Ingredient,
             "INSERT INTO ingredients (name)
@@ -44,7 +39,7 @@ impl Ingredients {
         executor: impl PgExecutor<'a>,
         id: Uuid,
         name: Option<String>,
-    ) -> RepositoryResult<Ingredient> {
+    ) -> AppResult<Ingredient> {
         let ingredient = sqlx::query_as!(
             Ingredient,
             "UPDATE ingredients
@@ -63,7 +58,7 @@ impl Ingredients {
     pub async fn delete_by_id<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-    ) -> RepositoryResult<Ingredient> {
+    ) -> AppResult<Ingredient> {
         let user = sqlx::query_as!(
             Ingredient,
             "DELETE FROM ingredients WHERE id = $1 RETURNING *;",

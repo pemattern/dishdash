@@ -3,15 +3,12 @@ use std::sync::Arc;
 use axum::{extract::Request, middleware::Next, response::IntoResponse};
 
 use crate::{
-    error::{AppError, AppResult, BadRequestError, ClientError, ServiceError},
+    error::{AppError, AppResult},
     responses::error::ErrorSchema,
 };
 
-// TODO: HANDLE no Content-Type: application/json
-// TODO: HANDLE failed to deserialize
-
 #[axum::debug_middleware]
-pub async fn errors(request: Request, next: Next) -> AppResult<impl IntoResponse> {
+pub async fn handle_errors(request: Request, next: Next) -> AppResult<impl IntoResponse> {
     let uri = request.uri().clone();
     let mut response = next.run(request).await;
     let extensions = response.extensions();
@@ -23,34 +20,42 @@ pub async fn errors(request: Request, next: Next) -> AppResult<impl IntoResponse
 
 fn handle_app_error(app_error: &AppError) -> ErrorSchema {
     match app_error {
-        AppError::Client(client_error) => {
-            tracing::warn!("{:#?}", client_error);
-            handle_client_error(client_error)
-        }
-        AppError::Service(service_error) => {
-            tracing::error!("{:#?}", service_error);
-            handle_service_error(service_error)
-        }
+        AppError::Sqlx(error) => handle_sqlx_error(error),
+        AppError::Argon2(error) => todo!(),
+        AppError::Jsonwebtoken(error) => todo!(),
+        AppError::Uuid(error) => todo!(),
+        AppError::SerdeJson(error) => todo!(),
+        AppError::JsonRejection(json_rejection) => todo!(),
+        AppError::PathRejection(path_rejection) => todo!(),
+        AppError::IncorrectPassword => todo!(),
+        AppError::InvalidRefreshToken => todo!(),
+        AppError::TypedHeaderRejection(typed_header_rejection) => todo!(),
+        AppError::NoRefreshTokenCookie => todo!(),
     }
 }
 
-fn handle_client_error(client_error: &ClientError) -> ErrorSchema {
-    match client_error {
-        ClientError::BadRequest(bad_request) => handle_bad_request_error(bad_request),
-        ClientError::MethodNotAllowed => ErrorSchema::method_not_allowed(),
-        ClientError::NotFound => ErrorSchema::not_found(),
-        ClientError::Unauthorized => ErrorSchema::unauthorized(),
+fn handle_sqlx_error(error: &sqlx::Error) -> ErrorSchema {
+    match error {
+        sqlx::Error::Configuration(error) => todo!(),
+        sqlx::Error::InvalidArgument(_) => todo!(),
+        sqlx::Error::Database(database_error) => todo!(),
+        sqlx::Error::Io(error) => todo!(),
+        sqlx::Error::Tls(error) => todo!(),
+        sqlx::Error::Protocol(_) => todo!(),
+        sqlx::Error::RowNotFound => todo!(),
+        sqlx::Error::TypeNotFound { type_name } => todo!(),
+        sqlx::Error::ColumnIndexOutOfBounds { index, len } => todo!(),
+        sqlx::Error::ColumnNotFound(_) => todo!(),
+        sqlx::Error::ColumnDecode { index, source } => todo!(),
+        sqlx::Error::Encode(error) => todo!(),
+        sqlx::Error::Decode(error) => todo!(),
+        sqlx::Error::AnyDriverError(error) => todo!(),
+        sqlx::Error::PoolTimedOut => todo!(),
+        sqlx::Error::PoolClosed => todo!(),
+        sqlx::Error::WorkerCrashed => todo!(),
+        sqlx::Error::Migrate(migrate_error) => todo!(),
+        sqlx::Error::InvalidSavePointStatement => todo!(),
+        sqlx::Error::BeginFailed => todo!(),
+        _ => todo!(),
     }
-}
-
-fn handle_bad_request_error(bad_request_error: &BadRequestError) -> ErrorSchema {
-    match bad_request_error {
-        BadRequestError::PathRejection(path_rejection) => {
-            ErrorSchema::bad_request().detail(&path_rejection.body_text())
-        }
-    }
-}
-
-fn handle_service_error(_service_error: &ServiceError) -> ErrorSchema {
-    ErrorSchema::internal_server_error()
 }

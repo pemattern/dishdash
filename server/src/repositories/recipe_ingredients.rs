@@ -2,7 +2,7 @@ use sqlx::PgExecutor;
 use uuid::Uuid;
 
 use crate::{
-    error::RepositoryResult,
+    error::AppResult,
     models::recipe_ingredient::{
         RecipeIngredient,
         join::RecipeIngredientJoinIngredient,
@@ -17,7 +17,7 @@ impl RecipeIngredients {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_id: Uuid,
-    ) -> RepositoryResult<Option<RecipeIngredientJoinIngredient>> {
+    ) -> AppResult<RecipeIngredientJoinIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredientJoinIngredient,
             "SELECT ri.*, i.name AS ingredient_name
@@ -29,7 +29,7 @@ impl RecipeIngredients {
             recipe_id,
             ingredient_id,
         )
-        .fetch_optional(executor)
+        .fetch_one(executor)
         .await?;
         Ok(recipe_ingredient)
     }
@@ -37,7 +37,7 @@ impl RecipeIngredients {
     pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-    ) -> RepositoryResult<Vec<RecipeIngredientJoinIngredient>> {
+    ) -> AppResult<Vec<RecipeIngredientJoinIngredient>> {
         let recipe_ingredients = sqlx::query_as!(
             RecipeIngredientJoinIngredient,
             "SELECT ri.*, i.name AS ingredient_name
@@ -57,7 +57,7 @@ impl RecipeIngredients {
         recipe_id: Uuid,
         ingredient_id: Uuid,
         recipe_ingredient: PostRecipeIngredientSchema,
-    ) -> RepositoryResult<RecipeIngredient> {
+    ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
             "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, unit_id, position, quantity)
@@ -79,7 +79,7 @@ impl RecipeIngredients {
         recipe_id: Uuid,
         ingredient_id: Uuid,
         recipe_ingredient: PatchRecipeIngredientSchema,
-    ) -> RepositoryResult<RecipeIngredient> {
+    ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
             "UPDATE recipe_ingredients
@@ -104,7 +104,7 @@ impl RecipeIngredients {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_id: Uuid,
-    ) -> RepositoryResult<RecipeIngredient> {
+    ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,
             "DELETE FROM recipe_ingredients

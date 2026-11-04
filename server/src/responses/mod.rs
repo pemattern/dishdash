@@ -8,10 +8,10 @@ use axum::{
 use lib::GenerateSchemas;
 use serde::Serialize;
 
-use crate::error::{AppResult, ServiceError};
+use crate::error::AppResult;
 
 fn json<T: Serialize>(value: T) -> AppResult<String> {
-    Ok(serde_json::to_string_pretty(&value).map_err(|e| ServiceError::Serialization(e))?)
+    Ok(serde_json::to_string_pretty(&value)?)
 }
 
 fn get_into_response<S: Serialize>(schema: S) -> Response {

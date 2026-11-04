@@ -5,7 +5,7 @@ use axum::{
 use uuid::Uuid;
 
 use crate::{
-    error::{AppResult, ClientError},
+    error::AppResult,
     models::recipe::schemas::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
@@ -16,11 +16,7 @@ pub async fn get_recipe(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<GetResponse<RecipeSchema>> {
-    let recipe = state
-        .recipe_service
-        .find_recipe_by_id(id)
-        .await?
-        .ok_or(ClientError::NotFound)?;
+    let recipe = state.recipe_service.find_recipe_by_id(id).await?;
     Ok(recipe.into())
 }
 

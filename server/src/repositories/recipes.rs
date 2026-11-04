@@ -2,7 +2,7 @@ use sqlx::PgExecutor;
 use uuid::Uuid;
 
 use crate::{
-    error::RepositoryResult,
+    error::AppResult,
     models::recipe::{
         Recipe,
         schemas::{PatchRecipeSchema, PostRecipeSchema},
@@ -15,14 +15,14 @@ impl Recipes {
     pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-    ) -> RepositoryResult<Option<Recipe>> {
+    ) -> AppResult<Recipe> {
         let user = sqlx::query_as!(Recipe, "SELECT * FROM recipes WHERE id = $1;", id)
-            .fetch_optional(executor)
+            .fetch_one(executor)
             .await?;
         Ok(user)
     }
 
-    pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> RepositoryResult<Vec<Recipe>> {
+    pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> AppResult<Vec<Recipe>> {
         let user = sqlx::query_as!(Recipe, "SELECT * FROM recipes;")
             .fetch_all(executor)
             .await?;
@@ -32,7 +32,7 @@ impl Recipes {
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
         recipe: PostRecipeSchema,
-    ) -> RepositoryResult<Recipe> {
+    ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
             "INSERT INTO recipes (name, summary)
@@ -50,7 +50,7 @@ impl Recipes {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         recipe: PatchRecipeSchema,
-    ) -> RepositoryResult<Recipe> {
+    ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
             "UPDATE recipes
@@ -67,10 +67,7 @@ impl Recipes {
         .await?;
         Ok(recipe)
     }
-    pub async fn delete_by_id<'a>(
-        executor: impl PgExecutor<'a>,
-        id: Uuid,
-    ) -> RepositoryResult<Recipe> {
+    pub async fn delete_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<Recipe> {
         let user = sqlx::query_as!(Recipe, "DELETE FROM recipes WHERE id = $1 RETURNING *;", id)
             .fetch_one(executor)
             .await?;

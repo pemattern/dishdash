@@ -5,7 +5,7 @@ use axum::{
 use uuid::Uuid;
 
 use crate::{
-    error::{AppResult, ClientError},
+    error::AppResult,
     models::recipe_ingredient::{
         join::schemas::RecipeIngredientJoinIngredientSchema,
         schemas::{
@@ -28,8 +28,7 @@ pub async fn get_recipe_ingredient(
     let recipe_ingredient = state
         .recipe_service
         .find_recipe_ingredient_by_id(recipe_id, ingredient_id)
-        .await?
-        .ok_or(ClientError::NotFound)?;
+        .await?;
     Ok(recipe_ingredient.into())
 }
 

@@ -5,7 +5,7 @@ use axum::{
 use uuid::Uuid;
 
 use crate::{
-    error::{AppResult, ClientError},
+    error::AppResult,
     models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
@@ -19,8 +19,7 @@ pub async fn get_ingredient(
     let ingredient = state
         .ingredient_service
         .find_ingredient_by_id(ingredient_id)
-        .await?
-        .ok_or(ClientError::NotFound)?;
+        .await?;
     Ok(ingredient.into())
 }
 
