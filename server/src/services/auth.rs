@@ -28,7 +28,7 @@ impl AuthService {
         {
             return Ok(user);
         };
-        Err(AppError::IncorrectPassword)
+        Err(AppError::InvalidCredentials)
     }
 
     pub async fn generate_refresh_token_from_login(&self, user_id: Uuid) -> AppResult<String> {

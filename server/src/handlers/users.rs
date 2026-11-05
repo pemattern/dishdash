@@ -8,6 +8,7 @@ use crate::{
     auth::token::Claims,
     error::AppResult,
     models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
+    requests::{app_json::AppJson, app_path::AppPath},
     responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -15,7 +16,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_user(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    AppPath(id): AppPath<Uuid>,
 ) -> AppResult<GetResponse<UserSchema>> {
     let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
@@ -34,7 +35,7 @@ pub async fn get_me(
 #[axum::debug_handler]
 pub async fn post_user(
     State(state): State<AppState>,
-    Json(user): Json<PostUserSchema>,
+    AppJson(user): AppJson<PostUserSchema>,
 ) -> AppResult<PostResponse<UserSchema>> {
     let user = state.user_service.create_user(user).await?;
     Ok(user.into())
@@ -43,8 +44,8 @@ pub async fn post_user(
 #[axum::debug_handler]
 pub async fn patch_user(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-    Json(user): Json<PatchUserSchema>,
+    AppPath(id): AppPath<Uuid>,
+    AppJson(user): AppJson<PatchUserSchema>,
 ) -> AppResult<PatchResponse<UserSchema>> {
     let user = state.user_service.update_user(id, user).await?;
     Ok(user.into())
@@ -53,7 +54,7 @@ pub async fn patch_user(
 #[axum::debug_handler]
 pub async fn delete_user(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    AppPath(id): AppPath<Uuid>,
 ) -> AppResult<DeleteResponse> {
     let user = state.user_service.delete_user(id).await?;
     Ok(user.into())

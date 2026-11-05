@@ -20,7 +20,7 @@ pub enum AppError {
     PathRejection(PathRejection),
     TypedHeaderRejection(TypedHeaderRejection),
     HttpMethodNotAllowed,
-    IncorrectPassword,
+    InvalidCredentials,
     InvalidRefreshToken,
     NoRefreshTokenCookie,
 }

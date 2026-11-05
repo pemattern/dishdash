@@ -59,6 +59,10 @@ impl ErrorSchema {
         Self::from(StatusCode::CONFLICT)
     }
 
+    pub fn unsupported_media_type() -> Self {
+        Self::from(StatusCode::UNSUPPORTED_MEDIA_TYPE)
+    }
+
     pub fn unprocessable_content() -> Self {
         Self::from(StatusCode::UNPROCESSABLE_ENTITY)
     }

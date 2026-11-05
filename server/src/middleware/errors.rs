@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::Request,
-    http::{
-        StatusCode,
-        header::{self, ALLOW},
+    extract::{
+        Request,
+        rejection::{JsonRejection, PathRejection},
     },
+    http::{StatusCode, header},
     middleware::Next,
     response::IntoResponse,
 };
@@ -40,10 +40,10 @@ fn handle_app_error(app_error: &AppError) -> ErrorSchema {
         AppError::Argon2Phc(_error) => ErrorSchema::internal_server_error(),
         AppError::Jsonwebtoken(error) => handle_jsonwebtoken_error(error),
         AppError::SerdeJson(error) => handle_serde_json_error(error),
-        AppError::JsonRejection(json_rejection) => todo!(),
-        AppError::PathRejection(path_rejection) => todo!(),
+        AppError::JsonRejection(error) => handle_json_rejection(error),
+        AppError::PathRejection(error) => handle_path_rejection(error),
         AppError::TypedHeaderRejection(error) => handle_typed_header_rejection(error),
-        AppError::IncorrectPassword => {
+        AppError::InvalidCredentials => {
             ErrorSchema::unauthorized().detail("The provided credentials are invalid")
         }
         AppError::InvalidRefreshToken => {
@@ -149,6 +149,33 @@ fn handle_serde_json_error(error: &serde_json::Error) -> ErrorSchema {
         ErrorSchema::unprocessable_content().detail("Unable to process request body")
     } else {
         ErrorSchema::internal_server_error()
+    }
+}
+
+fn handle_json_rejection(error: &JsonRejection) -> ErrorSchema {
+    match error {
+        JsonRejection::JsonDataError(_error) => {
+            ErrorSchema::unprocessable_content().detail("Unable to process request body")
+        }
+        JsonRejection::JsonSyntaxError(_error) => {
+            ErrorSchema::bad_request().detail("Invalid JSON request body")
+        }
+        JsonRejection::MissingJsonContentType(_error) => ErrorSchema::unsupported_media_type()
+            .detail("Expected request with `Content-Type: application/json`"),
+        JsonRejection::BytesRejection(_error) => ErrorSchema::internal_server_error(),
+        _ => todo!(),
+    }
+}
+
+fn handle_path_rejection(error: &PathRejection) -> ErrorSchema {
+    match error {
+        PathRejection::FailedToDeserializePathParams(_error) => {
+            ErrorSchema::bad_request().detail("Invalid UUID in path")
+        }
+        PathRejection::MissingPathParams(_error) => {
+            ErrorSchema::bad_request().detail("Missing path parameter")
+        }
+        _ => todo!(),
     }
 }
 
