@@ -1,7 +1,4 @@
-use axum::{
-    Extension, Json,
-    extract::{Path, State},
-};
+use axum::{Extension, extract::State};
 use uuid::Uuid;
 
 use crate::{

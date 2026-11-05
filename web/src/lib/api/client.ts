@@ -1,4 +1,6 @@
 import { appState } from '#lib/state.svelte.ts';
+import type { ErrorSchema } from '$bindings';
+import { ApiError } from './error';
 
 const apiPath = '/api';
 
@@ -76,14 +78,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	let response: Response;
 	try {
 		response = await fetch(`${apiPath}${path}`, options);
-	} catch (error) {
-		// TODO: Network error
-		console.error(error);
-		throw error;
+	} catch (network_error) {
+		// TODO: handle network error
+		console.error(network_error);
+		throw network_error;
 	}
-
 	if (!response.ok) {
-		throw new Error(`API error: ${response.status}`);
+		const errorSchema = (await response.json()) as ErrorSchema;
+		throw new ApiError(errorSchema);
 	}
 	if (response.status === 204) return undefined as T;
 	return response.json() as Promise<T>;

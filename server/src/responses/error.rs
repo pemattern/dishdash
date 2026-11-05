@@ -2,11 +2,13 @@ use axum::{
     http::{StatusCode, Uri},
     response::{IntoResponse, Response},
 };
+use lib::BINDINGS_PATH;
 use serde::Serialize;
 
 use crate::responses::json;
 
-#[derive(Default, Debug, Serialize)]
+#[derive(Default, Debug, Serialize, ts_rs::TS)]
+#[ts(export, export_to = BINDINGS_PATH)]
 pub struct ErrorSchema {
     title: String,
     status: u16,

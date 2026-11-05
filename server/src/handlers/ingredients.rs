@@ -1,12 +1,10 @@
-use axum::{
-    Json,
-    extract::{Path, State},
-};
+use axum::extract::State;
 use uuid::Uuid;
 
 use crate::{
     error::AppResult,
     models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
+    requests::{app_json::AppJson, app_path::AppPath},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -14,7 +12,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_ingredient(
     State(state): State<AppState>,
-    Path(ingredient_id): Path<Uuid>,
+    AppPath(ingredient_id): AppPath<Uuid>,
 ) -> AppResult<GetResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service
@@ -34,7 +32,7 @@ pub async fn get_ingredients(
 #[axum::debug_handler]
 pub async fn post_ingredient(
     State(state): State<AppState>,
-    Json(user): Json<PostIngredientSchema>,
+    AppJson(user): AppJson<PostIngredientSchema>,
 ) -> AppResult<PostResponse<IngredientSchema>> {
     let ingredient = state.ingredient_service.create_ingredient(user).await?;
     Ok(ingredient.into())
@@ -43,8 +41,8 @@ pub async fn post_ingredient(
 #[axum::debug_handler]
 pub async fn patch_ingredient(
     State(state): State<AppState>,
-    Path(ingredient_id): Path<Uuid>,
-    Json(user): Json<PatchIngredientSchema>,
+    AppPath(ingredient_id): AppPath<Uuid>,
+    AppJson(user): AppJson<PatchIngredientSchema>,
 ) -> AppResult<PatchResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service
@@ -56,7 +54,7 @@ pub async fn patch_ingredient(
 #[axum::debug_handler]
 pub async fn delete_ingredient(
     State(state): State<AppState>,
-    Path(ingredient_id): Path<Uuid>,
+    AppPath(ingredient_id): AppPath<Uuid>,
 ) -> AppResult<DeleteResponse> {
     let ingredient = state
         .ingredient_service

@@ -1,12 +1,10 @@
-use axum::{
-    Json,
-    extract::{Path, State},
-};
+use axum::extract::State;
 use uuid::Uuid;
 
 use crate::{
     error::AppResult,
     models::recipe::schemas::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
+    requests::{app_json::AppJson, app_path::AppPath},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -14,7 +12,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_recipe(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    AppPath(id): AppPath<Uuid>,
 ) -> AppResult<GetResponse<RecipeSchema>> {
     let recipe = state.recipe_service.find_recipe_by_id(id).await?;
     Ok(recipe.into())
@@ -31,7 +29,7 @@ pub async fn get_all_recipes(
 #[axum::debug_handler]
 pub async fn post_recipe(
     State(state): State<AppState>,
-    Json(user): Json<PostRecipeSchema>,
+    AppJson(user): AppJson<PostRecipeSchema>,
 ) -> AppResult<PostResponse<RecipeSchema>> {
     let recipe = state.recipe_service.create_recipe(user).await?;
     Ok(recipe.into())
@@ -40,8 +38,8 @@ pub async fn post_recipe(
 #[axum::debug_handler]
 pub async fn patch_recipe(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-    Json(user): Json<PatchRecipeSchema>,
+    AppPath(id): AppPath<Uuid>,
+    AppJson(user): AppJson<PatchRecipeSchema>,
 ) -> AppResult<PatchResponse<RecipeSchema>> {
     let recipe = state.recipe_service.update_recipe(id, user).await?;
     Ok(recipe.into())
@@ -50,7 +48,7 @@ pub async fn patch_recipe(
 #[axum::debug_handler]
 pub async fn delete_recipe(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    AppPath(id): AppPath<Uuid>,
 ) -> AppResult<DeleteResponse> {
     let recipe = state.recipe_service.delete_recipe(id).await?;
     Ok(recipe.into())
