@@ -18,7 +18,7 @@ use tower_http::{
 use tracing::Level;
 
 use crate::{
-    error::AppResult,
+    error::{AppError, AppResult},
     middleware::{auth::validate_access_token, errors::handle_errors},
     state::AppState,
 };
@@ -36,10 +36,10 @@ pub fn app(state: AppState) -> Router {
         .method_not_allowed_fallback(method_not_allowed_fallback)
         .layer(
             ServiceBuilder::new()
+                .layer(middleware::from_fn(handle_errors))
                 .layer(trace_layer())
                 .layer(compression_layer())
-                .layer(timeout_layer())
-                .layer(middleware::from_fn(handle_errors)),
+                .layer(timeout_layer()),
         )
         .with_state(state)
 }
@@ -61,6 +61,7 @@ fn compression_layer() -> CompressionLayer {
 }
 
 fn timeout_layer() -> TimeoutLayer {
+    // TODO: Timeout errors arent converted to AppErrors
     TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, Duration::from_secs(5))
 }
 
@@ -88,5 +89,5 @@ fn web_service() -> ServeDir<ServeFile> {
 }
 
 async fn method_not_allowed_fallback() -> AppResult<()> {
-    Err(ClientError::MethodNotAllowed.into())
+    Err(AppError::HttpMethodNotAllowed)
 }

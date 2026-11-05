@@ -26,7 +26,7 @@ pub async fn get_me(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
 ) -> AppResult<GetResponse<UserSchema>> {
-    let id = Uuid::parse_str(&claims.sub)?;
+    let id = claims.sub;
     let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
 }

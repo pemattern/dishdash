@@ -9,15 +9,17 @@ use axum_extra::typed_header::TypedHeaderRejection;
 
 pub type AppResult<T> = Result<T, AppError>;
 
+#[derive(Debug)]
 pub enum AppError {
     Sqlx(sqlx::Error),
     Argon2(argon2::password_hash::Error),
+    Argon2Phc(argon2::password_hash::phc::Error),
     Jsonwebtoken(jsonwebtoken::errors::Error),
-    Uuid(uuid::Error),
     SerdeJson(serde_json::Error),
     JsonRejection(JsonRejection),
     PathRejection(PathRejection),
     TypedHeaderRejection(TypedHeaderRejection),
+    HttpMethodNotAllowed,
     IncorrectPassword,
     InvalidRefreshToken,
     NoRefreshTokenCookie,
@@ -41,15 +43,15 @@ impl From<argon2::password_hash::Error> for AppError {
     }
 }
 
-impl From<jsonwebtoken::errors::Error> for AppError {
-    fn from(value: jsonwebtoken::errors::Error) -> Self {
-        Self::Jsonwebtoken(value)
+impl From<argon2::password_hash::phc::Error> for AppError {
+    fn from(value: argon2::password_hash::phc::Error) -> Self {
+        Self::Argon2Phc(value)
     }
 }
 
-impl From<uuid::Error> for AppError {
-    fn from(value: uuid::Error) -> Self {
-        Self::Uuid(value)
+impl From<jsonwebtoken::errors::Error> for AppError {
+    fn from(value: jsonwebtoken::errors::Error) -> Self {
+        Self::Jsonwebtoken(value)
     }
 }
 

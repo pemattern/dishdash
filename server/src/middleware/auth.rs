@@ -4,7 +4,6 @@ use axum::{
     response::IntoResponse,
 };
 use axum_extra::{
-    TypedHeader,
     extract::CookieJar,
     headers::{
         Authorization,
@@ -40,7 +39,7 @@ pub async fn validate_refresh_token(
     mut request: Request,
     next: Next,
 ) -> AppResult<impl IntoResponse> {
-    let refresh_token_cookie = jar.get(REFRESH_TOKEN_COOKIE) else {
+    let Some(refresh_token_cookie) = jar.get(REFRESH_TOKEN_COOKIE) else {
         return Err(AppError::NoRefreshTokenCookie);
     };
     let refresh_token = state

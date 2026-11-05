@@ -24,7 +24,7 @@ impl AuthService {
 
     pub async fn get_user_from_basic_auth(&self, email: &str, password: &str) -> AppResult<User> {
         if let user = Ingredients::select_by_email(&self.pool, email).await?
-            && is_valid_password(password, &user.password_hash)
+            && is_valid_password(password, &user.password_hash)?
         {
             return Ok(user);
         };
@@ -65,7 +65,7 @@ impl AuthService {
             && let Ok(refresh_token_id) = Uuid::parse_str(refresh_token_id_raw)
             && let refresh_token = RefreshTokens::select_by_id(&self.pool, refresh_token_id).await?
             && refresh_token.is_valid()
-            && is_valid_password(opaque_token_raw, &refresh_token.opaque_token_hash)
+            && is_valid_password(opaque_token_raw, &refresh_token.opaque_token_hash)?
         {
             return Ok(refresh_token);
         };

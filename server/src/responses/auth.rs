@@ -79,8 +79,9 @@ impl IntoResponse for RefreshResponse {
 }
 
 fn set_refresh_token_cookie(refresh_token: &str) -> String {
+    // Secure; can only be added when using HTTPS
     format!(
-        "{}={}; HttpOnly; Secure; SameSite=Strict",
+        "{}={}; HttpOnly; SameSite=Strict",
         REFRESH_TOKEN_COOKIE, refresh_token
     )
 }
@@ -91,7 +92,6 @@ fn reset_refresh_token_cookie() -> String {
     cookie
 }
 
-#[derive(Serialize)]
 pub struct LogoutResponse;
 
 impl IntoResponse for LogoutResponse {
@@ -103,7 +103,6 @@ impl IntoResponse for LogoutResponse {
                 (header::PRAGMA, "no-cache"),
                 (header::SET_COOKIE, &reset_refresh_token_cookie()),
             ],
-            json(self),
         )
             .into_response()
     }

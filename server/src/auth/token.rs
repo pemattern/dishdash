@@ -15,7 +15,7 @@ static ENCRYPTION_KEY: LazyLock<[u8; KEY_LENGTH]> = LazyLock::new(generate_byte_
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: String,
+    pub sub: Uuid,
     pub iss: String,
     pub exp: usize,
     pub iat: usize,
@@ -25,7 +25,7 @@ impl Claims {
     pub fn new(user_id: Uuid) -> Self {
         let now = Utc::now();
         let access_token_expires_at = now + ACCESS_TOKEN_VALIDITY_DURATION;
-        let sub = user_id.to_string();
+        let sub = user_id;
         let exp = access_token_expires_at.timestamp() as usize;
         let iat = now.timestamp() as usize;
         let iss = String::from(ISSUER);

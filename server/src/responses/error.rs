@@ -10,7 +10,9 @@ use crate::responses::json;
 pub struct ErrorSchema {
     title: String,
     status: u16,
+    #[serde(skip_serializing_if = "Option::is_none")]
     detail: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     instance: Option<String>,
 }
 
@@ -25,52 +27,63 @@ impl ErrorSchema {
         self
     }
 
+    pub fn get_status(&self) -> u16 {
+        self.status
+    }
+
     pub fn bad_request() -> Self {
-        Self {
-            title: String::from("Bad Request"),
-            status: 400,
-            ..Self::default()
-        }
+        Self::from(StatusCode::BAD_REQUEST)
     }
 
     pub fn unauthorized() -> Self {
-        Self {
-            title: String::from("Unauthorized"),
-            status: 401,
-            ..Self::default()
-        }
+        Self::from(StatusCode::UNAUTHORIZED)
+    }
+
+    pub fn forbidden() -> Self {
+        Self::from(StatusCode::FORBIDDEN)
     }
 
     pub fn not_found() -> Self {
-        Self {
-            title: String::from("Not found"),
-            status: 404,
-            ..Self::default()
-        }
+        Self::from(StatusCode::NOT_FOUND)
     }
 
     pub fn method_not_allowed() -> Self {
-        Self {
-            title: String::from("Method not allowed"),
-            status: 405,
-            ..Self::default()
-        }
+        Self::from(StatusCode::METHOD_NOT_ALLOWED)
+    }
+
+    pub fn request_timeout() -> Self {
+        Self::from(StatusCode::REQUEST_TIMEOUT)
+    }
+
+    pub fn conflict() -> Self {
+        Self::from(StatusCode::CONFLICT)
+    }
+
+    pub fn unprocessable_content() -> Self {
+        Self::from(StatusCode::UNPROCESSABLE_ENTITY)
     }
 
     pub fn internal_server_error() -> Self {
-        Self {
-            title: String::from("Unexpected error"),
-            status: 500,
-            detail: Some(String::from(
-                "An unexpected error occured while processing the request",
-            )),
-            ..Self::default()
-        }
+        Self::from(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+
+    pub fn service_unavailable() -> Self {
+        Self::from(StatusCode::SERVICE_UNAVAILABLE)
     }
 }
 
 impl IntoResponse for ErrorSchema {
     fn into_response(self) -> Response {
         (StatusCode::from_u16(self.status).unwrap(), json(self)).into_response()
+    }
+}
+
+impl From<StatusCode> for ErrorSchema {
+    fn from(status_code: StatusCode) -> Self {
+        Self {
+            title: status_code.canonical_reason().unwrap().into(),
+            status: status_code.as_u16(),
+            ..Default::default()
+        }
     }
 }
