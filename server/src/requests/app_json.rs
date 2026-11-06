@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{
     Json,
     extract::{FromRequest, rejection::JsonRejection},
@@ -15,7 +17,7 @@ impl From<JsonRejection> for AppError {
             JsonRejection::JsonDataError(_error) => AppError::InvalidData,
             JsonRejection::JsonSyntaxError(_error) => AppError::InvalidJsonSyntax,
             JsonRejection::MissingJsonContentType(_error) => AppError::MissingJsonContentType,
-            _ => AppError::Internal(Box::new(error)),
+            _ => AppError::Internal(Arc::new(error)),
         }
     }
 }

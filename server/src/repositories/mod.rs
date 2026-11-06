@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use sqlx::error::DatabaseError;
 
 use crate::error::AppError;
@@ -16,7 +18,7 @@ impl From<sqlx::Error> for AppError {
         match error {
             sqlx::Error::Database(error) => handle_sqlx_database_error(error),
             sqlx::Error::RowNotFound => AppError::ResourceNotFound,
-            _ => AppError::Internal(Box::new(error)),
+            _ => AppError::Internal(Arc::new(error)),
         }
     }
 }
@@ -29,6 +31,6 @@ fn handle_sqlx_database_error(error: Box<dyn DatabaseError + 'static>) -> AppErr
         | ErrorKind::ExclusionViolation
         | ErrorKind::NotNullViolation
         | ErrorKind::CheckViolation => AppError::InvalidData,
-        _ => AppError::Internal(Box::new(error)),
+        _ => AppError::Internal(Arc::new(error)),
     }
 }

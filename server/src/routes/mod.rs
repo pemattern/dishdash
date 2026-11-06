@@ -92,5 +92,5 @@ fn web_service() -> ServeDir<ServeFile> {
 }
 
 async fn method_not_allowed_fallback() -> AppResult<()> {
-    Err(AppError::HttpMethodNotAllowed)
+    Err(AppError::HttpMethod)
 }

@@ -1,5 +1,5 @@
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 use crate::error::{AppError, AppResult};
 
@@ -19,12 +19,12 @@ pub fn get_hash(password: &str) -> AppResult<String> {
 
 impl From<argon2::password_hash::Error> for AppError {
     fn from(error: argon2::password_hash::Error) -> Self {
-        AppError::Internal(Box::new(error))
+        AppError::Internal(Arc::new(error))
     }
 }
 
 impl From<argon2::password_hash::phc::Error> for AppError {
     fn from(error: argon2::password_hash::phc::Error) -> Self {
-        AppError::Internal(Box::new(error))
+        AppError::Internal(Arc::new(error))
     }
 }

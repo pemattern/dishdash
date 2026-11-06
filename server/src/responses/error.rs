@@ -8,12 +8,13 @@ use serde::Serialize;
 use crate::{error::AppError, responses::json};
 
 #[derive(Debug, Default, Serialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export, export_to = BINDINGS_PATH)]
 pub struct ErrorSchema {
     title: String,
     status: u16,
     #[serde(skip_serializing_if = "Option::is_none")]
-    code: Option<AppError>,
+    error_code: Option<AppError>,
     #[serde(skip_serializing_if = "Option::is_none")]
     detail: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,6 +22,11 @@ pub struct ErrorSchema {
 }
 
 impl ErrorSchema {
+    pub fn code(mut self, code: AppError) -> Self {
+        self.error_code = Some(code);
+        self
+    }
+
     pub fn detail(mut self, detail: &str) -> Self {
         self.detail = Some(detail.into());
         self
@@ -43,16 +49,13 @@ impl ErrorSchema {
         Self::from(StatusCode::UNAUTHORIZED)
     }
 
-    pub fn forbidden() -> Self {
-        Self::from(StatusCode::FORBIDDEN)
-    }
-
     pub fn not_found() -> Self {
-        Self::from(StatusCode::NOT_FOUND)
+        Self::from(StatusCode::NOT_FOUND).detail("The requested resource was not found")
     }
 
     pub fn method_not_allowed() -> Self {
         Self::from(StatusCode::METHOD_NOT_ALLOWED)
+            .detail("HTTP method used is not allowed for the request URL")
     }
 
     pub fn request_timeout() -> Self {
@@ -73,6 +76,7 @@ impl ErrorSchema {
 
     pub fn internal_server_error() -> Self {
         Self::from(StatusCode::INTERNAL_SERVER_ERROR)
+            .detail("An unexpected error occured while processing the request")
     }
 
     pub fn service_unavailable() -> Self {
@@ -86,12 +90,50 @@ impl IntoResponse for ErrorSchema {
     }
 }
 
+impl From<AppError> for ErrorSchema {
+    fn from(error: AppError) -> Self {
+        match error.clone() {
+            AppError::Internal(_error) => Self::internal_server_error(),
+            AppError::ResourceNotFound => Self::not_found(),
+            AppError::HttpMethod => Self::method_not_allowed(),
+            AppError::InvalidBasicAuth => {
+                Self::unauthorized().detail("Incorrect email or password")
+            }
+            AppError::MissingBasicAuth => Self::bad_request()
+                .detail("Missing `authorization` header for basic authentication"),
+            AppError::InvalidAccessToken => Self::unauthorized().detail("Access token is invalid"),
+            AppError::MissingAccessToken => Self::bad_request()
+                .detail("Missing `authorization` header for bearer token authentication"),
+            AppError::InvalidRefreshToken => {
+                Self::unauthorized().detail("Refresh token is invalid")
+            }
+            AppError::MissingRefreshToken => {
+                Self::bad_request().detail("Missing `refresh_token` cookie")
+            }
+            AppError::ExpiredRefreshToken => {
+                Self::unauthorized().detail("Refresh token is expired")
+            }
+            AppError::MissingUuidPath => Self::bad_request().detail("Missing id in request path"),
+            AppError::AlreadyExists => Self::conflict().detail("Resource already exists"),
+            AppError::InvalidData => {
+                Self::unprocessable_content().detail("Request body contains invalid data")
+            }
+            AppError::InvalidJsonSyntax => {
+                Self::bad_request().detail("JSON syntax error in request body")
+            }
+            AppError::MissingJsonContentType => Self::unsupported_media_type()
+                .detail("Missing `content-type: application/json` request header"),
+        }
+        .code(error)
+    }
+}
+
 impl From<StatusCode> for ErrorSchema {
     fn from(status_code: StatusCode) -> Self {
         Self {
             title: status_code.canonical_reason().unwrap().into(),
             status: status_code.as_u16(),
-            code: None,
+            error_code: None,
             detail: None,
             instance: None,
         }

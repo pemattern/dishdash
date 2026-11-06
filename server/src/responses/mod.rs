@@ -1,6 +1,8 @@
 pub mod auth;
 pub mod error;
 
+use std::sync::Arc;
+
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -17,7 +19,7 @@ impl From<serde_json::Error> for AppError {
         } else if error.is_data() {
             AppError::InvalidData
         } else {
-            AppError::Internal(Box::new(error))
+            AppError::Internal(Arc::new(error))
         }
     }
 }

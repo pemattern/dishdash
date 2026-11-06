@@ -9,13 +9,13 @@ use serde::Serialize;
 
 pub type AppResult<T> = Result<T, AppError>;
 
-#[derive(Debug, Serialize, ts_rs::TS)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 #[ts(export, export_to = BINDINGS_PATH)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename = "ErrorCode", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AppError {
-    Internal(#[serde(skip)] Box<dyn std::error::Error + Send + Sync>),
+    Internal(#[serde(skip)] Arc<dyn std::error::Error + Send + Sync>),
     ResourceNotFound,
-    HttpMethodNotAllowed,
+    HttpMethod,
     InvalidBasicAuth,
     MissingBasicAuth,
     InvalidAccessToken,
@@ -23,7 +23,6 @@ pub enum AppError {
     InvalidRefreshToken,
     MissingRefreshToken,
     ExpiredRefreshToken,
-    InvalidUuidPath,
     MissingUuidPath,
     AlreadyExists,
     InvalidData,
