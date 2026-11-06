@@ -5,7 +5,7 @@ use crate::{
     auth::token::Claims,
     error::AppResult,
     models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
-    requests::{app_json::AppJson, app_path::AppPath},
+    requests::{app_json::AppJson, uuid_path::UuidPath},
     responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -13,7 +13,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_user(
     State(state): State<AppState>,
-    AppPath(id): AppPath<Uuid>,
+    UuidPath(id): UuidPath<Uuid>,
 ) -> AppResult<GetResponse<UserSchema>> {
     let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
@@ -41,7 +41,7 @@ pub async fn post_user(
 #[axum::debug_handler]
 pub async fn patch_user(
     State(state): State<AppState>,
-    AppPath(id): AppPath<Uuid>,
+    UuidPath(id): UuidPath<Uuid>,
     AppJson(user): AppJson<PatchUserSchema>,
 ) -> AppResult<PatchResponse<UserSchema>> {
     let user = state.user_service.update_user(id, user).await?;
@@ -51,7 +51,7 @@ pub async fn patch_user(
 #[axum::debug_handler]
 pub async fn delete_user(
     State(state): State<AppState>,
-    AppPath(id): AppPath<Uuid>,
+    UuidPath(id): UuidPath<Uuid>,
 ) -> AppResult<DeleteResponse> {
     let user = state.user_service.delete_user(id).await?;
     Ok(user.into())

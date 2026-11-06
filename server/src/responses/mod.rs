@@ -8,8 +8,19 @@ use axum::{
 use lib::GenerateSchemas;
 use serde::Serialize;
 
-use crate::error::AppResult;
+use crate::error::{AppError, AppResult};
 
+impl From<serde_json::Error> for AppError {
+    fn from(error: serde_json::Error) -> Self {
+        if error.is_syntax() || error.is_eof() {
+            AppError::InvalidJsonSyntax
+        } else if error.is_data() {
+            AppError::InvalidData
+        } else {
+            AppError::Internal(Box::new(error))
+        }
+    }
+}
 fn json<T: Serialize>(value: T) -> AppResult<String> {
     Ok(serde_json::to_string_pretty(&value)?)
 }

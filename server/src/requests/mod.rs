@@ -1,6 +1,6 @@
 pub mod app_json;
-pub mod app_path;
-pub mod app_typed_header;
+pub mod auth;
+pub mod uuid_path;
 
 use std::collections::HashMap;
 

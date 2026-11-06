@@ -2,62 +2,37 @@ use std::sync::Arc;
 
 use axum::{
     Extension,
-    extract::rejection::{JsonRejection, PathRejection},
     response::{IntoResponse, Response},
 };
-use axum_extra::typed_header::TypedHeaderRejection;
+use lib::BINDINGS_PATH;
+use serde::Serialize;
 
 pub type AppResult<T> = Result<T, AppError>;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, ts_rs::TS)]
+#[ts(export, export_to = BINDINGS_PATH)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AppError {
-    Sqlx(sqlx::Error),
-    Argon2(argon2::password_hash::Error),
-    Argon2Phc(argon2::password_hash::phc::Error),
-    Jsonwebtoken(jsonwebtoken::errors::Error),
-    SerdeJson(serde_json::Error),
-    JsonRejection(JsonRejection),
-    PathRejection(PathRejection),
-    TypedHeaderRejection(TypedHeaderRejection),
+    Internal(#[serde(skip)] Box<dyn std::error::Error + Send + Sync>),
+    ResourceNotFound,
     HttpMethodNotAllowed,
-    InvalidCredentials,
+    InvalidBasicAuth,
+    MissingBasicAuth,
+    InvalidAccessToken,
+    MissingAccessToken,
     InvalidRefreshToken,
     MissingRefreshToken,
     ExpiredRefreshToken,
+    InvalidUuidPath,
+    MissingUuidPath,
+    AlreadyExists,
+    InvalidData,
+    InvalidJsonSyntax,
+    MissingJsonContentType,
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         Extension(Arc::new(self)).into_response()
-    }
-}
-
-impl From<sqlx::Error> for AppError {
-    fn from(value: sqlx::Error) -> Self {
-        Self::Sqlx(value)
-    }
-}
-
-impl From<argon2::password_hash::Error> for AppError {
-    fn from(value: argon2::password_hash::Error) -> Self {
-        Self::Argon2(value)
-    }
-}
-
-impl From<argon2::password_hash::phc::Error> for AppError {
-    fn from(value: argon2::password_hash::phc::Error) -> Self {
-        Self::Argon2Phc(value)
-    }
-}
-
-impl From<jsonwebtoken::errors::Error> for AppError {
-    fn from(value: jsonwebtoken::errors::Error) -> Self {
-        Self::Jsonwebtoken(value)
-    }
-}
-
-impl From<serde_json::Error> for AppError {
-    fn from(value: serde_json::Error) -> Self {
-        Self::SerdeJson(value)
     }
 }

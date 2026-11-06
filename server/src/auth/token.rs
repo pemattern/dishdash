@@ -76,3 +76,9 @@ pub fn validate_refresh_token_expiry(refresh_token: &RefreshToken) -> AppResult<
     }
     Ok(())
 }
+
+impl From<jsonwebtoken::errors::Error> for AppError {
+    fn from(_error: jsonwebtoken::errors::Error) -> Self {
+        AppError::InvalidAccessToken
+    }
+}

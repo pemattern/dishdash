@@ -6,11 +6,8 @@ use crate::{
         password::{get_hash, verify_password},
         token::{generate_refresh_token, parse_refresh_token, validate_refresh_token_expiry},
     },
-    error::{AppError, AppResult},
-    models::{
-        refresh_token::{self, RefreshToken},
-        user::User,
-    },
+    error::AppResult,
+    models::{refresh_token::RefreshToken, user::User},
     repositories::{refresh_tokens::RefreshTokens, users::Ingredients},
 };
 

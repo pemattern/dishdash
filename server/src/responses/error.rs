@@ -5,14 +5,15 @@ use axum::{
 use lib::BINDINGS_PATH;
 use serde::Serialize;
 
-use crate::{middleware::errors::ErrorCode, responses::json};
+use crate::{error::AppError, responses::json};
 
-#[derive(Default, Debug, Serialize, ts_rs::TS)]
+#[derive(Debug, Default, Serialize, ts_rs::TS)]
 #[ts(export, export_to = BINDINGS_PATH)]
 pub struct ErrorSchema {
     title: String,
     status: u16,
-    code: ErrorCode,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    code: Option<AppError>,
     #[serde(skip_serializing_if = "Option::is_none")]
     detail: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -90,7 +91,9 @@ impl From<StatusCode> for ErrorSchema {
         Self {
             title: status_code.canonical_reason().unwrap().into(),
             status: status_code.as_u16(),
-            ..Default::default()
+            code: None,
+            detail: None,
+            instance: None,
         }
     }
 }

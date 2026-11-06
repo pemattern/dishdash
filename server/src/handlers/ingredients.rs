@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
-    requests::{app_json::AppJson, app_path::AppPath},
+    requests::{app_json::AppJson, uuid_path::UuidPath},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -12,7 +12,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_ingredient(
     State(state): State<AppState>,
-    AppPath(ingredient_id): AppPath<Uuid>,
+    UuidPath(ingredient_id): UuidPath<Uuid>,
 ) -> AppResult<GetResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service
@@ -41,7 +41,7 @@ pub async fn post_ingredient(
 #[axum::debug_handler]
 pub async fn patch_ingredient(
     State(state): State<AppState>,
-    AppPath(ingredient_id): AppPath<Uuid>,
+    UuidPath(ingredient_id): UuidPath<Uuid>,
     AppJson(user): AppJson<PatchIngredientSchema>,
 ) -> AppResult<PatchResponse<IngredientSchema>> {
     let ingredient = state
@@ -54,7 +54,7 @@ pub async fn patch_ingredient(
 #[axum::debug_handler]
 pub async fn delete_ingredient(
     State(state): State<AppState>,
-    AppPath(ingredient_id): AppPath<Uuid>,
+    UuidPath(ingredient_id): UuidPath<Uuid>,
 ) -> AppResult<DeleteResponse> {
     let ingredient = state
         .ingredient_service
