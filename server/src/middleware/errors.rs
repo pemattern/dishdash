@@ -5,7 +5,7 @@ use axum::{
         Request,
         rejection::{JsonRejection, PathRejection},
     },
-    http::{StatusCode, header},
+    http::header,
     middleware::Next,
     response::IntoResponse,
 };
@@ -26,7 +26,7 @@ pub enum ErrorCode {
     #[default]
     Internal,
     InvalidCredentials,
-    MissingCredentials,
+    MissingAuthorization,
     InvalidAccessToken,
     MissingAccessToken,
     InvalidRefreshToken,
@@ -136,11 +136,11 @@ fn path_rejection_error_code_lookup(error: &PathRejection) -> ErrorCode {
     }
 }
 
-fn handle_typed_header_rejection(error: &TypedHeaderRejection) -> ErrorSchema {
+fn handle_typed_header_rejection(error: &TypedHeaderRejection) -> ErrorCode {
     match (error.name(), error.reason()) {
         (&header::AUTHORIZATION, TypedHeaderRejectionReason::Missing) => {
-            ErrorSchema::unauthorized().detail("Authentication credentials are required")
+            ErrorCode::MissingAuthorization
         }
-        (_, _) => ErrorSchema::bad_request(),
+        (_, _) => ErrorCode::InvalidCredentials,
     }
 }
