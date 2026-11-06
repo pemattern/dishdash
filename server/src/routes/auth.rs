@@ -2,7 +2,7 @@ use axum::{Router, middleware, routing::post};
 
 use crate::{
     handlers::auth::{login, logout, refresh},
-    middleware::auth::{validate_basic_auth, validate_refresh_token},
+    middleware::auth::{validate_basic_auth_middleware, validate_refresh_token_middleware},
     state::AppState,
 };
 
@@ -23,7 +23,10 @@ pub fn router(state: AppState) -> Router<AppState> {
 fn basic_auth_router(state: AppState) -> Router<AppState> {
     Router::new()
         .route(LOGIN_PATH, post(login))
-        .layer(middleware::from_fn_with_state(state, validate_basic_auth))
+        .layer(middleware::from_fn_with_state(
+            state,
+            validate_basic_auth_middleware,
+        ))
 }
 
 fn refresh_token_auth_router(state: AppState) -> Router<AppState> {
@@ -32,6 +35,6 @@ fn refresh_token_auth_router(state: AppState) -> Router<AppState> {
         .route(LOGOUT_PATH, post(logout))
         .layer(middleware::from_fn_with_state(
             state,
-            validate_refresh_token,
+            validate_refresh_token_middleware,
         ))
 }

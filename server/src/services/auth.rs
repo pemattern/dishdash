@@ -3,11 +3,14 @@ use uuid::Uuid;
 
 use crate::{
     auth::{
-        password::{get_hash, is_valid_password},
-        token::generate_refresh_token,
+        password::{get_hash, verify_password},
+        token::{generate_refresh_token, parse_refresh_token, validate_refresh_token_expiry},
     },
     error::{AppError, AppResult},
-    models::{refresh_token::RefreshToken, user::User},
+    models::{
+        refresh_token::{self, RefreshToken},
+        user::User,
+    },
     repositories::{refresh_tokens::RefreshTokens, users::Ingredients},
 };
 
@@ -23,12 +26,9 @@ impl AuthService {
     }
 
     pub async fn get_user_from_basic_auth(&self, email: &str, password: &str) -> AppResult<User> {
-        if let user = Ingredients::select_by_email(&self.pool, email).await?
-            && is_valid_password(password, &user.password_hash)?
-        {
-            return Ok(user);
-        };
-        Err(AppError::InvalidCredentials)
+        let user = Ingredients::select_by_email(&self.pool, email).await?;
+        verify_password(password, &user.password_hash)?;
+        Ok(user)
     }
 
     pub async fn generate_refresh_token_from_login(&self, user_id: Uuid) -> AppResult<String> {
@@ -60,16 +60,11 @@ impl AuthService {
         &self,
         composite_refresh_token: &str,
     ) -> AppResult<RefreshToken> {
-        if let Some((refresh_token_id_raw, opaque_token_raw)) =
-            composite_refresh_token.split_once('.')
-            && let Ok(refresh_token_id) = Uuid::parse_str(refresh_token_id_raw)
-            && let refresh_token = RefreshTokens::select_by_id(&self.pool, refresh_token_id).await?
-            && refresh_token.is_valid()
-            && is_valid_password(opaque_token_raw, &refresh_token.opaque_token_hash)?
-        {
-            return Ok(refresh_token);
-        };
-        Err(AppError::InvalidRefreshToken)
+        let (refresh_token_id, opaque_token) = parse_refresh_token(composite_refresh_token)?;
+        let refresh_token = RefreshTokens::select_by_id(&self.pool, refresh_token_id).await?;
+        validate_refresh_token_expiry(&refresh_token)?;
+        verify_password(&opaque_token, &refresh_token.opaque_token_hash)?;
+        Ok(refresh_token)
     }
 }
 

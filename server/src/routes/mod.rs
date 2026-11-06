@@ -19,7 +19,7 @@ use tracing::Level;
 
 use crate::{
     error::{AppError, AppResult},
-    middleware::{auth::validate_access_token, errors::handle_errors},
+    middleware::{auth::validate_access_token_middleware, errors::handle_errors_middleware},
     state::AppState,
 };
 
@@ -36,7 +36,7 @@ pub fn app(state: AppState) -> Router {
         .method_not_allowed_fallback(method_not_allowed_fallback)
         .layer(
             ServiceBuilder::new()
-                .layer(middleware::from_fn(handle_errors))
+                .layer(middleware::from_fn(handle_errors_middleware))
                 .layer(trace_layer())
                 .layer(compression_layer())
                 .layer(timeout_layer()),
@@ -79,7 +79,10 @@ fn access_token_auth_router(state: AppState) -> Router<AppState> {
         .merge(ingredients::router())
         .merge(recipes::router())
         .merge(users::router())
-        .layer(middleware::from_fn_with_state(state, validate_access_token))
+        .layer(middleware::from_fn_with_state(
+            state,
+            validate_access_token_middleware,
+        ))
 }
 
 fn web_service() -> ServeDir<ServeFile> {

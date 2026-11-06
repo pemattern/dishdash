@@ -10,6 +10,8 @@ use axum::{
     response::IntoResponse,
 };
 use axum_extra::typed_header::{TypedHeaderRejection, TypedHeaderRejectionReason};
+use lib::BINDINGS_PATH;
+use serde::Serialize;
 use sqlx::error::DatabaseError;
 
 use crate::{
@@ -17,14 +19,41 @@ use crate::{
     responses::error::ErrorSchema,
 };
 
+#[derive(Debug, Default, Serialize, ts_rs::TS)]
+#[ts(export, export_to = BINDINGS_PATH)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ErrorCode {
+    #[default]
+    Internal,
+    InvalidCredentials,
+    MissingCredentials,
+    InvalidAccessToken,
+    MissingAccessToken,
+    InvalidRefreshToken,
+    ExpiredRefreshToken,
+    MissingRefreshToken,
+    NotFound,
+    HttpMethodNotAllowed,
+    AlreadyExists,
+    InvalidData,
+    InvalidJsonSyntax,
+    MissingJsonContentType,
+    InvalidUuidPath,
+    MissingUuidPath,
+}
+
 #[axum::debug_middleware]
-pub async fn handle_errors(request: Request, next: Next) -> AppResult<impl IntoResponse> {
+pub async fn handle_errors_middleware(
+    request: Request,
+    next: Next,
+) -> AppResult<impl IntoResponse> {
     let _method = request.method().clone();
     let uri = request.uri().clone();
     let mut response = next.run(request).await;
     let extensions = response.extensions();
     if let Some(app_error) = extensions.get::<Arc<AppError>>() {
-        let error_schema = handle_app_error(app_error);
+        let error_code = error_code_lookup(app_error);
+        let error_schema = ErrorSchema::from(error_code);
         if error_schema.get_status() >= 500 {
             log::error!("Critical server error: {:#?}", app_error);
         }
@@ -33,99 +62,76 @@ pub async fn handle_errors(request: Request, next: Next) -> AppResult<impl IntoR
     Ok(response)
 }
 
-fn handle_app_error(app_error: &AppError) -> ErrorSchema {
+fn error_code_lookup(app_error: &AppError) -> ErrorCode {
     match app_error {
-        AppError::Sqlx(error) => handle_sqlx_error(error),
-        AppError::Argon2(error) => handle_argon2_error(error),
-        AppError::Argon2Phc(_error) => ErrorSchema::internal_server_error(),
-        AppError::Jsonwebtoken(_error) => ErrorSchema::unauthorized(),
-        AppError::SerdeJson(error) => handle_serde_json_error(error),
-        AppError::JsonRejection(error) => handle_json_rejection(error),
-        AppError::PathRejection(error) => handle_path_rejection(error),
+        AppError::Sqlx(error) => sqlx_error_code_lookup(error),
+        AppError::Argon2(error) => argon2_error_code_lookup(error),
+        AppError::Argon2Phc(_error) => ErrorCode::Internal,
+        AppError::Jsonwebtoken(_error) => ErrorCode::InvalidAccessToken,
+        AppError::SerdeJson(error) => serde_json_error_code_lookup(error),
+        AppError::JsonRejection(error) => json_rejection_error_code_lookup(error),
+        AppError::PathRejection(error) => path_rejection_error_code_lookup(error),
         AppError::TypedHeaderRejection(error) => handle_typed_header_rejection(error),
-        AppError::InvalidCredentials => {
-            ErrorSchema::unauthorized().detail("The provided credentials are invalid")
-        }
-        AppError::InvalidRefreshToken => {
-            ErrorSchema::unauthorized().detail("The refresh token is invalid")
-        }
-        AppError::NoRefreshTokenCookie => {
-            ErrorSchema::unauthorized().detail("The `refresh_token` cookie is missing")
-        }
-        AppError::HttpMethodNotAllowed => ErrorSchema::method_not_allowed(),
+        AppError::InvalidCredentials => ErrorCode::InvalidCredentials,
+        AppError::InvalidRefreshToken => ErrorCode::InvalidRefreshToken,
+        AppError::MissingRefreshToken => ErrorCode::MissingRefreshToken,
+        AppError::HttpMethodNotAllowed => ErrorCode::HttpMethodNotAllowed,
+        AppError::ExpiredRefreshToken => ErrorCode::ExpiredRefreshToken,
     }
 }
 
-fn handle_sqlx_error(error: &sqlx::Error) -> ErrorSchema {
+fn sqlx_error_code_lookup(error: &sqlx::Error) -> ErrorCode {
     use sqlx::Error;
-
     match error {
         Error::Database(error) => handle_sqlx_database_error(error),
-        Error::RowNotFound => ErrorSchema::not_found(),
-        _ => ErrorSchema::internal_server_error(),
+        Error::RowNotFound => ErrorCode::NotFound,
+        _ => ErrorCode::Internal,
     }
 }
 
-fn handle_sqlx_database_error(error: &Box<dyn DatabaseError + 'static>) -> ErrorSchema {
+fn handle_sqlx_database_error(error: &Box<dyn DatabaseError + 'static>) -> ErrorCode {
     use sqlx::error::ErrorKind;
-
     match error.kind() {
-        ErrorKind::UniqueViolation
-        | ErrorKind::ForeignKeyViolation
-        | ErrorKind::ExclusionViolation => ErrorSchema::from(StatusCode::CONFLICT),
-        ErrorKind::NotNullViolation | ErrorKind::CheckViolation => {
-            ErrorSchema::from(StatusCode::UNPROCESSABLE_ENTITY)
-        }
-        ErrorKind::Other => match error.code().as_deref() {
-            Some("40001" | "40P01" | "08001" | "08006" | "57P01" | "53300") => {
-                ErrorSchema::service_unavailable()
-            }
-            _ => ErrorSchema::internal_server_error(),
-        },
-        _ => ErrorSchema::from(StatusCode::INTERNAL_SERVER_ERROR),
+        ErrorKind::UniqueViolation => ErrorCode::AlreadyExists,
+        ErrorKind::ForeignKeyViolation
+        | ErrorKind::ExclusionViolation
+        | ErrorKind::NotNullViolation
+        | ErrorKind::CheckViolation => ErrorCode::InvalidData,
+        _ => ErrorCode::Internal,
     }
 }
 
-fn handle_argon2_error(error: &argon2::password_hash::Error) -> ErrorSchema {
+fn argon2_error_code_lookup(error: &argon2::password_hash::Error) -> ErrorCode {
     match error {
-        argon2::password_hash::Error::PasswordInvalid => ErrorSchema::unauthorized(),
-        _ => ErrorSchema::internal_server_error(),
+        argon2::password_hash::Error::PasswordInvalid => ErrorCode::InvalidCredentials,
+        _ => ErrorCode::Internal,
     }
 }
 
-fn handle_serde_json_error(error: &serde_json::Error) -> ErrorSchema {
+fn serde_json_error_code_lookup(error: &serde_json::Error) -> ErrorCode {
     if error.is_syntax() || error.is_eof() {
-        ErrorSchema::bad_request().detail("Invalid JSON request body")
+        ErrorCode::InvalidJsonSyntax
     } else if error.is_data() {
-        ErrorSchema::unprocessable_content().detail("Unable to process request body")
+        ErrorCode::InvalidData
     } else {
-        ErrorSchema::internal_server_error()
+        ErrorCode::Internal
     }
 }
 
-fn handle_json_rejection(error: &JsonRejection) -> ErrorSchema {
+fn json_rejection_error_code_lookup(error: &JsonRejection) -> ErrorCode {
     match error {
-        JsonRejection::JsonDataError(_error) => {
-            ErrorSchema::unprocessable_content().detail("Unable to process request body")
-        }
-        JsonRejection::JsonSyntaxError(_error) => {
-            ErrorSchema::bad_request().detail("Invalid JSON request body")
-        }
-        JsonRejection::MissingJsonContentType(_error) => ErrorSchema::unsupported_media_type()
-            .detail("Expected request with `Content-Type: application/json`"),
-        JsonRejection::BytesRejection(_error) => ErrorSchema::internal_server_error(),
-        _ => todo!(),
+        JsonRejection::JsonDataError(_error) => ErrorCode::InvalidData,
+        JsonRejection::JsonSyntaxError(_error) => ErrorCode::InvalidJsonSyntax,
+        JsonRejection::MissingJsonContentType(_error) => ErrorCode::MissingJsonContentType,
+        JsonRejection::BytesRejection(_error) => ErrorCode::Internal,
+        _ => ErrorCode::Internal,
     }
 }
 
-fn handle_path_rejection(error: &PathRejection) -> ErrorSchema {
+fn path_rejection_error_code_lookup(error: &PathRejection) -> ErrorCode {
     match error {
-        PathRejection::FailedToDeserializePathParams(_error) => {
-            ErrorSchema::bad_request().detail("Invalid UUID in path")
-        }
-        PathRejection::MissingPathParams(_error) => {
-            ErrorSchema::bad_request().detail("Missing path parameter")
-        }
+        PathRejection::FailedToDeserializePathParams(_error) => ErrorCode::InvalidUuidPath,
+        PathRejection::MissingPathParams(_error) => ErrorCode::MissingUuidPath,
         _ => todo!(),
     }
 }

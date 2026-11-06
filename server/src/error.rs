@@ -22,7 +22,8 @@ pub enum AppError {
     HttpMethodNotAllowed,
     InvalidCredentials,
     InvalidRefreshToken,
-    NoRefreshTokenCookie,
+    MissingRefreshToken,
+    ExpiredRefreshToken,
 }
 
 impl IntoResponse for AppError {

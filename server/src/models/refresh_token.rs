@@ -12,13 +12,3 @@ pub struct RefreshToken {
     pub is_used: bool,
     pub expires_at: DateTime<Utc>,
 }
-
-impl RefreshToken {
-    pub fn is_expired(&self) -> bool {
-        Utc::now() > self.expires_at
-    }
-
-    pub fn is_valid(&self) -> bool {
-        !self.is_expired() && !self.is_used
-    }
-}

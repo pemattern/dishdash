@@ -21,7 +21,7 @@ use crate::{
 pub const REFRESH_TOKEN_COOKIE: &str = "refresh_token";
 
 #[axum::debug_middleware]
-pub async fn validate_access_token(
+pub async fn validate_access_token_middleware(
     AppTypedHeader(authorization_bearer_header): AppTypedHeader<Authorization<Bearer>>,
     mut request: Request,
     next: Next,
@@ -33,14 +33,14 @@ pub async fn validate_access_token(
 }
 
 #[axum::debug_middleware]
-pub async fn validate_refresh_token(
+pub async fn validate_refresh_token_middleware(
     State(state): State<AppState>,
     jar: CookieJar,
     mut request: Request,
     next: Next,
 ) -> AppResult<impl IntoResponse> {
     let Some(refresh_token_cookie) = jar.get(REFRESH_TOKEN_COOKIE) else {
-        return Err(AppError::NoRefreshTokenCookie);
+        return Err(AppError::MissingRefreshToken);
     };
     let refresh_token = state
         .auth_service
@@ -51,7 +51,7 @@ pub async fn validate_refresh_token(
 }
 
 #[axum::debug_middleware]
-pub async fn validate_basic_auth(
+pub async fn validate_basic_auth_middleware(
     State(state): State<AppState>,
     AppTypedHeader(authorization_basic_header): AppTypedHeader<Authorization<Basic>>,
     mut request: Request,

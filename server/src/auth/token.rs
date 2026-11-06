@@ -6,7 +6,10 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::error::AppResult;
+use crate::{
+    error::{AppError, AppResult},
+    models::refresh_token::RefreshToken,
+};
 
 const ISSUER: &str = "dishdash";
 const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_mins(15);
@@ -56,4 +59,20 @@ pub fn get_valid_access_token_claims(access_token: &str) -> AppResult<Claims> {
     validation.set_issuer(&[ISSUER]);
     let token_data = decode::<Claims>(access_token, &key, &validation)?;
     Ok(token_data.claims)
+}
+
+pub fn parse_refresh_token(composite_refresh_token: &str) -> AppResult<(Uuid, String)> {
+    let (refresh_token_id_str, opaque_token) = composite_refresh_token
+        .split_once('.')
+        .ok_or(AppError::InvalidRefreshToken)?;
+    let refresh_token_id =
+        Uuid::parse_str(refresh_token_id_str).map_err(|_| AppError::InvalidRefreshToken)?;
+    Ok((refresh_token_id, opaque_token.into()))
+}
+
+pub fn validate_refresh_token_expiry(refresh_token: &RefreshToken) -> AppResult<()> {
+    if Utc::now() > refresh_token.expires_at || refresh_token.is_used {
+        return Err(AppError::ExpiredRefreshToken);
+    }
+    Ok(())
 }
