@@ -9,7 +9,7 @@ use crate::{
             PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredientSchema,
         },
     },
-    requests::{UuidMap, app_json::AppJson, uuid_path::UuidPath},
+    requests::{UuidMap, app_json::ValidatedJson, uuid_path::UuidPath},
     responses::{
         DeleteResponse, GetManyResponse, GetResponse, PatchManyResponse, PatchResponse,
         PostManyResponse, PostResponse,
@@ -45,7 +45,7 @@ pub async fn get_recipe_ingredients(
 pub async fn post_recipe_ingredient(
     State(state): State<AppState>,
     UuidPath((recipe_id, ingredient_id)): UuidPath<(Uuid, Uuid)>,
-    AppJson(recipe_ingredient): AppJson<PostRecipeIngredientSchema>,
+    ValidatedJson(recipe_ingredient): ValidatedJson<PostRecipeIngredientSchema>,
 ) -> AppResult<PostResponse<RecipeIngredientSchema>> {
     let recipe_ingredient = state
         .recipe_service
@@ -58,7 +58,7 @@ pub async fn post_recipe_ingredient(
 pub async fn post_recipe_ingredients(
     State(state): State<AppState>,
     UuidPath(recipe_id): UuidPath<Uuid>,
-    AppJson(recipe_ingredients): AppJson<UuidMap<PostRecipeIngredientSchema>>,
+    ValidatedJson(recipe_ingredients): ValidatedJson<UuidMap<PostRecipeIngredientSchema>>,
 ) -> AppResult<PostManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service
@@ -71,7 +71,7 @@ pub async fn post_recipe_ingredients(
 pub async fn patch_recipe_ingredient(
     State(state): State<AppState>,
     UuidPath((recipe_id, ingredient_id)): UuidPath<(Uuid, Uuid)>,
-    AppJson(recipe_ingredient): AppJson<PatchRecipeIngredientSchema>,
+    ValidatedJson(recipe_ingredient): ValidatedJson<PatchRecipeIngredientSchema>,
 ) -> AppResult<PatchResponse<RecipeIngredientSchema>> {
     let recipe_ingredient = state
         .recipe_service
@@ -84,7 +84,7 @@ pub async fn patch_recipe_ingredient(
 pub async fn patch_recipe_ingredients(
     State(state): State<AppState>,
     UuidPath(recipe_id): UuidPath<Uuid>,
-    AppJson(recipe_ingredients): AppJson<UuidMap<PatchRecipeIngredientSchema>>,
+    ValidatedJson(recipe_ingredients): ValidatedJson<UuidMap<PatchRecipeIngredientSchema>>,
 ) -> AppResult<PatchManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service

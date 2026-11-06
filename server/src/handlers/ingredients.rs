@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::ingredient::schemas::{IngredientSchema, PatchIngredientSchema, PostIngredientSchema},
-    requests::{app_json::AppJson, uuid_path::UuidPath},
+    requests::{app_json::ValidatedJson, uuid_path::UuidPath},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -32,7 +32,7 @@ pub async fn get_ingredients(
 #[axum::debug_handler]
 pub async fn post_ingredient(
     State(state): State<AppState>,
-    AppJson(user): AppJson<PostIngredientSchema>,
+    ValidatedJson(user): ValidatedJson<PostIngredientSchema>,
 ) -> AppResult<PostResponse<IngredientSchema>> {
     let ingredient = state.ingredient_service.create_ingredient(user).await?;
     Ok(ingredient.into())
@@ -42,7 +42,7 @@ pub async fn post_ingredient(
 pub async fn patch_ingredient(
     State(state): State<AppState>,
     UuidPath(ingredient_id): UuidPath<Uuid>,
-    AppJson(user): AppJson<PatchIngredientSchema>,
+    ValidatedJson(user): ValidatedJson<PatchIngredientSchema>,
 ) -> AppResult<PatchResponse<IngredientSchema>> {
     let ingredient = state
         .ingredient_service

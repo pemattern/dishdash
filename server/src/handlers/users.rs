@@ -5,7 +5,7 @@ use crate::{
     auth::token::Claims,
     error::AppResult,
     models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
-    requests::{app_json::AppJson, uuid_path::UuidPath},
+    requests::{app_json::ValidatedJson, uuid_path::UuidPath},
     responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -32,7 +32,7 @@ pub async fn get_me(
 #[axum::debug_handler]
 pub async fn post_user(
     State(state): State<AppState>,
-    AppJson(user): AppJson<PostUserSchema>,
+    ValidatedJson(user): ValidatedJson<PostUserSchema>,
 ) -> AppResult<PostResponse<UserSchema>> {
     let user = state.user_service.create_user(user).await?;
     Ok(user.into())
@@ -42,7 +42,7 @@ pub async fn post_user(
 pub async fn patch_user(
     State(state): State<AppState>,
     UuidPath(id): UuidPath<Uuid>,
-    AppJson(user): AppJson<PatchUserSchema>,
+    ValidatedJson(user): ValidatedJson<PatchUserSchema>,
 ) -> AppResult<PatchResponse<UserSchema>> {
     let user = state.user_service.update_user(id, user).await?;
     Ok(user.into())

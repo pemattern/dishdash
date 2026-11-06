@@ -24,7 +24,6 @@ sqlx = { version = "0.9.0", features = [
   "uuid",
 ] }
 tokio = { version = "1.54.0", features = ["fs", "macros", "rt-multi-thread"] }
-toml = "1.1.8"
 tower = "0.5.3"
 tower-http = { version = "0.7.1", features = [
   "compression-br",
@@ -38,5 +37,6 @@ uuid = { version = "1.28.0", features = ["serde", "v7"] }
 futures = "0.3.34"
 ts-rs = { version = "12.0.1", features = ["chrono-impl", "uuid-impl"] }
 log = "0.4.35"
+validator = { version = "0.21.0", features = ["derive"] }
 
 [dev-dependencies]

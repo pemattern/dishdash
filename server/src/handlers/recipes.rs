@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::recipe::schemas::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
-    requests::{app_json::AppJson, uuid_path::UuidPath},
+    requests::{app_json::ValidatedJson, uuid_path::UuidPath},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };
@@ -29,7 +29,7 @@ pub async fn get_all_recipes(
 #[axum::debug_handler]
 pub async fn post_recipe(
     State(state): State<AppState>,
-    AppJson(user): AppJson<PostRecipeSchema>,
+    ValidatedJson(user): ValidatedJson<PostRecipeSchema>,
 ) -> AppResult<PostResponse<RecipeSchema>> {
     let recipe = state.recipe_service.create_recipe(user).await?;
     Ok(recipe.into())
@@ -39,7 +39,7 @@ pub async fn post_recipe(
 pub async fn patch_recipe(
     State(state): State<AppState>,
     UuidPath(id): UuidPath<Uuid>,
-    AppJson(user): AppJson<PatchRecipeSchema>,
+    ValidatedJson(user): ValidatedJson<PatchRecipeSchema>,
 ) -> AppResult<PatchResponse<RecipeSchema>> {
     let recipe = state.recipe_service.update_recipe(id, user).await?;
     Ok(recipe.into())
