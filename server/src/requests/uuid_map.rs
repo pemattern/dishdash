@@ -6,25 +6,25 @@ use validator::Validate;
 
 #[derive(Deserialize, Validate)]
 #[serde(bound(deserialize = "T: DeserializeOwned"))]
-pub struct UuidSet<T>
+pub struct UuidMap<T>
 where
     T: DeserializeOwned + Validate,
 {
     #[serde(flatten)]
     #[validate(nested)]
-    pub map: HashMap<Uuid, T>,
+    pub inner: HashMap<Uuid, T>,
 }
 
-impl<T> UuidSet<T>
+impl<T> UuidMap<T>
 where
     T: DeserializeOwned + Validate,
 {
     pub fn len(&self) -> usize {
-        self.map.len()
+        self.inner.len()
     }
 }
 
-impl<T> IntoIterator for UuidSet<T>
+impl<T> IntoIterator for UuidMap<T>
 where
     T: DeserializeOwned + Validate,
 {
@@ -32,6 +32,6 @@ where
     type IntoIter = std::collections::hash_map::IntoIter<Uuid, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.map.into_iter()
+        self.inner.into_iter()
     }
 }

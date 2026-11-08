@@ -15,7 +15,7 @@ use crate::{
         },
     },
     repositories::{recipe_ingredients::RecipeIngredients, recipes::Recipes},
-    requests::uuid_set::UuidSet,
+    requests::uuid_map::UuidMap,
 };
 
 #[derive(Clone)]
@@ -78,11 +78,11 @@ impl RecipeService {
     pub async fn create_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: UuidSet<PostRecipeIngredientSchema>,
+        recipe_ingredients: UuidMap<PostRecipeIngredientSchema>,
     ) -> AppResult<Vec<RecipeIngredient>> {
         let mut tx = self.pool.begin().await?;
         let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for (ingredient_id, recipe_ingredient) in recipe_ingredients.map {
+        for (ingredient_id, recipe_ingredient) in recipe_ingredients.inner {
             let inserted_recipe_ingredient =
                 RecipeIngredients::insert(&mut *tx, recipe_id, ingredient_id, recipe_ingredient)
                     .await?;
@@ -116,7 +116,7 @@ impl RecipeService {
     pub async fn update_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: UuidSet<PatchRecipeIngredientSchema>,
+        recipe_ingredients: UuidMap<PatchRecipeIngredientSchema>,
     ) -> AppResult<Vec<RecipeIngredient>> {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
