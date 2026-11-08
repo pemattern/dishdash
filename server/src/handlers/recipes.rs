@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::recipe::schemas::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
-    requests::{app_json::ValidatedJson, uuid_path::UuidPath},
+    requests::{uuid_path::UuidPath, validated_json::ValidatedJson},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };

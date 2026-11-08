@@ -5,7 +5,7 @@ use crate::{
     auth::token::Claims,
     error::AppResult,
     models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
-    requests::{app_json::ValidatedJson, uuid_path::UuidPath},
+    requests::{uuid_path::UuidPath, validated_json::ValidatedJson},
     responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,
 };

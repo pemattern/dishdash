@@ -55,6 +55,13 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
         let field_name = field.ident.as_ref().unwrap();
         let field_type = &field.ty;
 
+        let mut helper_attrs = Vec::new();
+
+        for attr in &field.attrs {
+            if attr.path().is_ident("validate") {
+                helper_attrs.push(attr);
+            }
+        }
         let mut read = true;
         let mut write = true;
         let mut rename: Option<syn::LitStr> = None;
@@ -100,10 +107,12 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
 
         if write {
             post_fields.push(quote! {
+                #(#helper_attrs)*
                 pub #schema_field_name: #field_type
             });
 
             patch_fields.push(quote! {
+                #(#helper_attrs)*
                 pub #schema_field_name: Option<#field_type>
             });
         }
@@ -125,14 +134,14 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
         quote! {}
     } else {
         quote! {
-            #[derive(Debug, Clone, serde::Deserialize, ts_rs::TS)]
+            #[derive(Debug, Clone, serde::Deserialize, ts_rs::TS, validator::Validate)]
             #[serde(rename_all = "camelCase")]
             #[ts(export, export_to = lib::BINDINGS_PATH)]
             pub struct #post_name {
                 #(#post_fields,)*
             }
 
-            #[derive(Debug, Clone, serde::Deserialize, ts_rs::TS)]
+            #[derive(Debug, Clone, serde::Deserialize, ts_rs::TS, validator::Validate)]
             #[serde(rename_all = "camelCase")]
             #[ts(export, export_to = lib::BINDINGS_PATH)]
             pub struct #patch_name {

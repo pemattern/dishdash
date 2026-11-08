@@ -9,7 +9,7 @@ use crate::{
             PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredientSchema,
         },
     },
-    requests::{UuidMap, app_json::ValidatedJson, uuid_path::UuidPath},
+    requests::{uuid_path::UuidPath, uuid_set::UuidSet, validated_json::ValidatedJson},
     responses::{
         DeleteResponse, GetManyResponse, GetResponse, PatchManyResponse, PatchResponse,
         PostManyResponse, PostResponse,
@@ -58,7 +58,7 @@ pub async fn post_recipe_ingredient(
 pub async fn post_recipe_ingredients(
     State(state): State<AppState>,
     UuidPath(recipe_id): UuidPath<Uuid>,
-    ValidatedJson(recipe_ingredients): ValidatedJson<UuidMap<PostRecipeIngredientSchema>>,
+    ValidatedJson(recipe_ingredients): ValidatedJson<UuidSet<PostRecipeIngredientSchema>>,
 ) -> AppResult<PostManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service
@@ -84,7 +84,7 @@ pub async fn patch_recipe_ingredient(
 pub async fn patch_recipe_ingredients(
     State(state): State<AppState>,
     UuidPath(recipe_id): UuidPath<Uuid>,
-    ValidatedJson(recipe_ingredients): ValidatedJson<UuidMap<PatchRecipeIngredientSchema>>,
+    ValidatedJson(recipe_ingredients): ValidatedJson<UuidSet<PatchRecipeIngredientSchema>>,
 ) -> AppResult<PatchManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service
