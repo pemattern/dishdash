@@ -1,13 +1,11 @@
-use std::sync::Arc;
+use std::error::Error;
 
 use sqlx::PgPool;
 use tokio::fs::File;
 
-use crate::error::{AppError, AppResult};
+const INGREDIENTS_CSV: &str = "server/seed_data/ingredients.csv";
 
-const INGREDIENTS_CSV: &str = "ingredients.csv";
-
-pub async fn upsert_ingredient_seed_data(pool: &PgPool) -> AppResult<()> {
+pub async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     let mut tx = pool.begin().await?;
     sqlx::query!("CREATE TEMP TABLE ingredients_staging (name TEXT) ON COMMIT DROP;")
         .execute(&mut *tx)
@@ -33,10 +31,4 @@ pub async fn upsert_ingredient_seed_data(pool: &PgPool) -> AppResult<()> {
     .await?;
     tx.commit().await?;
     Ok(())
-}
-
-impl From<std::io::Error> for AppError {
-    fn from(error: std::io::Error) -> Self {
-        AppError::Internal(Arc::new(error))
-    }
 }
