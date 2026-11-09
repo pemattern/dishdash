@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use lib::GenerateSchemas;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, GenerateSchemas)]
+#[derive(GenerateSchemas)]
 pub struct Ingredient {
     #[schema(read_only)]
     pub id: Uuid,

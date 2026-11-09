@@ -1,4 +1,5 @@
 pub mod ingredient;
+pub mod joins;
 pub mod physical_quantity;
 pub mod recipe;
 pub mod recipe_ingredient;

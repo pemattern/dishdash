@@ -4,13 +4,13 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::{
+        joins::recipe_ingredient::RecipeIngredientJoinIngredient,
         recipe::{
             Recipe,
             schemas::{PatchRecipeSchema, PostRecipeSchema},
         },
         recipe_ingredient::{
             RecipeIngredient,
-            join::RecipeIngredientJoinIngredient,
             schemas::{PatchRecipeIngredientSchema, PostRecipeIngredientSchema},
         },
     },

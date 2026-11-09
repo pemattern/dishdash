@@ -134,14 +134,14 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
         quote! {}
     } else {
         quote! {
-            #[derive(Debug, Clone, serde::Deserialize, ts_rs::TS, validator::Validate)]
+            #[derive(serde::Deserialize, ts_rs::TS, validator::Validate)]
             #[serde(rename_all = "camelCase")]
             #[ts(export, export_to = lib::BINDINGS_PATH)]
             pub struct #post_name {
                 #(#post_fields,)*
             }
 
-            #[derive(Debug, Clone, serde::Deserialize, ts_rs::TS, validator::Validate)]
+            #[derive(serde::Deserialize, ts_rs::TS, validator::Validate)]
             #[serde(rename_all = "camelCase")]
             #[ts(export, export_to = lib::BINDINGS_PATH)]
             pub struct #patch_name {
@@ -156,7 +156,7 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
 
             impl GenerateSchemas for #name {}
 
-            #[derive(Debug, Clone, serde::Serialize, ts_rs::TS)]
+            #[derive(serde::Serialize, ts_rs::TS)]
             #[serde(rename_all = "camelCase")]
             #[ts(export, export_to = lib::BINDINGS_PATH)]
             pub struct #response_name {
