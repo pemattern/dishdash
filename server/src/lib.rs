@@ -15,6 +15,7 @@ pub mod repositories;
 pub mod requests;
 pub mod responses;
 pub mod routes;
+pub mod seeder;
 pub mod services;
 pub mod state;
 
