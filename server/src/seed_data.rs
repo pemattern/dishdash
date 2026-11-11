@@ -109,18 +109,13 @@ pub async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<
 async fn checksum_file(file: &mut File) -> std::io::Result<String> {
     let mut reader = BufReader::new(file);
     let mut hasher = blake3::Hasher::new();
-
     let mut buffer = vec![0u8; 1024 * 1024];
-
     loop {
         let n = reader.read(&mut buffer).await?;
-
         if n == 0 {
             break;
         }
-
         hasher.update(&buffer[..n]);
     }
-
     Ok(hasher.finalize().to_hex().to_string())
 }

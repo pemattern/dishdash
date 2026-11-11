@@ -5,7 +5,7 @@ use sqlx::{PgPool, postgres::PgPoolOptions};
 use tokio::net::TcpListener;
 
 use crate::{
-    seeder::{upsert_ingredient_names_seed_data, upsert_ingredient_seed_data},
+    seed_data::{upsert_ingredient_names_seed_data, upsert_ingredient_seed_data},
     state::AppState,
 };
 
@@ -18,7 +18,7 @@ pub mod repositories;
 pub mod requests;
 pub mod responses;
 pub mod routes;
-pub mod seeder;
+pub mod seed_data;
 pub mod services;
 pub mod state;
 
