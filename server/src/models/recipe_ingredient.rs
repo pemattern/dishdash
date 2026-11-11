@@ -11,8 +11,8 @@ pub struct RecipeIngredient {
     #[schema(read_only)]
     pub recipe_id: Uuid,
     #[schema(read_only)]
-    pub ingredient_id: Uuid,
-    pub unit_id: Uuid,
+    pub ingredient_code: String,
+    pub unit_code: String,
     pub position: i32,
     pub quantity: f32,
 }

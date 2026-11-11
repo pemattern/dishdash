@@ -15,7 +15,7 @@ use crate::{
         },
     },
     repositories::{recipe_ingredients::RecipeIngredients, recipes::Recipes},
-    requests::uuid_map::UuidMap,
+    requests::code_map::CodeMap,
 };
 
 #[derive(Clone)]
@@ -39,13 +39,13 @@ impl RecipeService {
         Ok(recipes)
     }
 
-    pub async fn find_recipe_ingredient_by_id(
+    pub async fn find_recipe_ingredient_by_code(
         &self,
         recipe_id: Uuid,
-        ingredient_id: Uuid,
+        ingredient_code: String,
     ) -> AppResult<RecipeIngredientJoinIngredient> {
         let recipe_ingredient =
-            RecipeIngredients::select_by_id(&self.pool, recipe_id, ingredient_id).await?;
+            RecipeIngredients::select_by_id(&self.pool, recipe_id, ingredient_code).await?;
         Ok(recipe_ingredient)
     }
 
@@ -66,11 +66,11 @@ impl RecipeService {
     pub async fn create_recipe_ingredient(
         &self,
         recipe_id: Uuid,
-        ingredient_id: Uuid,
+        ingredient_code: String,
         recipe_ingredient: PostRecipeIngredientSchema,
     ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient =
-            RecipeIngredients::insert(&self.pool, recipe_id, ingredient_id, recipe_ingredient)
+            RecipeIngredients::insert(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
                 .await?;
         Ok(recipe_ingredient)
     }
@@ -78,13 +78,13 @@ impl RecipeService {
     pub async fn create_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: UuidMap<PostRecipeIngredientSchema>,
+        recipe_ingredients: CodeMap<PostRecipeIngredientSchema>,
     ) -> AppResult<Vec<RecipeIngredient>> {
         let mut tx = self.pool.begin().await?;
         let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for (ingredient_id, recipe_ingredient) in recipe_ingredients.inner {
+        for (ingredient_code, recipe_ingredient) in recipe_ingredients {
             let inserted_recipe_ingredient =
-                RecipeIngredients::insert(&mut *tx, recipe_id, ingredient_id, recipe_ingredient)
+                RecipeIngredients::insert(&mut *tx, recipe_id, ingredient_code, recipe_ingredient)
                     .await?;
             inserted_recipe_ingredients.push(inserted_recipe_ingredient);
         }
@@ -104,11 +104,11 @@ impl RecipeService {
     pub async fn update_recipe_ingredient(
         &self,
         recipe_id: Uuid,
-        ingredient_id: Uuid,
+        ingredient_code: String,
         recipe_ingredient: PatchRecipeIngredientSchema,
     ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient =
-            RecipeIngredients::update(&self.pool, recipe_id, ingredient_id, recipe_ingredient)
+            RecipeIngredients::update(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
                 .await?;
         Ok(recipe_ingredient)
     }
@@ -116,13 +116,13 @@ impl RecipeService {
     pub async fn update_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: UuidMap<PatchRecipeIngredientSchema>,
+        recipe_ingredients: CodeMap<PatchRecipeIngredientSchema>,
     ) -> AppResult<Vec<RecipeIngredient>> {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for (ingredient_id, recipe_ingredient) in recipe_ingredients {
+        for (ingredient_code, recipe_ingredient) in recipe_ingredients {
             let updated_recipe_ingredient =
-                RecipeIngredients::update(&mut *tx, recipe_id, ingredient_id, recipe_ingredient)
+                RecipeIngredients::update(&mut *tx, recipe_id, ingredient_code, recipe_ingredient)
                     .await?;
             updated_recipe_ingredients.push(updated_recipe_ingredient);
         }
@@ -138,10 +138,10 @@ impl RecipeService {
     pub async fn delete_recipe_ingredient(
         &self,
         recipe_id: Uuid,
-        ingredient_id: Uuid,
+        ingredient_code: String,
     ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient =
-            RecipeIngredients::delete_by_id(&self.pool, recipe_id, ingredient_id).await?;
+            RecipeIngredients::delete_by_id(&self.pool, recipe_id, ingredient_code).await?;
         Ok(recipe_ingredient)
     }
 }

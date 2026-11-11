@@ -1,16 +1,11 @@
-use chrono::{DateTime, Utc};
 use lib::GenerateSchemas;
-use uuid::Uuid;
 
 #[derive(GenerateSchemas)]
 #[schema(read_only)]
 pub struct Unit {
-    pub id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub physical_quantity_id: Uuid,
-    pub unit_system_id: Uuid,
-    pub name: String,
+    pub code: String,
+    pub physical_quantity_code: String,
+    pub unit_system_code: String,
     pub symbol: String,
     pub si_factor: f64,
 }

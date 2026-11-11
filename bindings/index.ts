@@ -4,38 +4,34 @@ export type ErrorCode = "INTERNAL" | "RESOURCE_NOT_FOUND" | "HTTP_METHOD" | "INV
 
 export type ErrorSchema = { title: string, status: number, errorCode: ErrorCode | null, detail: string | null, instance: string | null, };
 
-export type IngredientSchema = { id: string, createdAt: string, updatedAt: string, name: string, };
+export type IngredientSchema = { code: string, ingredientCategoryCode: string, };
 
 export type LoginSchema = { accessToken: string, };
 
-export type PatchIngredientSchema = { name: string | null, };
-
-export type PatchRecipeIngredientSchema = { unitId: string | null, position: number | null, quantity: number | null, };
+export type PatchRecipeIngredientSchema = { unitCode: string | null, position: number | null, quantity: number | null, };
 
 export type PatchRecipeSchema = { name: string | null, summary: string | null, };
 
 export type PatchUserSchema = { email: string | null, password: string | null, };
 
-export type PhysicalQuantitySchema = { id: string, createdAt: string, updatedAt: string, name: string, };
+export type PhysicalQuantitySchema = { code: string, };
 
-export type PostIngredientSchema = { name: string, };
-
-export type PostRecipeIngredientSchema = { unitId: string, position: number, quantity: number, };
+export type PostRecipeIngredientSchema = { unitCode: string, position: number, quantity: number, };
 
 export type PostRecipeSchema = { name: string, summary: string, };
 
 export type PostUserSchema = { email: string, password: string, };
 
-export type RecipeIngredientJoinIngredientSchema = { createdAt: string, updatedAt: string, ingredientName: string, recipeId: string, ingredientId: string, unitId: string, position: number, quantity: number, };
+export type RecipeIngredientJoinIngredientSchema = { createdAt: string, updatedAt: string, ingredientName: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
 
-export type RecipeIngredientSchema = { createdAt: string, updatedAt: string, recipeId: string, ingredientId: string, unitId: string, position: number, quantity: number, };
+export type RecipeIngredientSchema = { createdAt: string, updatedAt: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
 
 export type RecipeSchema = { id: string, createdAt: string, updatedAt: string, name: string, summary: string, };
 
 export type RefreshSchema = { accessToken: string, };
 
-export type UnitSchema = { id: string, createdAt: string, updatedAt: string, physicalQuantityId: string, unitSystemId: string, name: string, symbol: string, siFactor: number, };
+export type UnitSchema = { code: string, physicalQuantityCode: string, unitSystemCode: string, symbol: string, siFactor: number, };
 
-export type UnitSystemSchema = { id: string, createdAt: string, updatedAt: string, name: string, };
+export type UnitSystemSchema = { code: string, };
 
 export type UserSchema = { id: string, createdAt: string, updatedAt: string, email: string, };

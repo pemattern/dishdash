@@ -1,5 +1,5 @@
-name
-apple
-carrot
-orange
-oregano
+code,ingredient_category_code
+apple,fruits
+carrot,vegetables
+orange,fruits
+oregano,herbs_spices
