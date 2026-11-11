@@ -17,3 +17,15 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+CREATE TABLE seed_data_imports (
+    file_name TEXT PRIMARY KEY,
+    checksum BYTEA NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TRIGGER update_seed_data_imports_updated_at
+    BEFORE UPDATE ON seed_data_imports
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
