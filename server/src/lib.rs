@@ -4,10 +4,7 @@ use axum::Router;
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use tokio::net::TcpListener;
 
-use crate::{
-    seed_data::{upsert_ingredient_names_seed_data, upsert_ingredient_seed_data},
-    state::AppState,
-};
+use crate::{seed_data::upsert_seed_data_tables, state::AppState};
 
 pub mod auth;
 pub mod error;
@@ -43,8 +40,7 @@ async fn connect_postgres() -> Result<PgPool, Box<dyn Error>> {
     let url = std::env::var(DATABASE_URL_ENV_KEY)?;
     let pool = PgPoolOptions::new().connect(&url).await?;
     sqlx::migrate!().run(&pool).await?;
-    upsert_ingredient_seed_data(&pool).await?;
-    upsert_ingredient_names_seed_data(&pool).await?;
+    upsert_seed_data_tables(&pool).await?;
     log::info!("completed updating seed data");
     Ok(pool)
 }

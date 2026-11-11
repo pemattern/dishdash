@@ -10,6 +10,12 @@ const SEED_DATA_PATH: &str = "server/seed_data/";
 const INGREDIENTS_CSV: &str = "ingredients.csv";
 const INGREDIENT_NAMES_CSV: &str = "ingredient_names.csv";
 
+pub async fn upsert_seed_data_tables(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+    upsert_ingredient_seed_data(pool).await?;
+    upsert_ingredient_names_seed_data(pool).await?;
+    Ok(())
+}
+
 async fn upsert_seed_data(
     pool: &PgPool,
     csv_file_name: &'static str,
@@ -60,7 +66,21 @@ async fn upsert_seed_data(
     Ok(())
 }
 
-pub async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+async fn checksum_file(file: &mut File) -> std::io::Result<String> {
+    let mut reader = BufReader::new(file);
+    let mut hasher = blake3::Hasher::new();
+    let mut buffer = vec![0u8; 1024 * 1024];
+    loop {
+        let n = reader.read(&mut buffer).await?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buffer[..n]);
+    }
+    Ok(hasher.finalize().to_hex().to_string())
+}
+
+async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_seed_data(
         pool,
         INGREDIENTS_CSV,
@@ -82,7 +102,7 @@ pub async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Er
     Ok(())
 }
 
-pub async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_seed_data(
         pool,
         INGREDIENT_NAMES_CSV,
@@ -107,18 +127,4 @@ pub async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<
     )
     .await?;
     Ok(())
-}
-
-async fn checksum_file(file: &mut File) -> std::io::Result<String> {
-    let mut reader = BufReader::new(file);
-    let mut hasher = blake3::Hasher::new();
-    let mut buffer = vec![0u8; 1024 * 1024];
-    loop {
-        let n = reader.read(&mut buffer).await?;
-        if n == 0 {
-            break;
-        }
-        hasher.update(&buffer[..n]);
-    }
-    Ok(hasher.finalize().to_hex().to_string())
 }
