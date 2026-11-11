@@ -55,4 +55,40 @@ fn create_router(pool: PgPool) -> Router {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use axum::{
+        body::{Body, to_bytes},
+        http::{Request, StatusCode},
+    };
+    use sqlx::PgPool;
+    use tower::ServiceExt;
+    use uuid::Uuid;
+
+    use crate::{
+        auth::token::generate_access_token, create_router,
+        models::recipe::schemas::PostRecipeSchema,
+    };
+
+    #[sqlx::test]
+    async fn insert_recipe(pool: PgPool) {
+        let app = create_router(pool);
+        let token = generate_access_token(Uuid::nil()).unwrap();
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/recipes")
+                    .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", token))
+                    .body(Body::from(r#"{"name":"Pumpkin Soup", "summary":"tasty"}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::CREATED);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let schema: PostRecipeSchema = serde_json::from_slice(&body).unwrap();
+        assert_eq!(schema.name, "Pumpkin Soup");
+        assert_eq!(schema.summary, "tasty");
+    }
+}
