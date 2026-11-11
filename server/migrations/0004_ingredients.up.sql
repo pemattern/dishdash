@@ -42,7 +42,7 @@ CREATE TABLE ingredient_names (
     locale_code TEXT NOT NULL REFERENCES locales(code),
     name TEXT NOT NULL,
     name_normalized TEXT NOT NULL,
-
+    name_plural TEXT NOT NULL,
     PRIMARY KEY (ingredient_code, locale_code, name),
     UNIQUE (ingredient_code, locale_code, name_normalized)
 );

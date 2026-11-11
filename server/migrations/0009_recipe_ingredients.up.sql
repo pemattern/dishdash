@@ -8,7 +8,7 @@ CREATE TABLE recipe_ingredients (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     PRIMARY KEY (recipe_id, ingredient_code),
-    CONSTRAINT recipe_id_position_unique
+    CONSTRAINT recipe_ingredient_recipe_id_position_unique
         UNIQUE (recipe_id, position)
         DEFERRABLE INITIALLY DEFERRED
 );

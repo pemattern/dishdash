@@ -88,17 +88,19 @@ pub async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<
         "CREATE TEMP TABLE ingredient_names_staging (
             ingredient_code TEXT NOT NULL,
             locale_code TEXT NOT NULL,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            name_plural TEXT NOT NULL
         ) ON COMMIT DROP;",
-        "COPY ingredient_names_staging (ingredient_code, locale_code, name)
+        "COPY ingredient_names_staging (ingredient_code, locale_code, name, name_plural)
             FROM STDIN
             WITH (FORMAT CSV, HEADER TRUE);",
-        "INSERT INTO ingredient_names (ingredient_code, locale_code, name, name_normalized)
-        SELECT ingredient_code, locale_code, name, search_normalize(name)
+        "INSERT INTO ingredient_names (ingredient_code, locale_code, name, name_normalized, name_plural)
+        SELECT ingredient_code, locale_code, name, search_normalize(name), name_plural
         FROM ingredient_names_staging
         ON CONFLICT (ingredient_code, locale_code, name_normalized)
         DO UPDATE SET
-            name = EXCLUDED.name
+            name = EXCLUDED.name,
+            name_plural = EXCLUDED.name_plural
         WHERE ingredient_names.name
             IS DISTINCT FROM EXCLUDED.name;",
     )
