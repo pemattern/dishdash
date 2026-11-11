@@ -3,7 +3,7 @@ use std::{error::Error, path::PathBuf};
 use sqlx::PgPool;
 use tokio::{
     fs::File,
-    io::{AsyncReadExt, BufReader},
+    io::{AsyncReadExt, AsyncSeekExt, BufReader},
 };
 
 const SEED_DATA_PATH: &str = "server/seed_data/";
@@ -21,6 +21,7 @@ async fn upsert_seed_data(
     path.push(csv_file_name);
     let mut file = File::open(&path).await?;
     let checksum = checksum_file(&mut file).await?;
+    file.rewind().await?;
     let previous_checksum: Option<Vec<u8>> = sqlx::query_scalar!(
         "SELECT checksum
         FROM seed_data_imports
@@ -44,7 +45,6 @@ async fn upsert_seed_data(
     copy.read_from(file).await?;
     copy.finish().await?;
     sqlx::query(upsert_table_query).execute(&mut *tx).await?;
-    tx.commit().await?;
     sqlx::query!(
         "INSERT INTO seed_data_imports (file_name, checksum)
         VALUES ($1, $2)
@@ -54,8 +54,9 @@ async fn upsert_seed_data(
         csv_file_name,
         checksum.as_bytes()
     )
-    .execute(pool)
+    .execute(&mut *tx)
     .await?;
+    tx.commit().await?;
     Ok(())
 }
 
@@ -101,8 +102,8 @@ pub async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<
         DO UPDATE SET
             name = EXCLUDED.name,
             name_plural = EXCLUDED.name_plural
-        WHERE ingredient_names.name
-            IS DISTINCT FROM EXCLUDED.name;",
+        WHERE ingredient_names.name IS DISTINCT FROM EXCLUDED.name
+            OR ingredient_names.name_plural IS DISTINCT FROM EXCLUDED.name_plural;",
     )
     .await?;
     Ok(())
