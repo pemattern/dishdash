@@ -35,24 +35,49 @@ VALUES
     ('en'),
     ('de');
 
-
-
-CREATE TABLE ingredient_names (
+CREATE TABLE ingredient_translations (
     ingredient_code TEXT NOT NULL REFERENCES ingredients(code),
     locale_code TEXT NOT NULL REFERENCES locales(code),
     name TEXT NOT NULL,
-    name_normalized TEXT NOT NULL,
     name_plural TEXT NOT NULL,
-    PRIMARY KEY (ingredient_code, locale_code, name),
-    UNIQUE (ingredient_code, locale_code, name_normalized)
+    name_normalized TEXT NOT NULL,
+    PRIMARY KEY (ingredient_code, locale_code)
 );
 
-CREATE INDEX ingredient_names_prefix_idx
-ON ingredient_names (
+CREATE INDEX ingredient_translations_normalized_index
+ON ingredient_translations (
     locale_code,
-    name_normalized text_pattern_ops
+    name_normalized
 );
 
-CREATE INDEX ingredient_names_trgm_idx
-ON ingredient_names
+CREATE INDEX ingredient_translations_prefix_index
+ON ingredient_translations (locale_code, name_normalized text_pattern_ops);
+
+CREATE INDEX ingredient_translations_trgm_index
+ON ingredient_translations
+USING GIN (name_normalized gin_trgm_ops);
+
+CREATE TABLE ingredient_aliases (
+    ingredient_code TEXT NOT NULL REFERENCES ingredients(code),
+    locale_code TEXT NOT NULL REFERENCES locales(code),
+    name TEXT NOT NULL,
+    name_plural TEXT NOT NULL,
+    name_normalized TEXT NOT NULL,
+    PRIMARY KEY (ingredient_code, locale_code, name),
+    FOREIGN KEY (ingredient_code, locale_code)
+        REFERENCES ingredient_translations (ingredient_code, locale_code)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX ingredient_aliases_normalized_index
+ON ingredient_translations (
+    locale_code,
+    name_normalized
+);
+
+CREATE INDEX ingredient_aliases_prefix_index
+ON ingredient_aliases (locale_code, name_normalized text_pattern_ops);
+
+CREATE INDEX ingredient_aliases_trgm_index
+ON ingredient_translations
 USING GIN (name_normalized gin_trgm_ops);

@@ -1,5 +1,19 @@
-CREATE TABLE recipe_actions (
+CREATE TABLE recipe_action_categories (
     code TEXT PRIMARY KEY
+);
+
+INSERT INTO recipe_action_categories (code)
+VALUES
+    ('prepare'),
+    ('combine'),
+    ('process'),
+    ('heat'),
+    ('cool'),
+    ('serve');
+
+CREATE TABLE recipe_actions (
+    code TEXT PRIMARY KEY,
+    recipe_action_category_code TEXT NOT NULL REFERENCES recipe_action_categories(code)
 );
 
 CREATE TABLE recipe_action_translations (

@@ -8,11 +8,13 @@ use tokio::{
 
 const SEED_DATA_PATH: &str = "server/seed_data/";
 const INGREDIENTS_CSV: &str = "ingredients.csv";
-const INGREDIENT_NAMES_CSV: &str = "ingredient_names.csv";
+const INGREDIENT_TRANSLATIONS_CSV: &str = "ingredient_translations.csv";
+const INGREDIENT_ALIASES_CSV: &str = "ingredient_aliases.csv";
 
 pub async fn upsert_seed_data_tables(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_ingredient_seed_data(pool).await?;
-    upsert_ingredient_names_seed_data(pool).await?;
+    upsert_ingredient_translations_seed_data(pool).await?;
+    upsert_ingredient_aliases_seed_data(pool).await?;
     Ok(())
 }
 
@@ -102,28 +104,57 @@ async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>
     Ok(())
 }
 
-async fn upsert_ingredient_names_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+async fn upsert_ingredient_translations_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_seed_data(
         pool,
-        INGREDIENT_NAMES_CSV,
-        "CREATE TEMP TABLE ingredient_names_staging (
+        INGREDIENT_TRANSLATIONS_CSV,
+        "CREATE TEMP TABLE ingredient_translations_staging (
             ingredient_code TEXT NOT NULL,
             locale_code TEXT NOT NULL,
             name TEXT NOT NULL,
             name_plural TEXT NOT NULL
         ) ON COMMIT DROP;",
-        "COPY ingredient_names_staging (ingredient_code, locale_code, name, name_plural)
+        "COPY ingredient_translations_staging (ingredient_code, locale_code, name, name_plural)
             FROM STDIN
             WITH (FORMAT CSV, HEADER TRUE);",
-        "INSERT INTO ingredient_names (ingredient_code, locale_code, name, name_normalized, name_plural)
+        "INSERT INTO ingredient_translations (ingredient_code, locale_code, name, name_normalized, name_plural)
         SELECT ingredient_code, locale_code, name, search_normalize(name), name_plural
-        FROM ingredient_names_staging
-        ON CONFLICT (ingredient_code, locale_code, name_normalized)
+        FROM ingredient_translations_staging
+        ON CONFLICT (ingredient_code, locale_code)
         DO UPDATE SET
             name = EXCLUDED.name,
-            name_plural = EXCLUDED.name_plural
-        WHERE ingredient_names.name IS DISTINCT FROM EXCLUDED.name
-            OR ingredient_names.name_plural IS DISTINCT FROM EXCLUDED.name_plural;",
+            name_plural = EXCLUDED.name_plural,
+            name_normalized = EXCLUDED.name_normalized
+        WHERE ingredient_translations.name IS DISTINCT FROM EXCLUDED.name
+            OR ingredient_translations.name_plural IS DISTINCT FROM EXCLUDED.name_plural
+            OR ingredient_translations.name_normalized IS DISTINCT FROM EXCLUDED.name_normalized;"
+    )
+    .await?;
+    Ok(())
+}
+
+async fn upsert_ingredient_aliases_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+    upsert_seed_data(
+        pool,
+        INGREDIENT_ALIASES_CSV,
+        "CREATE TEMP TABLE ingredient_aliases_staging (
+            ingredient_code TEXT NOT NULL,
+            locale_code TEXT NOT NULL,
+            name TEXT NOT NULL,
+            name_plural TEXT NOT NULL
+        ) ON COMMIT DROP;",
+        "COPY ingredient_aliases_staging (ingredient_code, locale_code, name, name_plural)
+            FROM STDIN
+            WITH (FORMAT CSV, HEADER TRUE);",
+        "INSERT INTO ingredient_aliases (ingredient_code, locale_code, name, name_normalized, name_plural)
+        SELECT ingredient_code, locale_code, name, search_normalize(name), name_plural
+        FROM ingredient_aliases_staging
+        ON CONFLICT (ingredient_code, locale_code, name)
+        DO UPDATE SET
+            name_plural = EXCLUDED.name_plural,
+            name_normalized = EXCLUDED.name_normalized
+        WHERE ingredient_aliases.name_plural IS DISTINCT FROM EXCLUDED.name_plural
+            OR ingredient_aliases.name_normalized IS DISTINCT FROM EXCLUDED.name_normalized;",
     )
     .await?;
     Ok(())
