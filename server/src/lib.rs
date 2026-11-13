@@ -41,7 +41,6 @@ async fn connect_postgres() -> Result<PgPool, Box<dyn Error>> {
     let pool = PgPoolOptions::new().connect(&url).await?;
     sqlx::migrate!().run(&pool).await?;
     upsert_seed_data_tables(&pool).await?;
-    log::info!("completed updating seed data");
     Ok(pool)
 }
 

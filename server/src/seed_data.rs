@@ -7,14 +7,19 @@ use tokio::{
 };
 
 const SEED_DATA_PATH: &str = "server/seed_data/";
+const LOCALES_CSV: &str = "locales.csv";
+const INGREDIENT_CATEGORIES_CSV: &str = "ingredient_categories.csv";
 const INGREDIENTS_CSV: &str = "ingredients.csv";
 const INGREDIENT_TRANSLATIONS_CSV: &str = "ingredient_translations.csv";
 const INGREDIENT_ALIASES_CSV: &str = "ingredient_aliases.csv";
 
 pub async fn upsert_seed_data_tables(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+    upsert_locales_seed_data(pool).await?;
+    upsert_ingredient_categories_seed_data(pool).await?;
     upsert_ingredient_seed_data(pool).await?;
     upsert_ingredient_translations_seed_data(pool).await?;
     upsert_ingredient_aliases_seed_data(pool).await?;
+    log::info!("completed seed data import");
     Ok(())
 }
 
@@ -43,8 +48,10 @@ async fn upsert_seed_data(
         None => true,
     };
     if !needs_update {
+        log::info!("{}: matching checksum, skipping", csv_file_name);
         return Ok(());
     }
+    log::info!("{}: different checksum, updating", csv_file_name);
     let mut tx = pool.begin().await?;
     sqlx::query(create_staging_table_query)
         .execute(&mut *tx)
@@ -82,6 +89,46 @@ async fn checksum_file(file: &mut File) -> std::io::Result<String> {
     Ok(hasher.finalize().to_hex().to_string())
 }
 
+async fn upsert_locales_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+    upsert_seed_data(
+        pool,
+        LOCALES_CSV,
+        "CREATE TEMP TABLE locales_staging (
+            code TEXT NOT NULL
+        ) ON COMMIT DROP;",
+        "COPY locales_staging (code)
+        FROM STDIN
+        WITH (FORMAT CSV, HEADER TRUE);",
+        "INSERT INTO locales (code)
+        SELECT code
+        FROM locales_staging
+        ON CONFLICT (code)
+        DO NOTHING;",
+    )
+    .await?;
+    Ok(())
+}
+
+async fn upsert_ingredient_categories_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+    upsert_seed_data(
+        pool,
+        INGREDIENT_CATEGORIES_CSV,
+        "CREATE TEMP TABLE ingredient_categories_staging (
+            code TEXT NOT NULL
+        ) ON COMMIT DROP;",
+        "COPY ingredient_categories_staging (code)
+        FROM STDIN
+        WITH (FORMAT CSV, HEADER TRUE);",
+        "INSERT INTO ingredient_categories (code)
+        SELECT code
+        FROM ingredient_categories_staging
+        ON CONFLICT (code)
+        DO NOTHING;",
+    )
+    .await?;
+    Ok(())
+}
+
 async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_seed_data(
         pool,
@@ -90,7 +137,7 @@ async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>
             code TEXT NOT NULL,
             ingredient_category_code TEXT NOT NULL
         ) ON COMMIT DROP;",
-        "COPY ingredients_staging (code, ingredient_category_code)
+        "COPY ingredients_staging (ingredient_category_code, code)
         FROM STDIN
         WITH (FORMAT CSV, HEADER TRUE);",
         "INSERT INTO ingredients (code, ingredient_category_code)
@@ -114,7 +161,7 @@ async fn upsert_ingredient_translations_seed_data(pool: &PgPool) -> Result<(), B
             name TEXT NOT NULL,
             name_plural TEXT NOT NULL
         ) ON COMMIT DROP;",
-        "COPY ingredient_translations_staging (ingredient_code, locale_code, name, name_plural)
+        "COPY ingredient_translations_staging (locale_code, ingredient_code, name, name_plural)
             FROM STDIN
             WITH (FORMAT CSV, HEADER TRUE);",
         "INSERT INTO ingredient_translations (ingredient_code, locale_code, name, name_normalized, name_plural)
@@ -143,7 +190,7 @@ async fn upsert_ingredient_aliases_seed_data(pool: &PgPool) -> Result<(), Box<dy
             name TEXT NOT NULL,
             name_plural TEXT NOT NULL
         ) ON COMMIT DROP;",
-        "COPY ingredient_aliases_staging (ingredient_code, locale_code, name, name_plural)
+        "COPY ingredient_aliases_staging (locale_code, ingredient_code, name, name_plural)
             FROM STDIN
             WITH (FORMAT CSV, HEADER TRUE);",
         "INSERT INTO ingredient_aliases (ingredient_code, locale_code, name, name_normalized, name_plural)

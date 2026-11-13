@@ -2,38 +2,10 @@ CREATE TABLE ingredient_categories (
     code TEXT PRIMARY KEY
 );
 
-INSERT INTO ingredient_categories (code)
-VALUES
-    ('vegetables'),
-    ('fruits'),
-    ('dairy'),
-    ('meat'),
-    ('seafood'),
-    ('grains_cereal'),
-    ('legumes'),
-    ('nuts_seeds'),
-    ('cooking_liquids'),
-    ('herbs_spices'),
-    ('sweeteners'),
-    ('sauces_condiments'),
-    ('plant_based_proteins'),
-    ('baking'),
-    ('canned_preserved'),
-    ('beverages');
-
 CREATE TABLE ingredients (
     code TEXT PRIMARY KEY,
     ingredient_category_code TEXT NOT NULL REFERENCES ingredient_categories(code) ON DELETE RESTRICT
 );
-
-CREATE TABLE locales (
-    code TEXT PRIMARY KEY
-);
-
-INSERT INTO locales (code)
-VALUES
-    ('en'),
-    ('de');
 
 CREATE TABLE ingredient_translations (
     ingredient_code TEXT NOT NULL REFERENCES ingredients(code),

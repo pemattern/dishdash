@@ -1,2 +1,2 @@
-ingredient_code,locale_code,name,name_plural
-carrot,de,Möhre,Möhren
+locale_code,ingredient_code,name,name_plural
+de,carrot,Möhre,Möhren
