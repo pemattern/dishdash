@@ -55,35 +55,40 @@ mod tests {
         body::{Body, to_bytes},
         http::{Request, StatusCode},
     };
+    use serde_json::json;
     use sqlx::PgPool;
     use tower::ServiceExt;
     use uuid::Uuid;
 
-    use crate::{
-        auth::token::generate_access_token, create_router,
-        models::recipe::schemas::PostRecipeSchema,
-    };
+    use crate::{auth::token::generate_access_token, create_router};
 
     #[sqlx::test]
     async fn insert_recipe(pool: PgPool) {
         let app = create_router(pool);
         let token = generate_access_token(Uuid::nil()).unwrap();
+        let name = "Pumpkin Soup";
+        let summary = "A tasty pumpkin soup.";
+        let json = json!({
+            "name": name,
+            "summary": summary
+        });
         let response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .method("POST")
                     .uri("/api/recipes")
                     .header("content-type", "application/json")
                     .header("authorization", format!("Bearer {}", token))
-                    .body(Body::from(r#"{"name":"Pumpkin Soup", "summary":"tasty"}"#))
+                    .body(Body::from(json.to_string()))
                     .unwrap(),
             )
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::CREATED);
         let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
-        let schema: PostRecipeSchema = serde_json::from_slice(&body).unwrap();
-        assert_eq!(schema.name, "Pumpkin Soup");
-        assert_eq!(schema.summary, "tasty");
+        let schema: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(schema["name"], name);
+        assert_eq!(schema["summary"], summary);
     }
 }
