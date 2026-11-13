@@ -42,7 +42,7 @@ CREATE TABLE ingredient_aliases (
 );
 
 CREATE INDEX ingredient_aliases_normalized_index
-ON ingredient_translations (
+ON ingredient_aliases (
     locale_code,
     name_normalized
 );
@@ -51,5 +51,5 @@ CREATE INDEX ingredient_aliases_prefix_index
 ON ingredient_aliases (locale_code, name_normalized text_pattern_ops);
 
 CREATE INDEX ingredient_aliases_trgm_index
-ON ingredient_translations
+ON ingredient_aliases
 USING GIN (name_normalized gin_trgm_ops);
