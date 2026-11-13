@@ -1,8 +1,10 @@
 use sqlx::PgPool;
 
 use crate::{
-    error::AppResult, handlers::ingredients::SearchIngredientsQuery,
-    models::ingredient::Ingredient, repositories::ingredients::Ingredients,
+    error::AppResult,
+    models::{ingredient::Ingredient, search::ingredient::IngredientSearch},
+    repositories::ingredients::Ingredients,
+    requests::search_query::SearchQuery,
 };
 
 #[derive(Clone)]
@@ -23,9 +25,9 @@ impl IngredientService {
 
     pub async fn search_ingredients(
         &self,
-        query: SearchIngredientsQuery,
-    ) -> AppResult<Vec<Ingredient>> {
-        let ingredients = Ingredients::search(&self.pool, query).await?;
+        search_query: SearchQuery,
+    ) -> AppResult<Vec<IngredientSearch>> {
+        let ingredients = Ingredients::search(&self.pool, search_query).await?;
         Ok(ingredients)
     }
 }

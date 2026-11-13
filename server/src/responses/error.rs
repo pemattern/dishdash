@@ -123,6 +123,9 @@ impl From<AppError> for ErrorSchema {
             }
             AppError::MissingJsonContentType => Self::unsupported_media_type()
                 .detail("Missing `content-type: application/json` request header"),
+            AppError::InvalidQueryParameter => {
+                Self::bad_request().detail("Request query parameters could not be deserialized")
+            }
         }
         .code(error)
     }

@@ -28,6 +28,7 @@ pub enum AppError {
     InvalidData,
     InvalidJsonSyntax,
     MissingJsonContentType,
+    InvalidQueryParameter,
 }
 
 impl IntoResponse for AppError {

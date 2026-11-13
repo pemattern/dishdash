@@ -4,6 +4,7 @@ pub mod physical_quantity;
 pub mod recipe;
 pub mod recipe_ingredient;
 pub mod refresh_token;
+pub mod search;
 pub mod unit;
 pub mod unit_system;
 pub mod user;
