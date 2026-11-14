@@ -6,11 +6,21 @@ use serde::Deserialize;
 
 use crate::error::AppError;
 
+fn default_locale() -> String {
+    "en".into()
+}
+
+fn default_limit() -> i64 {
+    10
+}
+
 #[derive(Deserialize)]
 pub struct SearchQuery {
     pub q: String,
+    #[serde(default = "default_locale")]
     pub locale: String,
-    pub limit: Option<i64>,
+    #[serde(default = "default_limit")]
+    pub limit: i64,
 }
 
 impl<S> FromRequestParts<S> for SearchQuery

@@ -78,12 +78,14 @@ impl Ingredients {
             SELECT
                 code AS "code!",
                 ingredient_category_code AS "ingredient_category_code!",
-                name AS "name!"
+                name AS "name!",
+                name_plural AS "name_plural!"
             FROM matches
             GROUP BY
                 code,
                 ingredient_category_code,
-                name
+                name,
+                name_plural
             ORDER BY
                 MIN(match_priority),
                 MAX(similarity) DESC,
@@ -91,7 +93,7 @@ impl Ingredients {
             LIMIT $3;"#,
             search_query.q,
             search_query.locale,
-            search_query.limit.unwrap_or(10),
+            search_query.limit,
         )
         .fetch_all(executor)
         .await?;

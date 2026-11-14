@@ -2,7 +2,7 @@ use axum::{Router, routing::get};
 
 use crate::{
     handlers::{
-        ingredients::{get_ingredients, search_ingredients},
+        ingredients::search_ingredients,
         recipe_ingredients::{
             delete_recipe_ingredient, get_recipe_ingredient, get_recipe_ingredients,
             patch_recipe_ingredient, patch_recipe_ingredients, post_recipe_ingredient,
@@ -15,14 +15,11 @@ use crate::{
 
 const INGREDIENTS_PATH: &str = "/ingredients";
 const INGREDIENT_ID_PATH: &str = "/{ingredient_id}";
-const SEARCH_PATH: &str = "/search";
 
 pub fn router() -> Router<AppState> {
     Router::new().nest(
         INGREDIENTS_PATH,
-        Router::new()
-            .route(EMPTY_PATH, get(get_ingredients))
-            .route(SEARCH_PATH, get(search_ingredients)),
+        Router::new().route(EMPTY_PATH, get(search_ingredients)),
     )
 }
 
