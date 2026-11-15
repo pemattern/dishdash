@@ -60,14 +60,16 @@ mod tests {
     use tower::ServiceExt;
     use uuid::Uuid;
 
-    use crate::{auth::token::generate_access_token, create_router};
+    use crate::{
+        auth::token::generate_access_token, create_router, seed_data::upsert_seed_data_tables,
+    };
 
     #[sqlx::test]
     async fn insert_recipe(pool: PgPool) {
         let app = create_router(pool);
         let token = generate_access_token(Uuid::nil()).unwrap();
-        let name = "Pumpkin Soup";
-        let summary = "A tasty pumpkin soup.";
+        let name = "pumpkin soup";
+        let summary = "a tasty pumpkin soup.";
         let json = json!({
             "name": name,
             "summary": summary
@@ -79,7 +81,7 @@ mod tests {
                     .method("POST")
                     .uri("/api/recipes")
                     .header("content-type", "application/json")
-                    .header("authorization", format!("Bearer {}", token))
+                    .header("authorization", format!("bearer {}", token))
                     .body(Body::from(json.to_string()))
                     .unwrap(),
             )
@@ -90,5 +92,29 @@ mod tests {
         let schema: serde_json::Value = serde_json::from_slice(&body).unwrap();
         assert_eq!(schema["name"], name);
         assert_eq!(schema["summary"], summary);
+    }
+
+    #[sqlx::test]
+    async fn search_ingredients(pool: PgPool) {
+        upsert_seed_data_tables(&pool).await.unwrap();
+        let app = create_router(pool);
+        let token = generate_access_token(Uuid::nil()).unwrap();
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("GET")
+                    .uri("/api/ingredients?q=Möhr&locale=de")
+                    .header("authorization", format!("Bearer {}", token))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let schema: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(schema["alias"], "Möhre");
+        assert_eq!(schema["name"], "Karotte");
     }
 }

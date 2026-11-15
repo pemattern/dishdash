@@ -32,6 +32,7 @@ impl Ingredients {
                     t.name,
                     t.name_plural,
                     t.name_normalized,
+                    NULL::TEXT AS alias,
                     CASE
                         WHEN t.name_normalized = s.query THEN 1
                         WHEN t.name_normalized LIKE s.query || '%' THEN 2
@@ -55,6 +56,7 @@ impl Ingredients {
                     t.name,
                     t.name_plural,
                     a.name_normalized,
+                    a.name AS alias,
                     CASE
                         WHEN a.name_normalized = s.query THEN 1
                         WHEN a.name_normalized LIKE s.query || '%' THEN 3
@@ -79,13 +81,15 @@ impl Ingredients {
                 code AS "code!",
                 ingredient_category_code AS "ingredient_category_code!",
                 name AS "name!",
-                name_plural AS "name_plural!"
+                name_plural AS "name_plural!",
+                alias
             FROM matches
             GROUP BY
                 code,
                 ingredient_category_code,
                 name,
-                name_plural
+                name_plural,
+                alias
             ORDER BY
                 MIN(match_priority),
                 MAX(similarity) DESC,

@@ -14,4 +14,5 @@ pub struct IngredientSearch {
     pub ingredient_category_code: String,
     pub name: String,
     pub name_plural: String,
+    pub alias: Option<String>,
 }

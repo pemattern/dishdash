@@ -53,7 +53,7 @@ INSERT INTO unit_systems (code)
 VALUES
     ('imperial'),
     ('metric'),
-    ('us_customary');
+    ('us-customary');
 
 CREATE TABLE units (
     code TEXT PRIMARY KEY,

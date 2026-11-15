@@ -6,7 +6,7 @@ export type ErrorSchema = { title: string, status: number, errorCode: ErrorCode 
 
 export type IngredientSchema = { code: string, ingredientCategoryCode: string, };
 
-export type IngredientSearchSchema = { code: string, ingredientCategoryCode: string, name: string, namePlural: string, };
+export type IngredientSearchSchema = { code: string, ingredientCategoryCode: string, name: string, namePlural: string, alias: string | null, };
 
 export type LoginSchema = { accessToken: string, };
 

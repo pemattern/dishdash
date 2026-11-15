@@ -6,7 +6,7 @@ use tokio::{
     io::{AsyncReadExt, AsyncSeekExt, BufReader},
 };
 
-const SEED_DATA_PATH: &str = "server/seed_data/";
+const SEED_DATA_PATH: &str = "seed_data/";
 const LOCALES_CSV: &str = "locales.csv";
 const INGREDIENT_CATEGORIES_CSV: &str = "ingredient_categories.csv";
 const INGREDIENTS_CSV: &str = "ingredients.csv";
@@ -30,7 +30,9 @@ async fn upsert_seed_data(
     copy_csv_query: &'static str,
     upsert_table_query: &'static str,
 ) -> Result<(), Box<dyn Error>> {
-    let mut path = PathBuf::from(SEED_DATA_PATH);
+    // fixes paths for tests
+    let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    path.push(SEED_DATA_PATH);
     path.push(csv_file_name);
     let mut file = File::open(&path).await?;
     let checksum = checksum_file(&mut file).await?;
