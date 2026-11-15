@@ -2,9 +2,7 @@ use axum::extract::State;
 
 use crate::{
     error::AppResult,
-    models::{
-        ingredient::schemas::IngredientSchema, search::ingredient::schemas::IngredientSearchSchema,
-    },
+    models::ingredient::{IngredientSchema, IngredientSearchSchema},
     requests::search_query::SearchQuery,
     responses::GetManyResponse,
     state::AppState,

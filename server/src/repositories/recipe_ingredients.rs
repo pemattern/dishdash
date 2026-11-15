@@ -3,12 +3,9 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::{
-        joins::recipe_ingredient::RecipeIngredientJoinIngredient,
-        recipe_ingredient::{
-            RecipeIngredient,
-            schemas::{PatchRecipeIngredientSchema, PostRecipeIngredientSchema},
-        },
+    models::recipe_ingredient::{
+        PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredient,
+        RecipeIngredientJoinIngredient,
     },
 };
 

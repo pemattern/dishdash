@@ -2,7 +2,7 @@ use sqlx::PgExecutor;
 
 use crate::{
     error::AppResult,
-    models::{ingredient::Ingredient, search::ingredient::IngredientSearch},
+    models::ingredient::{Ingredient, IngredientSearch},
     requests::search_query::SearchQuery,
 };
 

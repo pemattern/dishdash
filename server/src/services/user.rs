@@ -4,10 +4,7 @@ use uuid::Uuid;
 use crate::{
     auth::password::get_hash,
     error::AppResult,
-    models::user::{
-        User,
-        schemas::{PatchUserSchema, PostUserSchema},
-    },
+    models::user::{PatchUserSchema, PostUserSchema, User},
     repositories::users::Ingredients,
 };
 

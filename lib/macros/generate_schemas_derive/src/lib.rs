@@ -151,30 +151,26 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
     };
 
     quote! {
-        pub mod schemas {
-            use super::*;
+        impl GenerateSchemas for #name {}
 
-            impl GenerateSchemas for #name {}
+        #[derive(serde::Serialize, ts_rs::TS)]
+        #[serde(rename_all = "camelCase")]
+        #[ts(export, export_to = lib::BINDINGS_PATH)]
+        pub struct #response_name {
+            #(#response_fields,)*
+        }
 
-            #[derive(serde::Serialize, ts_rs::TS)]
-            #[serde(rename_all = "camelCase")]
-            #[ts(export, export_to = lib::BINDINGS_PATH)]
-            pub struct #response_name {
-                #(#response_fields,)*
-            }
-
-            impl From<#name> for #response_name {
-                fn from(model: #name) -> Self {
-                    Self {
-                        #(
-                            #response_assignments,
-                        )*
-                    }
+        impl From<#name> for #response_name {
+            fn from(model: #name) -> Self {
+                Self {
+                    #(
+                        #response_assignments,
+                    )*
                 }
             }
-
-            #write_schemas
         }
+
+        #write_schemas
     }
     .into()
 }

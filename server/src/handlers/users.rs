@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     auth::token::Claims,
     error::AppResult,
-    models::user::schemas::{PatchUserSchema, PostUserSchema, UserSchema},
+    models::user::{PatchUserSchema, PostUserSchema, UserSchema},
     requests::{uuid_path::UuidPath, validated_json::ValidatedJson},
     responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,

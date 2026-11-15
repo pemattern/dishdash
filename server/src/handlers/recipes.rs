@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe::schemas::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
+    models::recipe::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
     requests::{uuid_path::UuidPath, validated_json::ValidatedJson},
     responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
     state::AppState,

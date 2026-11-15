@@ -3,10 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe::{
-        Recipe,
-        schemas::{PatchRecipeSchema, PostRecipeSchema},
-    },
+    models::recipe::{PatchRecipeSchema, PostRecipeSchema, Recipe},
 };
 
 pub struct Recipes;

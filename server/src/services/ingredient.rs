@@ -2,7 +2,7 @@ use sqlx::PgPool;
 
 use crate::{
     error::AppResult,
-    models::{ingredient::Ingredient, search::ingredient::IngredientSearch},
+    models::ingredient::{Ingredient, IngredientSearch},
     repositories::ingredients::Ingredients,
     requests::search_query::SearchQuery,
 };
