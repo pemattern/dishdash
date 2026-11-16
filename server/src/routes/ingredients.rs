@@ -14,7 +14,7 @@ use crate::{
 };
 
 const INGREDIENTS_PATH: &str = "/ingredients";
-const INGREDIENT_ID_PATH: &str = "/{ingredient_id}";
+const INGREDIENT_CODE_PATH: &str = "/{ingredient_code}";
 
 pub fn router() -> Router<AppState> {
     Router::new().nest(
@@ -34,7 +34,7 @@ pub fn recipe_ingredients_router() -> Router<AppState> {
                     .patch(patch_recipe_ingredients),
             )
             .route(
-                INGREDIENT_ID_PATH,
+                INGREDIENT_CODE_PATH,
                 get(get_recipe_ingredient)
                     .post(post_recipe_ingredient)
                     .patch(patch_recipe_ingredient)

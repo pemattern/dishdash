@@ -1,4 +1,4 @@
-use axum::extract::{Path, State};
+use axum::extract::State;
 use uuid::Uuid;
 
 use crate::{
@@ -7,7 +7,7 @@ use crate::{
         PatchRecipeIngredientSchema, PostRecipeIngredientSchema,
         RecipeIngredientJoinIngredientSchema, RecipeIngredientSchema,
     },
-    requests::{code_map::CodeMap, uuid_path::UuidPath, validated_json::ValidatedJson},
+    requests::{app_path::AppPath, code_map::CodeMap, validated_json::ValidatedJson},
     responses::{
         DeleteResponse, GetManyResponse, GetResponse, PatchManyResponse, PatchResponse,
         PostManyResponse, PostResponse,
@@ -18,7 +18,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn get_recipe_ingredient(
     State(state): State<AppState>,
-    Path((recipe_id, ingredient_code)): Path<(Uuid, String)>,
+    AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
 ) -> AppResult<GetResponse<RecipeIngredientJoinIngredientSchema>> {
     let recipe_ingredient = state
         .recipe_service
@@ -30,7 +30,7 @@ pub async fn get_recipe_ingredient(
 #[axum::debug_handler]
 pub async fn get_recipe_ingredients(
     State(state): State<AppState>,
-    UuidPath(recipe_id): UuidPath<Uuid>,
+    AppPath(recipe_id): AppPath<Uuid>,
 ) -> AppResult<GetManyResponse<RecipeIngredientJoinIngredientSchema>> {
     let recipe_ingredients = state
         .recipe_service
@@ -42,7 +42,7 @@ pub async fn get_recipe_ingredients(
 #[axum::debug_handler]
 pub async fn post_recipe_ingredient(
     State(state): State<AppState>,
-    Path((recipe_id, ingredient_code)): Path<(Uuid, String)>,
+    AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
     ValidatedJson(recipe_ingredient): ValidatedJson<PostRecipeIngredientSchema>,
 ) -> AppResult<PostResponse<RecipeIngredientSchema>> {
     let recipe_ingredient = state
@@ -55,7 +55,7 @@ pub async fn post_recipe_ingredient(
 #[axum::debug_handler]
 pub async fn post_recipe_ingredients(
     State(state): State<AppState>,
-    UuidPath(recipe_id): UuidPath<Uuid>,
+    AppPath(recipe_id): AppPath<Uuid>,
     ValidatedJson(recipe_ingredients): ValidatedJson<CodeMap<PostRecipeIngredientSchema>>,
 ) -> AppResult<PostManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
@@ -68,7 +68,7 @@ pub async fn post_recipe_ingredients(
 #[axum::debug_handler]
 pub async fn patch_recipe_ingredient(
     State(state): State<AppState>,
-    Path((recipe_id, ingredient_code)): Path<(Uuid, String)>,
+    AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
     ValidatedJson(recipe_ingredient): ValidatedJson<PatchRecipeIngredientSchema>,
 ) -> AppResult<PatchResponse<RecipeIngredientSchema>> {
     let recipe_ingredient = state
@@ -81,7 +81,7 @@ pub async fn patch_recipe_ingredient(
 #[axum::debug_handler]
 pub async fn patch_recipe_ingredients(
     State(state): State<AppState>,
-    UuidPath(recipe_id): UuidPath<Uuid>,
+    AppPath(recipe_id): AppPath<Uuid>,
     ValidatedJson(recipe_ingredients): ValidatedJson<CodeMap<PatchRecipeIngredientSchema>>,
 ) -> AppResult<PatchManyResponse<RecipeIngredientSchema>> {
     let recipe_ingredients = state
@@ -94,7 +94,7 @@ pub async fn patch_recipe_ingredients(
 #[axum::debug_handler]
 pub async fn delete_recipe_ingredient(
     State(state): State<AppState>,
-    Path((recipe_id, ingredient_code)): Path<(Uuid, String)>,
+    AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
 ) -> AppResult<DeleteResponse> {
     let recipe_ingredient = state
         .recipe_service
