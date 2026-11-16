@@ -32,6 +32,7 @@ pub async fn bootstrap() -> Result<(), Box<dyn Error>> {
         listener,
         router.into_make_service_with_connect_info::<SocketAddr>(),
     )
+    .with_graceful_shutdown(shutdown_signal())
     .await?;
     Ok(())
 }
@@ -47,6 +48,31 @@ async fn connect_postgres() -> Result<PgPool, Box<dyn Error>> {
 fn create_router(pool: PgPool) -> Router {
     let state = AppState::new(&pool);
     routes::app(state)
+}
+
+async fn shutdown_signal() {
+    use tokio::signal;
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
 
 #[cfg(test)]
