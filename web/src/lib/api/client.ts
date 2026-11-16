@@ -10,44 +10,48 @@ const AUTHORIZATION_HEADER_KEY = 'Authorization';
 
 const APPLICATION_JSON_HEADER_VALUE = 'application/json';
 
-export class ApiException extends Error {}
+let globalFetch: typeof fetch;
+
+export function setFetch(fetch: typeof globalThis.fetch) {
+	globalFetch = fetch;
+}
 
 function id_path(path: string, id: string): string {
 	return `${path}/${id}`;
 }
 
 export const GetAll = <Schema>(path: string) => ({
-	get_all: (): Promise<Schema[]> => api.get<Schema[]>(path)
+	getAll: (): Promise<Schema[]> => methods.get<Schema[]>(path)
 });
 
 export const GetById = <Schema>(path: string) => ({
-	get_by_id: (id: string): Promise<Schema> => api.get<Schema>(id_path(path, id))
+	getById: (id: string): Promise<Schema> => methods.get<Schema>(id_path(path, id))
 });
 
 export const Create = <Schema, Post>(path: string) => ({
-	create: (schema: Post): Promise<Schema> => api.post<Schema>(path, schema)
+	create: (schema: Post): Promise<Schema> => methods.post<Schema>(path, schema)
 });
 
 export const BulkCreate = <Schema, Post>(path: string) => ({
-	bulk_create: (schemas: Record<string, Post>): Promise<Schema[]> =>
-		api.post<Schema[]>(path, schemas)
+	bulkCreate: (schemas: Record<string, Post>): Promise<Schema[]> =>
+		methods.post<Schema[]>(path, schemas)
 });
 
 export const Update = <Schema, Patch>(path: string) => ({
 	update: (id: string, schema: Patch): Promise<Schema> =>
-		api.patch<Schema>(id_path(path, id), schema)
+		methods.patch<Schema>(id_path(path, id), schema)
 });
 
 export const BulkUpdate = <Schema, Patch>(path: string) => ({
-	bulk_update: (schemas: Record<string, Patch>): Promise<Schema[]> =>
-		api.patch<Schema[]>(path, schemas)
+	bulkUpdate: (schemas: Record<string, Patch>): Promise<Schema[]> =>
+		methods.patch<Schema[]>(path, schemas)
 });
 
 export const Delete = (path: string) => ({
-	delete: (id: string): Promise<null> => api.delete(id_path(path, id))
+	delete: (id: string): Promise<null> => methods.delete(id_path(path, id))
 });
 
-export const api = {
+export const methods = {
 	get: <T>(path: string) =>
 		request<T>(path, {
 			headers: getHeaders(false)
@@ -77,7 +81,7 @@ export const api = {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	let response: Response;
 	try {
-		response = await fetch(`${apiPath}${path}`, options);
+		response = await globalFetch(`${apiPath}${path}`, options);
 	} catch (network_error) {
 		// TODO: handle network error
 		console.error(network_error);

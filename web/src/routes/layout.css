@@ -22,7 +22,7 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url('./../lib/assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('ttf');
+  src: url('./../lib/assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -30,7 +30,7 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url('./../lib/assets/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf') format('ttf');
+  src: url('./../lib/assets/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
@@ -38,7 +38,7 @@
 
 @font-face {
   font-family: 'CormorantGaramond';
-  src: url('./../lib/assets/fonts/CormorantGaramond/CormorantGaramond-VariableFont_wght.ttf') format('ttf');
+  src: url('./../lib/assets/fonts/CormorantGaramond/CormorantGaramond-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -46,7 +46,7 @@
 
 @font-face {
   font-family: 'CormorantGaramond';
-  src: url('./../lib/assets/fonts/CormorantGaramond/CormorantGaramond-Italic-VariableFont_wght.ttf') format('ttf');
+  src: url('./../lib/assets/fonts/CormorantGaramond/CormorantGaramond-Italic-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
