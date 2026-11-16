@@ -114,7 +114,7 @@ mod tests {
         assert_eq!(response.status(), StatusCode::OK);
         let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
         let schema: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(schema["alias"], "Möhre");
-        assert_eq!(schema["name"], "Karotte");
+        assert_eq!(schema[0]["name"], "Karotte");
+        assert_eq!(schema[0]["alias"], "Möhre");
     }
 }
