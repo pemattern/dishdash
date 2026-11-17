@@ -1,19 +1,10 @@
 <script lang="ts">
-	import { auth } from '#lib/api/auth.ts';
+	import { api } from '#lib/api/instance.ts';
 	import Input from '#lib/components/Input.svelte';
 	import Logo from '#lib/components/Logo.svelte';
 	import { routes } from '#lib/const/routes.ts';
-	import { appState } from '#lib/state.svelte.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
-
-	onMount(async () => {
-		await auth.refresh();
-		if (appState.accessToken) {
-			await goto(resolve(routes.home), { replace: true });
-		}
-	});
 
 	let email = $state('');
 	let password = $state('');
@@ -22,11 +13,11 @@
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		error = '';
-
 		try {
-			await auth.login(email, password);
+			await api.auth.login(email, password);
 			await goto(resolve(routes.home));
 		} catch (err) {
+			console.log(error);
 			error = err instanceof Error ? err.message : 'Something went wrong';
 		}
 	}

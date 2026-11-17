@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { auth } from '#lib/api/auth.ts';
+	import { api } from '#lib/api/instance.ts';
 	import { routes } from '#lib/const/routes.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
 	async function logout() {
-		await auth.logout();
+		await api.auth.logout();
 		await goto(resolve(routes.login));
 	}
 </script>

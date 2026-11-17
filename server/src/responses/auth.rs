@@ -97,7 +97,7 @@ pub struct LogoutResponse;
 impl IntoResponse for LogoutResponse {
     fn into_response(self) -> Response {
         (
-            StatusCode::OK,
+            StatusCode::NO_CONTENT,
             [
                 (header::CACHE_CONTROL, "no-store"),
                 (header::PRAGMA, "no-cache"),

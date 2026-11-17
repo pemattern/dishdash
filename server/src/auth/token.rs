@@ -1,6 +1,9 @@
 use std::{sync::LazyLock, time::Duration};
 
-use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+use base64::{
+    Engine,
+    engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
+};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
@@ -13,8 +16,12 @@ use crate::{
 
 const ISSUER: &str = "dishdash";
 const ACCESS_TOKEN_VALIDITY_DURATION: Duration = Duration::from_mins(15);
+const JWT_SECRET_ENV_KEY: &str = "JWT_SECRET";
 const KEY_LENGTH: usize = 32;
-static ENCRYPTION_KEY: LazyLock<[u8; KEY_LENGTH]> = LazyLock::new(generate_byte_key::<KEY_LENGTH>);
+static ENCRYPTION_KEY: LazyLock<String> = LazyLock::new(|| {
+    std::env::var(JWT_SECRET_ENV_KEY)
+        .unwrap_or_else(|_| STANDARD.encode(generate_byte_key::<KEY_LENGTH>()))
+});
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Claims {
@@ -44,7 +51,7 @@ fn generate_byte_key<const N: usize>() -> [u8; N] {
 
 pub fn generate_access_token(user_id: Uuid) -> AppResult<String> {
     let claims = Claims::new(user_id);
-    let key = EncodingKey::from_secret(&*ENCRYPTION_KEY);
+    let key = EncodingKey::from_secret(ENCRYPTION_KEY.as_bytes());
     Ok(encode(&Header::default(), &claims, &key)?)
 }
 
@@ -54,7 +61,7 @@ pub fn generate_refresh_token() -> String {
 }
 
 pub fn get_valid_access_token_claims(access_token: &str) -> AppResult<Claims> {
-    let key = DecodingKey::from_secret(&*ENCRYPTION_KEY);
+    let key = DecodingKey::from_secret(ENCRYPTION_KEY.as_bytes());
     let mut validation = Validation::new(jsonwebtoken::Algorithm::HS256);
     validation.set_issuer(&[ISSUER]);
     let token_data = decode::<Claims>(access_token, &key, &validation)?;

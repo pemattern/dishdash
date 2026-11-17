@@ -1,5 +1,6 @@
 import { appState } from '#lib/state.svelte.ts';
 import type { ErrorSchema } from '$bindings';
+import { ensureAuthenticated } from './auth';
 import { ApiError } from './error';
 
 const apiPath = '/api';
@@ -14,6 +15,10 @@ let globalFetch: typeof fetch;
 
 export function setFetch(fetch: typeof globalThis.fetch) {
 	globalFetch = fetch;
+}
+
+export function getFetch() {
+	return globalFetch;
 }
 
 function id_path(path: string, id: string): string {
@@ -52,36 +57,48 @@ export const Delete = (path: string) => ({
 });
 
 export const methods = {
-	get: <T>(path: string) =>
-		request<T>(path, {
-			headers: getHeaders(false)
-		}),
+	get: <T>(path: string) => request<T>(path),
 
 	post: <T>(path: string, body: unknown) =>
 		request<T>(path, {
 			method: 'POST',
-			body: JSON.stringify(body),
-			headers: getHeaders(true)
+			body: JSON.stringify(body)
 		}),
 
 	patch: <T>(path: string, body: unknown) =>
 		request<T>(path, {
 			method: 'PATCH',
-			body: JSON.stringify(body),
-			headers: getHeaders(true)
+			body: JSON.stringify(body)
 		}),
 
 	delete: (path: string) =>
 		request<null>(path, {
-			method: 'DELETE',
-			headers: getHeaders(false)
+			method: 'DELETE'
 		})
 };
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+export async function request<T>(
+	path: string,
+	options: RequestInit = {},
+	skipAuthentication = false
+): Promise<T> {
+	if (!skipAuthentication) {
+		await ensureAuthenticated();
+	}
 	let response: Response;
 	try {
-		response = await globalFetch(`${apiPath}${path}`, options);
+		const headers = new Headers(options.headers);
+		headers.set(ACCEPT_HEADER_KEY, APPLICATION_JSON_HEADER_VALUE);
+		if (!headers.has(AUTHORIZATION_HEADER_KEY)) {
+			headers.set(AUTHORIZATION_HEADER_KEY, getBearerTokenHeaderValue());
+		}
+		if (options.body) {
+			headers.set(CONTENT_TYPE_HEADER_KEY, APPLICATION_JSON_HEADER_VALUE);
+		}
+		response = await globalFetch(`${apiPath}${path}`, {
+			...options,
+			headers
+		});
 	} catch (network_error) {
 		// TODO: handle network error
 		console.error(network_error);
@@ -93,20 +110,6 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	}
 	if (response.status === 204) return undefined as T;
 	return response.json() as Promise<T>;
-}
-
-function getHeaders(withContent: boolean): HeadersInit {
-	let headers: HeadersInit = {
-		[ACCEPT_HEADER_KEY]: APPLICATION_JSON_HEADER_VALUE,
-		[AUTHORIZATION_HEADER_KEY]: getBearerTokenHeaderValue()
-	};
-	if (withContent) {
-		headers = {
-			[CONTENT_TYPE_HEADER_KEY]: APPLICATION_JSON_HEADER_VALUE,
-			...headers
-		};
-	}
-	return headers;
 }
 
 function getBearerTokenHeaderValue(): string {

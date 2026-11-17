@@ -5,17 +5,20 @@ mod users;
 
 use std::time::Duration;
 
-use axum::{Router, http::StatusCode, middleware};
+use axum::{
+    Router,
+    http::{Request, Response, StatusCode},
+    middleware,
+};
 use tower::ServiceBuilder;
 use tower_http::{
     CompressionLevel,
-    classify::{ServerErrorsAsFailures, SharedClassifier},
     compression::CompressionLayer,
     services::{ServeDir, ServeFile},
     timeout::TimeoutLayer,
-    trace::{DefaultMakeSpan, DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer},
+    trace::{DefaultOnFailure, TraceLayer},
 };
-use tracing::Level;
+use tracing::{Level, Span, info, info_span};
 
 use crate::{
     error::{AppError, AppResult},
@@ -37,19 +40,29 @@ pub fn app(state: AppState) -> Router {
         .layer(
             ServiceBuilder::new()
                 .layer(middleware::from_fn(handle_errors_middleware))
-                .layer(trace_layer())
+                .layer(
+                    // wicked return types require inlining this
+                    TraceLayer::new_for_http()
+                        .make_span_with(|request: &Request<_>| {
+                            info_span!(
+                                "request",
+                                method = %request.method(),
+                                path = %request.uri().path(),
+                            )
+                        })
+                        .on_response(|response: &Response<_>, latency: Duration, span: &Span| {
+                            info!(
+                                parent: span,
+                                status = %response.status(),
+                                latency = ?latency,
+                            );
+                        })
+                        .on_failure(DefaultOnFailure::new().level(Level::ERROR)),
+                )
                 .layer(compression_layer())
                 .layer(timeout_layer()),
         )
         .with_state(state)
-}
-
-fn trace_layer() -> TraceLayer<SharedClassifier<ServerErrorsAsFailures>> {
-    TraceLayer::new_for_http()
-        .make_span_with(DefaultMakeSpan::new())
-        .on_request(DefaultOnRequest::new().level(Level::INFO))
-        .on_response(DefaultOnResponse::new().level(Level::INFO))
-        .on_failure(DefaultOnFailure::new().level(Level::ERROR))
 }
 
 fn compression_layer() -> CompressionLayer {

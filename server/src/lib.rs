@@ -23,7 +23,14 @@ const DATABASE_URL_ENV_KEY: &str = "DATABASE_URL";
 const IP_PORT: &str = "0.0.0.0:3000";
 
 pub async fn bootstrap() -> Result<(), Box<dyn Error>> {
-    tracing_subscriber::fmt().compact().init();
+    tracing_subscriber::fmt()
+        .with_timer(tracing_subscriber::fmt::time::ChronoLocal::new(
+            "%H:%M:%S%.3f".to_string(),
+        ))
+        .with_target(false)
+        .with_level(true)
+        .compact()
+        .init();
     dotenvy::dotenv()?;
     let pool = connect_postgres().await?;
     let router = create_router(pool);
