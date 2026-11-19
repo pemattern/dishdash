@@ -30,11 +30,11 @@
 			<form class="flex flex-col gap-y-4 rounded-lg bg-white p-4 shadow-xl" onsubmit={handleSubmit}>
 				<Input name="email" type="text" placeholder="E-Mail" bind:value={email} />
 				<Input name="password" type="password" placeholder="Password" bind:value={password} />
-				<div class="-my-2 flex justify-end text-xs text-dark-green hover:underline">
+				<div class="-my-2 flex justify-end text-xs text-dark-orange hover:underline">
 					<a href={resolve(routes.home)} class="rounded-sm">Forgot your password?</a>
 				</div>
 				<input
-					class="cursor-pointer rounded-sm border border-lightest-green bg-lighter-green py-2 font-bold text-white hover:bg-light-green"
+					class="cursor-pointer rounded-sm bg-light-orange py-2 font-bold text-dark-orange inset-ring inset-ring-orange hover:bg-white hover:text-orange hover:inset-ring-light-orange"
 					type="submit"
 					value="Login"
 				/>

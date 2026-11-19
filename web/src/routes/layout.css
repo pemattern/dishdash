@@ -26,7 +26,7 @@
 
 @layer base {
   :focus {
-    @apply ring-offset-0 ring-0 outline-2 outline-lighter-green outline-offset-2;
+    @apply ring-offset-0 ring-0 outline-2 outline-light-orange outline-offset-2;
   }
 }
 

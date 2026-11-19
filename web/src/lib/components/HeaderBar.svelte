@@ -17,7 +17,7 @@
 	</div>
 	<div class="flex flex-1/4 justify-end">
 		<button
-			class="rounded-md bg-light-orange px-4 py-2 font-bold text-dark-orange"
+			class="rounded-md px-4 py-2 text-dark-orange inset-ring inset-ring-light-orange hover:cursor-pointer hover:bg-off-white hover:inset-ring-orange"
 			onclick={logout}
 		>
 			Logout

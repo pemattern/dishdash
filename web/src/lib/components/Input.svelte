@@ -16,7 +16,7 @@
 	<input
 		bind:this={input}
 		bind:value
-		class="rounded-md border border-light-green px-3 py-2 text-dark-green"
+		class="rounded-md border border-light-orange px-3 py-2 text-gray"
 		{...props}
 	/>
 </div>
