@@ -24,19 +24,19 @@
 </script>
 
 <main>
-	<div class="h-full w-full bg-radial from-light-blue to-white">
+	<div class="h-full w-full bg-radial from-lightest-green to-white">
 		<div class="flex h-screen flex-col items-center justify-center">
 			<Logo />
 			<form class="flex flex-col gap-y-4 rounded-lg bg-white p-4 shadow-xl" onsubmit={handleSubmit}>
 				<Input name="email" type="text" placeholder="E-Mail" bind:value={email} />
 				<Input name="password" type="password" placeholder="Password" bind:value={password} />
-				<div class="-my-2 flex justify-end text-xs text-dark-blue hover:underline">
+				<div class="-my-2 flex justify-end text-xs text-dark-green hover:underline">
 					<a href={resolve(routes.home)} class="rounded-sm">Forgot your password?</a>
 				</div>
 				<input
-					class="cursor-pointer rounded-sm border border-light-gray bg-blue py-2 font-bold text-black hover:bg-light-blue hover:text-dark-gray"
+					class="cursor-pointer rounded-sm border border-lightest-green bg-lighter-green py-2 font-bold text-white hover:bg-light-green"
 					type="submit"
-					value="Submit"
+					value="Login"
 				/>
 				{#if error}
 					<p>{error}</p>

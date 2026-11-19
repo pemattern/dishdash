@@ -2,10 +2,20 @@
 
 @theme {
   --color-*: initial;
-  --color-white: #fcfcfe;
+  --color-white: #ffffff;
+  --color-off-white: #f9f9f3;
+  --color-ivory: #f5f5ef;
+  --color-lightest-green: #e9ede3;
+  --color-lighter-green: #a8b69b;
+  --color-light-green: #87977b;
+  --color-green: #647653;
+  --color-dark-green: #414b3b;
+  --color-light-orange: #e8d5c8;
+  --color-orange: #c69b83;
+  --color-dark-orange: #895744;
   --color-black: #3a3a3a;
   --color-dark-gray: #3d3f44;
-  --color-gray: #dddddd;
+  --color-gray: #77796f;
   --color-light-gray: #f8f8fe;
   --color-dark-blue: #4250af;
   --color-blue: #accbfa;
@@ -16,7 +26,7 @@
 
 @layer base {
   :focus {
-    @apply ring-offset-0 ring-0 outline-2 outline-blue outline-offset-2;
+    @apply ring-offset-0 ring-0 outline-2 outline-lighter-green outline-offset-2;
   }
 }
 
