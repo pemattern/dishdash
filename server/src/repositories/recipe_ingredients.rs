@@ -4,8 +4,8 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::recipe_ingredient::{
-        PostRecipeIngredientSchema, RecipeIngredient, RecipeIngredientJoinIngredient,
-        RecipeIngredientUpdates,
+        PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredient,
+        RecipeIngredientJoinIngredient,
     },
 };
 
@@ -77,7 +77,7 @@ impl RecipeIngredients {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_code: String,
-        recipe_ingredient: RecipeIngredientUpdates,
+        recipe_ingredient: PatchRecipeIngredientSchema,
     ) -> AppResult<RecipeIngredient> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredient,

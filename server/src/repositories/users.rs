@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::user::{User, UserUpdates},
+    models::user::{PatchUserSchema, User},
 };
 
 pub struct Users;
@@ -47,7 +47,8 @@ impl Users {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-        user_updates: UserUpdates,
+        user: PatchUserSchema,
+        password_hash: Option<String>,
     ) -> AppResult<User> {
         let user = sqlx::query_as!(
             User,
@@ -57,8 +58,8 @@ impl Users {
                 password_hash = COALESCE($2, password_hash)
             WHERE id = $3
             RETURNING *;",
-            user_updates.email,
-            user_updates.password_hash,
+            user.email,
+            password_hash,
             id,
         )
         .fetch_one(executor)

@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe::{PostRecipeSchema, Recipe, RecipeUpdates},
+    models::recipe::{PatchRecipeSchema, PostRecipeSchema, Recipe},
 };
 
 pub struct Recipes;
@@ -47,7 +47,7 @@ impl Recipes {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        recipe: RecipeUpdates,
+        recipe: PatchRecipeSchema,
     ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,

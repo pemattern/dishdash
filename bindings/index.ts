@@ -14,7 +14,7 @@ export type PatchRecipeIngredientSchema = { unitCode?: string, position?: number
 
 export type PatchRecipeSchema = { name?: string, imageUrl?: string | null, durationMinutes?: number, };
 
-export type PatchUserSchema = { email?: string, passwordHash?: string, };
+export type PatchUserSchema = { email?: string, password?: string, };
 
 export type PhysicalQuantitySchema = { code: string, };
 

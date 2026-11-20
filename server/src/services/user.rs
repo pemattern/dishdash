@@ -6,7 +6,6 @@ use crate::{
     error::AppResult,
     models::user::{PatchUserSchema, PostUserSchema, User},
     repositories::users::Users,
-    requests::patch_field::PatchField,
 };
 
 #[derive(Clone)]
@@ -36,12 +35,12 @@ impl UserService {
         Ok(user)
     }
 
-    pub async fn update_user(&self, id: Uuid, mut user: PatchUserSchema) -> AppResult<User> {
-        if let PatchField::Value(password) = user.password {
-            user.password = PatchField::Value(get_hash(&password)?);
+    pub async fn update_user(&self, id: Uuid, user: PatchUserSchema) -> AppResult<User> {
+        let mut pasword_hash = None;
+        if let Some(password) = &user.password {
+            pasword_hash = Some(get_hash(&password)?);
         }
-        let user_updates = user.try_into()?;
-        let user = Users::update(&self.pool, id, user_updates).await?;
+        let user = Users::update(&self.pool, id, user, pasword_hash).await?;
         Ok(user)
     }
 
