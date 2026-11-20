@@ -29,9 +29,9 @@ pub async fn get_all_recipes(
 #[axum::debug_handler]
 pub async fn post_recipe(
     State(state): State<AppState>,
-    ValidatedJson(user): ValidatedJson<PostRecipeSchema>,
+    ValidatedJson(recipe): ValidatedJson<PostRecipeSchema>,
 ) -> AppResult<PostResponse<RecipeSchema>> {
-    let recipe = state.recipe_service.create_recipe(user).await?;
+    let recipe = state.recipe_service.create_recipe(recipe).await?;
     Ok(recipe.into())
 }
 
@@ -39,9 +39,9 @@ pub async fn post_recipe(
 pub async fn patch_recipe(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
-    ValidatedJson(user): ValidatedJson<PatchRecipeSchema>,
+    ValidatedJson(recipe): ValidatedJson<PatchRecipeSchema>,
 ) -> AppResult<PatchResponse<RecipeSchema>> {
-    let recipe = state.recipe_service.update_recipe(id, user).await?;
+    let recipe = state.recipe_service.update_recipe(id, recipe).await?;
     Ok(recipe.into())
 }
 

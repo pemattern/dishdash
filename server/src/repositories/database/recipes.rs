@@ -28,7 +28,8 @@ impl Recipes {
 
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
-        recipe: PostRecipeSchema,
+        recipe: &PostRecipeSchema,
+        image_url: Option<String>,
     ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
@@ -36,7 +37,7 @@ impl Recipes {
             VALUES ($1, $2, $3)
             RETURNING *;",
             recipe.name,
-            recipe.image_data,
+            image_url,
             recipe.duration_minutes,
         )
         .fetch_one(executor)

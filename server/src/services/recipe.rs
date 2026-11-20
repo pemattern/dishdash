@@ -1,3 +1,4 @@
+use base64::{Engine, engine::general_purpose::STANDARD};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -11,7 +12,10 @@ use crate::{
         },
         recipe_meal_type::RecipeMealType,
     },
-    repositories::{database::RecipeIngredients, database::RecipeMealTypes, database::Recipes},
+    repositories::{
+        database::{RecipeIngredients, RecipeMealTypes, Recipes},
+        file_system::Images,
+    },
     requests::code_map::CodeMap,
 };
 
@@ -64,7 +68,13 @@ impl RecipeService {
     }
 
     pub async fn create_recipe(&self, recipe: PostRecipeSchema) -> AppResult<Recipe> {
-        let recipe = Recipes::insert(&self.pool, recipe).await?;
+        let mut image_url = None;
+        if let Some(data) = &recipe.image_data {
+            let bytes = STANDARD.decode(data)?;
+            let path = Images::save_recipe_image(&bytes).await?;
+            image_url = Some(path);
+        }
+        let recipe = Recipes::insert(&self.pool, &recipe, image_url).await?;
         Ok(recipe)
     }
 

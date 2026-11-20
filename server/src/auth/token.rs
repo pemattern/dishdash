@@ -1,9 +1,6 @@
 use std::{sync::LazyLock, time::Duration};
 
-use base64::{
-    Engine,
-    engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
-};
+use base64::{Engine, engine::general_purpose::STANDARD};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
@@ -57,7 +54,7 @@ pub fn generate_access_token(user_id: Uuid) -> AppResult<String> {
 
 pub fn generate_refresh_token() -> String {
     let opaque_token_bytes = generate_byte_key::<KEY_LENGTH>();
-    URL_SAFE_NO_PAD.encode(opaque_token_bytes)
+    STANDARD.encode(opaque_token_bytes)
 }
 
 pub fn get_valid_access_token_claims(access_token: &str) -> AppResult<Claims> {

@@ -1,4 +1,5 @@
 mod auth;
+mod data;
 mod ingredients;
 mod recipes;
 mod users;
@@ -23,6 +24,7 @@ use tracing::{Level, Span, info, info_span};
 use crate::{
     error::{AppError, AppResult},
     middleware::{auth::validate_access_token_middleware, errors::handle_errors_middleware},
+    routes::data::data_router,
     state::AppState,
 };
 
@@ -35,6 +37,7 @@ const INDEX_HTML: &str = "/index.html";
 pub fn app(state: AppState) -> Router {
     Router::new()
         .merge(api_router(state.clone()))
+        .merge(data_router())
         .fallback_service(web_service())
         .method_not_allowed_fallback(method_not_allowed_fallback)
         .layer(

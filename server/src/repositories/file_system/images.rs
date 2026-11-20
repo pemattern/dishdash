@@ -1,6 +1,6 @@
-use std::{path::PathBuf, sync::LazyLock};
+use std::sync::LazyLock;
 
-use image::ImageFormat;
+use image::{codecs::jpeg::JpegEncoder, imageops::FilterType};
 use tokio::fs;
 use uuid::Uuid;
 
@@ -9,33 +9,34 @@ use crate::{
     repositories::file_system::DATA_PATH,
 };
 
-static IMAGES_PATH: LazyLock<PathBuf> = LazyLock::new(|| DATA_PATH.join("images"));
-static RECIPES_PATH: LazyLock<PathBuf> = LazyLock::new(|| IMAGES_PATH.join("recipes"));
+const MAX_DIMENSION: u32 = 1920;
+
+static IMAGES_PATH: LazyLock<String> = LazyLock::new(|| format!("{}/images", DATA_PATH));
+static RECIPES_PATH: LazyLock<String> = LazyLock::new(|| format!("{}/recipes", *IMAGES_PATH));
 
 pub struct Images;
 
 impl Images {
-    pub async fn save_recipe_image(recipe_id: Uuid, bytes: &[u8]) -> AppResult<PathBuf> {
-        let mut path = RECIPES_PATH.join(recipe_id.to_string());
-        fs::create_dir_all(&path).await?;
-        let extension = detect_image_extension(bytes)?;
-        let filename = format!("{}.{}", Uuid::now_v7(), extension);
-        path.push(filename);
-        fs::write(&path, bytes).await?;
+    pub async fn save_recipe_image(bytes: &[u8]) -> AppResult<String> {
+        fs::create_dir_all(&*RECIPES_PATH).await?;
+        let image_bytes = process_image(bytes)?;
+        let filename = format!("{}.jpg", Uuid::now_v7());
+        let path = format!("{}/{}", *RECIPES_PATH, filename);
+        fs::write(&path, image_bytes).await?;
         Ok(path)
     }
 }
 
-fn detect_image_extension(bytes: &[u8]) -> AppResult<&'static str> {
-    let format = image::guess_format(bytes)?;
-    match format {
-        ImageFormat::Jpeg => Ok("jpg"),
-        ImageFormat::Png => Ok("png"),
-        ImageFormat::WebP => Ok("webp"),
-        ImageFormat::Gif => Ok("gif"),
-        ImageFormat::Avif => Ok("avif"),
-        _ => Err(AppError::UnsupportedImageFormat),
+fn process_image(bytes: &[u8]) -> AppResult<Vec<u8>> {
+    let mut img = image::load_from_memory(bytes)?;
+    if img.width() > MAX_DIMENSION || img.height() > MAX_DIMENSION {
+        img = img.resize(MAX_DIMENSION, MAX_DIMENSION, FilterType::Lanczos3);
     }
+    let img = img.to_rgb8();
+    let mut output = Vec::new();
+    let mut encoder = JpegEncoder::new_with_quality(&mut output, 85);
+    encoder.encode_image(&img)?;
+    Ok(output)
 }
 
 impl From<image::ImageError> for AppError {

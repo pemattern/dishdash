@@ -11,7 +11,7 @@
 
 	let open = $state(false);
 	let name = $state('');
-	let imageUrl = $state('');
+	let imageData = $state('');
 	let durationMinutes = $state(1);
 	let error = $state('');
 
@@ -32,7 +32,7 @@
 
 		const schema: PostRecipeSchema = {
 			name,
-			imageUrl,
+			imageData,
 			durationMinutes
 		};
 
@@ -52,7 +52,7 @@
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 	{#each data.recipes as recipe (recipe.id)}
-		<RecipeCard />
+		<RecipeCard {recipe} />
 	{/each}
 </div>
 
