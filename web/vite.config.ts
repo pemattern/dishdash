@@ -27,10 +27,8 @@ export default defineConfig({
 	},
 	server: {
 		proxy: {
-			'/api': {
-				target: 'http://0.0.0.0:3000',
-				changeOrigin: true
-			}
+			'/api': 'http://0.0.0.0:3000',
+			'/data': 'http://0.0.0.0:3000'
 		}
 	}
 });
