@@ -1,7 +1,6 @@
 CREATE TABLE recipes (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
     name TEXT UNIQUE NOT NULL,
-    summary TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -10,6 +9,20 @@ CREATE TRIGGER update_recipes_updated_at
     BEFORE UPDATE ON recipes
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE meal_types (
+    code TEXT PRIMARY KEY
+);
+
+CREATE TABLE recipe_meal_types (
+    recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    meal_type_code TEXT NOT NULL REFERENCES meal_types(code) ON DELETE RESTRICT,
+
+    PRIMARY KEY (recipe_id, meal_type_code)
+);
+
+CREATE INDEX recipe_meal_types_meal_type_code_index
+    ON recipe_meal_types(meal_type_code);
 
 CREATE TABLE recipe_ingredients (
     recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,

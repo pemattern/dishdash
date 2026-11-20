@@ -11,5 +11,4 @@ pub struct Recipe {
     #[schema(read_only)]
     pub updated_at: DateTime<Utc>,
     pub name: String,
-    pub summary: String,
 }

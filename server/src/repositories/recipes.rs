@@ -32,11 +32,10 @@ impl Recipes {
     ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
-            "INSERT INTO recipes (name, summary)
-            VALUES ($1, $2)
+            "INSERT INTO recipes (name)
+            VALUES ($1)
             RETURNING *;",
             recipe.name,
-            recipe.summary,
         )
         .fetch_one(executor)
         .await?;
@@ -52,12 +51,10 @@ impl Recipes {
             Recipe,
             "UPDATE recipes
             SET
-                name = COALESCE($1, name),
-                summary = COALESCE($2, summary)
-            WHERE id = $3
+                name = COALESCE($1, name)
+            WHERE id = $2
             RETURNING *;",
             recipe.name,
-            recipe.summary,
             recipe_id,
         )
         .fetch_one(executor)

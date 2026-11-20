@@ -12,6 +12,7 @@ const INGREDIENT_CATEGORIES_CSV: &str = "ingredient_categories.csv";
 const INGREDIENTS_CSV: &str = "ingredients.csv";
 const INGREDIENT_TRANSLATIONS_CSV: &str = "ingredient_translations.csv";
 const INGREDIENT_ALIASES_CSV: &str = "ingredient_aliases.csv";
+const MEAL_TYPES_CSV: &str = "meal_types.csv";
 
 pub async fn upsert_seed_data_tables(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_locales_seed_data(pool).await?;
@@ -19,6 +20,7 @@ pub async fn upsert_seed_data_tables(pool: &PgPool) -> Result<(), Box<dyn Error>
     upsert_ingredient_seed_data(pool).await?;
     upsert_ingredient_translations_seed_data(pool).await?;
     upsert_ingredient_aliases_seed_data(pool).await?;
+    upsert_meal_types_seed_data(pool).await?;
     log::info!("completed seed data import");
     Ok(())
 }
@@ -204,6 +206,26 @@ async fn upsert_ingredient_aliases_seed_data(pool: &PgPool) -> Result<(), Box<dy
             name_normalized = EXCLUDED.name_normalized
         WHERE ingredient_aliases.name_plural IS DISTINCT FROM EXCLUDED.name_plural
             OR ingredient_aliases.name_normalized IS DISTINCT FROM EXCLUDED.name_normalized;",
+    )
+    .await?;
+    Ok(())
+}
+
+async fn upsert_meal_types_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
+    upsert_seed_data(
+        pool,
+        MEAL_TYPES_CSV,
+        "CREATE TEMP TABLE meal_types_staging (
+            code TEXT NOT NULL
+        ) ON COMMIT DROP;",
+        "COPY meal_types_staging (code)
+        FROM STDIN
+        WITH (FORMAT CSV, HEADER TRUE);",
+        "INSERT INTO meal_types (code)
+        SELECT code
+        FROM meal_types_staging
+        ON CONFLICT (code)
+        DO NOTHING;",
     )
     .await?;
     Ok(())

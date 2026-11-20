@@ -2,7 +2,6 @@
 	import { api } from '#lib/api/instance.ts';
 	import FormModal from '#lib/components/FormModal.svelte';
 	import Input from '#lib/components/Input.svelte';
-	import TextArea from '#lib/components/TextArea.svelte';
 	import { routes } from '#lib/const/routes.ts';
 	import { refreshAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -13,7 +12,6 @@
 
 	let open = $state(false);
 	let name = $state('');
-	let summary = $state('');
 	let error = $state('');
 
 	$effect(() => {
@@ -24,7 +22,6 @@
 
 	function resetForm() {
 		name = '';
-		summary = '';
 		error = '';
 	}
 
@@ -33,8 +30,7 @@
 		error = '';
 
 		const schema: PostRecipeSchema = {
-			name,
-			summary
+			name
 		};
 
 		try {
@@ -60,13 +56,10 @@
 				{recipe.name}
 			</a>
 		</h2>
-
-		<p>{recipe.summary}</p>
 	</article>
 {/each}
 
 <FormModal bind:open {handleSubmit}>
 	<Input label="Title" bind:value={name} name="name" type="text" focus={open} />
-	<TextArea label="Summary" bind:value={summary} />
 	{error}
 </FormModal>

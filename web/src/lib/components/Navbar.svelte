@@ -45,7 +45,7 @@
 					{#each group.entries as entry (entry.text)}
 						<a
 							href={resolve(entry.path)}
-							class={`text-md rounded-md border hover:border-light-orange hover:text-orange ${isCurrent(resolve(entry.path)) ? 'border-light-orange text-dark-orange' : 'border-transparent'}`}
+							class={`text-md rounded-md hover:text-orange hover:inset-ring hover:inset-ring-light-orange ${isCurrent(resolve(entry.path)) ? 'text-dark-orange inset-ring inset-ring-light-orange' : 'text-gray'}`}
 						>
 							<div class="ml-2 flex w-fit items-center gap-4 p-2">
 								<entry.icon size={22} stroke-width={1.75} />
