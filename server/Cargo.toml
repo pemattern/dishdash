@@ -40,5 +40,6 @@ tracing-subscriber = { version = "0.3.23", features = ["chrono"] }
 ts-rs = { version = "12.0.1", features = ["chrono-impl", "uuid-impl", "no-serde-warnings"] }
 uuid = { version = "1.28.0", features = ["serde", "v7"] }
 validator = { version = "0.21.0", features = ["derive"] }
+image = "0.25.10"
 
 [dev-dependencies]

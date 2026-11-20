@@ -5,7 +5,7 @@ use crate::{
     auth::password::get_hash,
     error::AppResult,
     models::user::{PatchUserSchema, PostUserSchema, User},
-    repositories::users::Users,
+    repositories::database::Users,
 };
 
 #[derive(Clone)]

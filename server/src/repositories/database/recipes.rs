@@ -36,7 +36,7 @@ impl Recipes {
             VALUES ($1, $2, $3)
             RETURNING *;",
             recipe.name,
-            recipe.image_url,
+            recipe.image_data,
             recipe.duration_minutes,
         )
         .fetch_one(executor)

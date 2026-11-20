@@ -126,6 +126,9 @@ impl From<AppError> for ErrorSchema {
             AppError::InvalidQueryParameter => {
                 Self::bad_request().detail("Request query parameters could not be deserialized")
             }
+            AppError::UnsupportedImageFormat => {
+                Self::bad_request().detail("Image format is not supported")
+            }
         }
         .code(error)
     }

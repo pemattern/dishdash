@@ -8,7 +8,7 @@ use crate::{
     },
     error::AppResult,
     models::{refresh_token::RefreshToken, user::User},
-    repositories::{refresh_tokens::RefreshTokens, users::Users},
+    repositories::{database::RefreshTokens, database::Users},
 };
 
 #[derive(Clone)]

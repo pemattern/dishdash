@@ -29,10 +29,17 @@ pub enum AppError {
     InvalidJsonSyntax,
     MissingJsonContentType,
     InvalidQueryParameter,
+    UnsupportedImageFormat,
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         Extension(Arc::new(self)).into_response()
+    }
+}
+
+impl From<tokio::io::Error> for AppError {
+    fn from(error: tokio::io::Error) -> Self {
+        AppError::Internal(Arc::new(error))
     }
 }

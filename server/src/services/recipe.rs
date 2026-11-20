@@ -11,9 +11,7 @@ use crate::{
         },
         recipe_meal_type::RecipeMealType,
     },
-    repositories::{
-        recipe_ingredients::RecipeIngredients, recipe_meal_types::RecipeMealTypes, recipes::Recipes,
-    },
+    repositories::{database::RecipeIngredients, database::RecipeMealTypes, database::Recipes},
     requests::code_map::CodeMap,
 };
 

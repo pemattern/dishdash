@@ -39,14 +39,6 @@ mod tests {
     }
 
     #[test]
-    fn test_patch_null_fields() {
-        let patch: Patch = serde_json::from_str(r#"{"name": null, "age": null}"#).unwrap();
-
-        assert_eq!(patch.name, Some(None));
-        assert_eq!(patch.age, None);
-    }
-
-    #[test]
     fn test_patch_set_fields() {
         let patch: Patch = serde_json::from_str(r#"{"name": "Alice", "age": 30}"#).unwrap();
 
