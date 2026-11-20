@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe::{PatchRecipeSchema, PostRecipeSchema, Recipe},
+    models::recipe::{PostRecipeSchema, Recipe, RecipeUpdates},
 };
 
 pub struct Recipes;
@@ -32,10 +32,12 @@ impl Recipes {
     ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
-            "INSERT INTO recipes (name)
-            VALUES ($1)
+            "INSERT INTO recipes (name, image_url, duration_minutes)
+            VALUES ($1, $2, $3)
             RETURNING *;",
             recipe.name,
+            recipe.image_url,
+            recipe.duration_minutes,
         )
         .fetch_one(executor)
         .await?;
@@ -45,16 +47,18 @@ impl Recipes {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        recipe: PatchRecipeSchema,
+        recipe: RecipeUpdates,
     ) -> AppResult<Recipe> {
         let recipe = sqlx::query_as!(
             Recipe,
             "UPDATE recipes
             SET
-                name = COALESCE($1, name)
-            WHERE id = $2
+                name = COALESCE($1, name),
+                duration_minutes = COALESCE($2, duration_minutes)
+            WHERE id = $3
             RETURNING *;",
             recipe.name,
+            recipe.duration_minutes,
             recipe_id,
         )
         .fetch_one(executor)

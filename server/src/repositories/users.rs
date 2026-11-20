@@ -1,11 +1,14 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::AppResult, models::user::User};
+use crate::{
+    error::AppResult,
+    models::user::{User, UserUpdates},
+};
 
-pub struct Ingredients;
+pub struct Users;
 
-impl Ingredients {
+impl Users {
     pub async fn select_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<User> {
         let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1;", id)
             .fetch_one(executor)
@@ -44,8 +47,7 @@ impl Ingredients {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-        email: Option<String>,
-        password_hash: Option<String>,
+        user_updates: UserUpdates,
     ) -> AppResult<User> {
         let user = sqlx::query_as!(
             User,
@@ -55,8 +57,8 @@ impl Ingredients {
                 password_hash = COALESCE($2, password_hash)
             WHERE id = $3
             RETURNING *;",
-            email,
-            password_hash,
+            user_updates.email,
+            user_updates.password_hash,
             id,
         )
         .fetch_one(executor)

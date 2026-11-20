@@ -102,10 +102,12 @@ mod tests {
         let app = create_router(pool);
         let token = generate_access_token(Uuid::nil()).unwrap();
         let name = "pumpkin soup";
-        let summary = "a tasty pumpkin soup.";
+        let image_url = "abc";
+        let duration = 10;
         let json = json!({
             "name": name,
-            "summary": summary
+            "imageUrl": image_url,
+            "durationMinutes" : duration,
         });
         let response = app
             .clone()
@@ -124,7 +126,8 @@ mod tests {
         let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
         let schema: serde_json::Value = serde_json::from_slice(&body).unwrap();
         assert_eq!(schema["name"], name);
-        assert_eq!(schema["summary"], summary);
+        assert_eq!(schema["imageUrl"], image_url);
+        assert_eq!(schema["durationMinutes"], duration);
     }
 
     #[sqlx::test]

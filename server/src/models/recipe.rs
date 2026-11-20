@@ -11,5 +11,6 @@ pub struct Recipe {
     #[schema(read_only)]
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub image_url: Option<String>,
     pub duration_minutes: i32,
 }

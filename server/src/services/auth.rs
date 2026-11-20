@@ -8,7 +8,7 @@ use crate::{
     },
     error::AppResult,
     models::{refresh_token::RefreshToken, user::User},
-    repositories::{refresh_tokens::RefreshTokens, users::Ingredients},
+    repositories::{refresh_tokens::RefreshTokens, users::Users},
 };
 
 #[derive(Clone)]
@@ -23,7 +23,7 @@ impl AuthService {
     }
 
     pub async fn get_user_from_basic_auth(&self, email: &str, password: &str) -> AppResult<User> {
-        let user = Ingredients::select_by_email(&self.pool, email).await?;
+        let user = Users::select_by_email(&self.pool, email).await?;
         verify_password(password, &user.password_hash)?;
         Ok(user)
     }

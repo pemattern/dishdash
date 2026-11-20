@@ -114,7 +114,8 @@ impl RecipeService {
         recipe_id: Uuid,
         recipe: PatchRecipeSchema,
     ) -> AppResult<Recipe> {
-        let recipe = Recipes::update(&self.pool, recipe_id, recipe).await?;
+        let recipe_updates = recipe.try_into()?;
+        let recipe = Recipes::update(&self.pool, recipe_id, recipe_updates).await?;
         Ok(recipe)
     }
 
@@ -124,9 +125,14 @@ impl RecipeService {
         ingredient_code: String,
         recipe_ingredient: PatchRecipeIngredientSchema,
     ) -> AppResult<RecipeIngredient> {
-        let recipe_ingredient =
-            RecipeIngredients::update(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
-                .await?;
+        let recipe_ingredient_updates = recipe_ingredient.try_into()?;
+        let recipe_ingredient = RecipeIngredients::update(
+            &self.pool,
+            recipe_id,
+            ingredient_code,
+            recipe_ingredient_updates,
+        )
+        .await?;
         Ok(recipe_ingredient)
     }
 
@@ -138,9 +144,14 @@ impl RecipeService {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
         for (ingredient_code, recipe_ingredient) in recipe_ingredients {
-            let updated_recipe_ingredient =
-                RecipeIngredients::update(&mut *tx, recipe_id, ingredient_code, recipe_ingredient)
-                    .await?;
+            let recipe_ingredient_update = recipe_ingredient.try_into()?;
+            let updated_recipe_ingredient = RecipeIngredients::update(
+                &mut *tx,
+                recipe_id,
+                ingredient_code,
+                recipe_ingredient_update,
+            )
+            .await?;
             updated_recipe_ingredients.push(updated_recipe_ingredient);
         }
         tx.commit().await?;

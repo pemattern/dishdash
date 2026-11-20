@@ -2,9 +2,8 @@
 	import { api } from '#lib/api/instance.ts';
 	import FormModal from '#lib/components/FormModal.svelte';
 	import Input from '#lib/components/Input.svelte';
-	import { routes } from '#lib/const/routes.ts';
+	import RecipeCard from '#lib/components/RecipeCard.svelte';
 	import { refreshAll } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import type { PostRecipeSchema } from '$bindings';
 	import type { PageProps } from './$types';
 
@@ -12,6 +11,8 @@
 
 	let open = $state(false);
 	let name = $state('');
+	let imageUrl = $state('');
+	let durationMinutes = $state(1);
 	let error = $state('');
 
 	$effect(() => {
@@ -30,7 +31,9 @@
 		error = '';
 
 		const schema: PostRecipeSchema = {
-			name
+			name,
+			imageUrl,
+			durationMinutes
 		};
 
 		try {
@@ -43,19 +46,15 @@
 	}
 </script>
 
-<button class="m-4 rounded-md bg-light-blue p-4 font-sans" onclick={() => (open = true)}
+<button class="m-4 rounded-md bg-lighter-green p-4 font-sans" onclick={() => (open = true)}
 	>Create</button
 >
 
-{#each data.recipes as recipe (recipe.id)}
-	<article>
-		<h2>
-			<a href={resolve(routes.recipe, { id: recipe.id })}>
-				{recipe.name}
-			</a>
-		</h2>
-	</article>
-{/each}
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+	{#each data.recipes as recipe (recipe.id)}
+		<RecipeCard />
+	{/each}
+</div>
 
 <FormModal bind:open {handleSubmit}>
 	<Input label="Title" bind:value={name} name="name" type="text" focus={open} />
