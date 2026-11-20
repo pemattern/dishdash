@@ -1,6 +1,4 @@
-use validator::ValidationError;
-
-use crate::requests::patch_field::PatchField;
+use serde::{Deserialize, Deserializer};
 
 pub mod ingredient;
 pub mod physical_quantity;
@@ -12,9 +10,10 @@ pub mod unit;
 pub mod unit_system;
 pub mod user;
 
-pub fn validate_non_nullable_patch<T>(field: &PatchField<T>) -> Result<(), ValidationError> {
-    match field {
-        PatchField::Cleared => Err(ValidationError::new("cannot_clear_non_nullable_field")),
-        _ => Ok(()),
-    }
+fn deserialize_double_option<'de, D, T>(deserializer: D) -> Result<Option<Option<T>>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer).map(Some)
 }
