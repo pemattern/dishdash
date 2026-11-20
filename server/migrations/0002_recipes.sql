@@ -1,6 +1,7 @@
 CREATE TABLE recipes (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
     name TEXT UNIQUE NOT NULL,
+    duration_minutes INTEGER NOT NULL CHECK (duration_minutes >= 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

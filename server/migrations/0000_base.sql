@@ -42,7 +42,6 @@ INSERT INTO physical_quantities (code)
 VALUES
     ('count'),
     ('mass'),
-    ('time'),
     ('volume');
 
 CREATE TABLE unit_systems (

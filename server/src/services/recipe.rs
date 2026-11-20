@@ -9,8 +9,11 @@ use crate::{
             PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredient,
             RecipeIngredientJoinIngredient,
         },
+        recipe_meal_type::RecipeMealType,
     },
-    repositories::{recipe_ingredients::RecipeIngredients, recipes::Recipes},
+    repositories::{
+        recipe_ingredients::RecipeIngredients, recipe_meal_types::RecipeMealTypes, recipes::Recipes,
+    },
     requests::code_map::CodeMap,
 };
 
@@ -30,7 +33,7 @@ impl RecipeService {
         Ok(recipe)
     }
 
-    pub async fn get_recipes(&self) -> AppResult<Vec<Recipe>> {
+    pub async fn find_recipes(&self) -> AppResult<Vec<Recipe>> {
         let recipes = Recipes::select_all(&self.pool).await?;
         Ok(recipes)
     }
@@ -52,6 +55,14 @@ impl RecipeService {
         let recipe_ingredients =
             RecipeIngredients::select_by_recipe_id(&self.pool, recipe_id).await?;
         Ok(recipe_ingredients)
+    }
+
+    pub async fn find_recipe_meal_types_by_recipe_id(
+        &self,
+        recipe_id: Uuid,
+    ) -> AppResult<Vec<RecipeMealType>> {
+        let recipe_meal_types = RecipeMealTypes::select_by_recipe_id(&self.pool, recipe_id).await?;
+        Ok(recipe_meal_types)
     }
 
     pub async fn create_recipe(&self, recipe: PostRecipeSchema) -> AppResult<Recipe> {
@@ -86,6 +97,16 @@ impl RecipeService {
         }
         tx.commit().await?;
         Ok(inserted_recipe_ingredients)
+    }
+
+    pub async fn create_recipe_meal_type(
+        &self,
+        recipe_id: Uuid,
+        meal_type_code: String,
+    ) -> AppResult<RecipeMealType> {
+        let recipe_meal_type =
+            RecipeMealTypes::insert(&self.pool, recipe_id, meal_type_code).await?;
+        Ok(recipe_meal_type)
     }
 
     pub async fn update_recipe(
@@ -139,5 +160,15 @@ impl RecipeService {
         let recipe_ingredient =
             RecipeIngredients::delete_by_id(&self.pool, recipe_id, ingredient_code).await?;
         Ok(recipe_ingredient)
+    }
+
+    pub async fn delete_recipe_meal_type(
+        &self,
+        recipe_id: Uuid,
+        meal_type_code: String,
+    ) -> AppResult<RecipeMealType> {
+        let recipe_meal_type =
+            RecipeMealTypes::delete_by_id(&self.pool, recipe_id, meal_type_code).await?;
+        Ok(recipe_meal_type)
     }
 }

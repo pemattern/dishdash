@@ -2,9 +2,14 @@ import { appState } from '#lib/state.svelte.ts';
 import type { LoginSchema, RefreshSchema } from '$bindings';
 import { request } from './client';
 
+let refreshPromise: Promise<void> | null = null;
+
 export async function ensureAuthenticated() {
 	if (!appState.accessToken) {
-		await auth.refresh();
+		refreshPromise ??= auth.refresh().finally(() => {
+			refreshPromise = null;
+		});
+		await refreshPromise;
 	}
 
 	if (!appState.accessToken) {

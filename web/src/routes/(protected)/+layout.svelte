@@ -4,11 +4,11 @@
 	import Navbar from '#lib/components/Navbar.svelte';
 </script>
 
-<div class="flex bg-white">
+<div class="flex bg-off-white">
 	<Navbar />
 	<div class="flex w-full flex-1 flex-col">
 		<HeaderBar />
-		<main class="m-4 h-full rounded-md bg-off-white p-4 font-serif text-xl">
+		<main class="m-4 h-full rounded-md bg-white p-4 font-serif text-xl">
 			{@render children()}
 		</main>
 	</div>

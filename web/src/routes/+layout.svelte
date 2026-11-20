@@ -5,4 +5,7 @@
 	let { children }: LayoutProps = $props();
 </script>
 
+<svelte:head>
+	<meta name="sveltekit:prefetch" content="off" />
+</svelte:head>
 {@render children()}

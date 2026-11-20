@@ -28,6 +28,8 @@ export type RecipeIngredientJoinIngredientSchema = { createdAt: string, updatedA
 
 export type RecipeIngredientSchema = { createdAt: string, updatedAt: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
 
+export type RecipeMealTypeSchema = { recipeId: string, mealTypeCode: string, };
+
 export type RecipeSchema = { id: string, createdAt: string, updatedAt: string, name: string, };
 
 export type RefreshSchema = { accessToken: string, };

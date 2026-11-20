@@ -31,7 +31,9 @@
 				<Input name="email" type="text" placeholder="E-Mail" bind:value={email} />
 				<Input name="password" type="password" placeholder="Password" bind:value={password} />
 				<div class="-my-2 flex justify-end text-xs text-dark-orange hover:underline">
-					<a href={resolve(routes.home)} class="rounded-sm">Forgot your password?</a>
+					<a href={resolve(routes.home)} class="rounded-sm" data-sveltekit-preload-data="false"
+						>Forgot your password?</a
+					>
 				</div>
 				<input
 					class="cursor-pointer rounded-sm bg-light-orange py-2 font-bold text-dark-orange inset-ring inset-ring-orange hover:bg-white hover:text-orange hover:inset-ring-light-orange"

@@ -43,8 +43,6 @@
 	}
 </script>
 
-<h1 class="text-4xl">Recipes</h1>
-
 <button class="m-4 rounded-md bg-light-blue p-4 font-sans" onclick={() => (open = true)}
 	>Create</button
 >
