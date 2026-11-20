@@ -64,7 +64,8 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
         }
         let mut read = true;
         let mut write = true;
-        let mut rename: Option<syn::LitStr> = None;
+        let mut read_rename: Option<syn::LitStr> = None;
+        let mut write_rename: Option<syn::LitStr> = None;
 
         for attr in &field.attrs {
             if !attr.path().is_ident("schema") {
@@ -81,8 +82,14 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
                 } else if meta.path.is_ident("write_only") {
                     read = false;
                     write = true;
+                } else if meta.path.is_ident("read_rename") {
+                    read_rename = Some(meta.value()?.parse()?);
+                } else if meta.path.is_ident("write_rename") {
+                    write_rename = Some(meta.value()?.parse()?);
                 } else if meta.path.is_ident("rename") {
-                    rename = Some(meta.value()?.parse()?);
+                    let rename: syn::LitStr = meta.value()?.parse()?;
+                    read_rename = Some(rename.clone());
+                    write_rename = Some(rename);
                 }
 
                 Ok(())
@@ -93,22 +100,27 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
             continue;
         }
 
-        let schema_field_name = rename
-            .as_ref()
-            .map(|name| syn::Ident::new(&name.value(), name.span()))
-            .unwrap_or_else(|| field_name.clone());
-
         if read {
+            let read_field_name = read_rename
+                .as_ref()
+                .map(|name| syn::Ident::new(&name.value(), name.span()))
+                .unwrap_or_else(|| field_name.clone());
+
             response_fields.push(quote! {
-                pub #schema_field_name: #field_type
+                pub #read_field_name: #field_type
             });
-            response_field_names.push((schema_field_name.clone(), field_name.clone()));
+            response_field_names.push((read_field_name.clone(), field_name.clone()));
         }
 
         if write {
+            let write_field_name = write_rename
+                .as_ref()
+                .map(|name| syn::Ident::new(&name.value(), name.span()))
+                .unwrap_or_else(|| field_name.clone());
+
             post_fields.push(quote! {
                 #(#helper_attrs)*
-                pub #schema_field_name: #field_type
+                pub #write_field_name: #field_type
             });
 
             let (patch_type, nullable) = unwrap_option_type(field_type);
@@ -119,12 +131,12 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
                 );
                 quote! {
                     #[ts(optional = nullable, as = #ts_type)]
-                    pub #schema_field_name: Option<#field_type>
+                    pub #write_field_name: Option<#field_type>
                 }
             } else {
                 quote! {
                     #[ts(optional)]
-                    pub #schema_field_name: Option<#field_type>
+                    pub #write_field_name: Option<#field_type>
                 }
             };
 

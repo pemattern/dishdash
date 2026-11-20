@@ -12,7 +12,7 @@ export type LoginSchema = { accessToken: string, };
 
 export type PatchRecipeIngredientSchema = { unitCode?: string, position?: number, quantity?: number, };
 
-export type PatchRecipeSchema = { name?: string, imageUrl?: string | null, durationMinutes?: number, };
+export type PatchRecipeSchema = { name?: string, imageData?: string | null, durationMinutes?: number, };
 
 export type PatchUserSchema = { email?: string, password?: string, };
 
@@ -20,7 +20,7 @@ export type PhysicalQuantitySchema = { code: string, };
 
 export type PostRecipeIngredientSchema = { unitCode: string, position: number, quantity: number, };
 
-export type PostRecipeSchema = { name: string, imageUrl: string | null, durationMinutes: number, };
+export type PostRecipeSchema = { name: string, imageData: string | null, durationMinutes: number, };
 
 export type PostUserSchema = { email: string, password: string, };
 
@@ -30,7 +30,7 @@ export type RecipeIngredientSchema = { createdAt: string, updatedAt: string, rec
 
 export type RecipeMealTypeSchema = { recipeId: string, mealTypeCode: string, };
 
-export type RecipeSchema = { id: string, createdAt: string, updatedAt: string, name: string, imageUrl: string | null, durationMinutes: number, };
+export type RecipeSchema = { id: string, createdAt: string, updatedAt: string, name: string, imageData: string | null, durationMinutes: number, };
 
 export type RefreshSchema = { accessToken: string, };
 
