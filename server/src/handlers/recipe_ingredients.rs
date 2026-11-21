@@ -3,8 +3,11 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    payloads::recipe_ingredient::{
-        CreateRecipeIngredientRequest, RecipeIngredientResponse, UpdateRecipeIngredientRequest,
+    payloads::{
+        Many,
+        recipe_ingredient::{
+            CreateRecipeIngredientRequest, RecipeIngredientResponse, UpdateRecipeIngredientRequest,
+        },
     },
     requests::{app_path::AppPath, code_map::CodeMap, validated_json::ValidatedJson},
     responses::{Delete, Get, Patch, Post},
@@ -15,7 +18,7 @@ use crate::{
 pub async fn get_recipe_ingredients(
     State(state): State<AppState>,
     AppPath(recipe_id): AppPath<Uuid>,
-) -> AppResult<Get<Vec<RecipeIngredientResponse>>> {
+) -> AppResult<Get<Many<RecipeIngredientResponse>>> {
     let recipe_ingredients = state
         .recipe_service
         .find_recipe_ingredients_by_recipe_id(recipe_id)
@@ -41,7 +44,7 @@ pub async fn post_recipe_ingredients(
     State(state): State<AppState>,
     AppPath(recipe_id): AppPath<Uuid>,
     ValidatedJson(recipe_ingredients): ValidatedJson<CodeMap<CreateRecipeIngredientRequest>>,
-) -> AppResult<Post<RecipeIngredientResponse>> {
+) -> AppResult<Post<Many<RecipeIngredientResponse>>> {
     let recipe_ingredients = state
         .recipe_service
         .create_recipe_ingredients(recipe_id, recipe_ingredients)
@@ -67,7 +70,7 @@ pub async fn patch_recipe_ingredients(
     State(state): State<AppState>,
     AppPath(recipe_id): AppPath<Uuid>,
     ValidatedJson(recipe_ingredients): ValidatedJson<CodeMap<UpdateRecipeIngredientRequest>>,
-) -> AppResult<Patch<RecipeIngredientResponse>> {
+) -> AppResult<Patch<Many<RecipeIngredientResponse>>> {
     let recipe_ingredients = state
         .recipe_service
         .update_recipe_ingredients(recipe_id, recipe_ingredients)

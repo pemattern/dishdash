@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     auth::token::Claims,
     error::AppResult,
-    payloads::user::{CreateUserRequest, UserResponse},
+    payloads::user::{CreateUserRequest, UpdateUserRequest, UserResponse},
     requests::{app_path::AppPath, validated_json::ValidatedJson},
     responses::{Delete, Get, Patch, Post},
     state::AppState,
@@ -42,7 +42,7 @@ pub async fn post_user(
 pub async fn patch_user(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
-    ValidatedJson(user): ValidatedJson<CreateUserRequest>,
+    ValidatedJson(user): ValidatedJson<UpdateUserRequest>,
 ) -> AppResult<Patch<UserResponse>> {
     let user = state.user_service.update_user(id, user).await?;
     Ok(user.into())

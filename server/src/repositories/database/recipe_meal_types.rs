@@ -8,7 +8,7 @@ pub struct RecipeMealTypes;
 impl RecipeMealTypes {
     pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
-        recipe_id: Uuid,
+        recipe_id: &Uuid,
     ) -> AppResult<Vec<RecipeMealTypeModel>> {
         let recipe_meal_types = sqlx::query_as!(
             RecipeMealTypeModel,

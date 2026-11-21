@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::{RecipeIngredientModel, RecipeMealTypeModel, RecipeModel},
+    models::RecipeMealTypeModel,
     payloads::{
         Many,
         recipe::{CreateRecipeRequest, RecipeResponse, UpdateRecipeRequest},
@@ -31,13 +31,22 @@ impl RecipeService {
     }
 
     pub async fn find_recipe_by_id(&self, recipe_id: Uuid) -> AppResult<RecipeResponse> {
-        let recipe = Recipes::select_by_recipe_id(&self.pool, recipe_id).await?;
+        let recipe = tokio::try_join!(
+            Recipes::select_by_recipe_id(&self.pool, recipe_id),
+            RecipeMealTypes::select_by_recipe_id(&self.pool, &recipe_id),
+        )?;
         Ok(recipe.into())
     }
 
     pub async fn find_recipes(&self) -> AppResult<Many<RecipeResponse>> {
+        let mut response: Vec<RecipeResponse> = Vec::new();
         let recipes = Recipes::select_all(&self.pool).await?;
-        Ok(recipes.into())
+        for recipe in recipes {
+            let recipe_meal_types =
+                RecipeMealTypes::select_by_recipe_id(&self.pool, &recipe.id).await?;
+            response.push((recipe, recipe_meal_types).into())
+        }
+        Ok(response.into())
     }
 
     pub async fn find_recipe_ingredients_by_recipe_id(
@@ -49,7 +58,7 @@ impl RecipeService {
         Ok(recipe_ingredients.into())
     }
 
-    pub async fn create_recipe(&self, recipe: CreateRecipeRequest) -> AppResult<RecipeModel> {
+    pub async fn create_recipe(&self, recipe: CreateRecipeRequest) -> AppResult<RecipeResponse> {
         let mut image_url = None;
         if let Some(image_data) = &recipe.image_data {
             let bytes = STANDARD.decode(image_data)?;
@@ -57,7 +66,9 @@ impl RecipeService {
             image_url = Some(path);
         }
         let recipe = Recipes::insert(&self.pool, &recipe, image_url).await?;
-        Ok(recipe)
+        let recipe_meal_types =
+            RecipeMealTypes::select_by_recipe_id(&self.pool, &recipe.id).await?;
+        Ok((recipe, recipe_meal_types).into())
     }
 
     pub async fn create_recipe_ingredient(
@@ -65,18 +76,18 @@ impl RecipeService {
         recipe_id: Uuid,
         ingredient_code: String,
         recipe_ingredient: CreateRecipeIngredientRequest,
-    ) -> AppResult<RecipeIngredientModel> {
+    ) -> AppResult<RecipeIngredientResponse> {
         let recipe_ingredient =
             RecipeIngredients::insert(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
                 .await?;
-        Ok(recipe_ingredient)
+        Ok(recipe_ingredient.into())
     }
 
     pub async fn create_recipe_ingredients(
         &self,
         recipe_id: Uuid,
         recipe_ingredients: CodeMap<CreateRecipeIngredientRequest>,
-    ) -> AppResult<Vec<RecipeIngredientModel>> {
+    ) -> AppResult<Many<RecipeIngredientResponse>> {
         let mut tx = self.pool.begin().await?;
         let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
         for (ingredient_code, recipe_ingredient) in recipe_ingredients {
@@ -86,7 +97,7 @@ impl RecipeService {
             inserted_recipe_ingredients.push(inserted_recipe_ingredient);
         }
         tx.commit().await?;
-        Ok(inserted_recipe_ingredients)
+        Ok(inserted_recipe_ingredients.into())
     }
 
     pub async fn create_recipe_meal_type(
@@ -103,7 +114,7 @@ impl RecipeService {
         &self,
         recipe_id: Uuid,
         recipe: UpdateRecipeRequest,
-    ) -> AppResult<RecipeModel> {
+    ) -> AppResult<RecipeResponse> {
         let mut image_url = None;
         if let Some(maybe_image_data) = &recipe.image_data {
             if let Some(image_data) = maybe_image_data {
@@ -114,8 +125,11 @@ impl RecipeService {
                 image_url = Some(None);
             }
         }
-        let recipe = Recipes::update(&self.pool, recipe_id, recipe, image_url).await?;
-        Ok(recipe)
+        let recipe = tokio::try_join!(
+            Recipes::update(&self.pool, recipe_id, recipe, image_url),
+            RecipeMealTypes::select_by_recipe_id(&self.pool, &recipe_id),
+        )?;
+        Ok(recipe.into())
     }
 
     pub async fn update_recipe_ingredient(
@@ -123,18 +137,18 @@ impl RecipeService {
         recipe_id: Uuid,
         ingredient_code: String,
         recipe_ingredient: UpdateRecipeIngredientRequest,
-    ) -> AppResult<RecipeIngredientModel> {
+    ) -> AppResult<RecipeIngredientResponse> {
         let recipe_ingredient =
             RecipeIngredients::update(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
                 .await?;
-        Ok(recipe_ingredient)
+        Ok(recipe_ingredient.into())
     }
 
     pub async fn update_recipe_ingredients(
         &self,
         recipe_id: Uuid,
         recipe_ingredients: CodeMap<UpdateRecipeIngredientRequest>,
-    ) -> AppResult<Vec<RecipeIngredientModel>> {
+    ) -> AppResult<Many<RecipeIngredientResponse>> {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
         for (ingredient_code, recipe_ingredient) in recipe_ingredients {
@@ -144,22 +158,22 @@ impl RecipeService {
             updated_recipe_ingredients.push(updated_recipe_ingredient);
         }
         tx.commit().await?;
-        Ok(updated_recipe_ingredients)
+        Ok(updated_recipe_ingredients.into())
     }
 
-    pub async fn delete_recipe(&self, recipe_id: Uuid) -> AppResult<RecipeModel> {
-        let recipe = Recipes::delete(&self.pool, recipe_id).await?;
-        Ok(recipe)
+    pub async fn delete_recipe(&self, recipe_id: Uuid) -> AppResult<()> {
+        let _ = Recipes::delete(&self.pool, recipe_id).await?;
+        Ok(())
     }
 
     pub async fn delete_recipe_ingredient(
         &self,
         recipe_id: Uuid,
         ingredient_code: String,
-    ) -> AppResult<RecipeIngredientModel> {
+    ) -> AppResult<RecipeIngredientResponse> {
         let recipe_ingredient =
             RecipeIngredients::delete(&self.pool, recipe_id, ingredient_code).await?;
-        Ok(recipe_ingredient)
+        Ok(recipe_ingredient.into())
     }
 
     pub async fn delete_recipe_meal_type(

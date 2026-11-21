@@ -3,7 +3,10 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    payloads::recipe::{CreateRecipeRequest, RecipeResponse, UpdateRecipeRequest},
+    payloads::{
+        Many,
+        recipe::{CreateRecipeRequest, RecipeResponse, UpdateRecipeRequest},
+    },
     requests::{app_path::AppPath, validated_json::ValidatedJson},
     responses::{Delete, Get, Patch, Post},
     state::AppState,
@@ -19,7 +22,9 @@ pub async fn get_recipe(
 }
 
 #[axum::debug_handler]
-pub async fn get_all_recipes(State(state): State<AppState>) -> AppResult<Get<RecipeResponse>> {
+pub async fn get_all_recipes(
+    State(state): State<AppState>,
+) -> AppResult<Get<Many<RecipeResponse>>> {
     let recipes = state.recipe_service.find_recipes().await?;
     Ok(recipes.into())
 }

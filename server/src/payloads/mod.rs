@@ -1,4 +1,5 @@
 use lib::Payload;
+use serde::Serialize;
 
 pub mod ingredient;
 pub mod recipe;
@@ -6,6 +7,8 @@ pub mod recipe_ingredient;
 pub mod unit;
 pub mod user;
 
+#[derive(Serialize)]
+#[serde(transparent)]
 pub struct Many<P>
 where
     P: Payload,
