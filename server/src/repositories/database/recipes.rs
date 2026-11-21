@@ -3,7 +3,8 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe::{PatchRecipeSchema, PostRecipeSchema, RecipeModel},
+    models::RecipeModel,
+    payloads::recipe::{CreateRecipeRequest, UpdateRecipeRequest},
 };
 
 pub struct Recipes;
@@ -28,7 +29,7 @@ impl Recipes {
 
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
-        recipe: &PostRecipeSchema,
+        recipe: &CreateRecipeRequest,
         image_url: Option<String>,
     ) -> AppResult<RecipeModel> {
         let recipe = sqlx::query_as!(
@@ -48,17 +49,21 @@ impl Recipes {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        recipe: PatchRecipeSchema,
+        recipe: UpdateRecipeRequest,
+        image_url: Option<Option<String>>,
     ) -> AppResult<RecipeModel> {
         let recipe = sqlx::query_as!(
             RecipeModel,
             "UPDATE recipes
             SET
                 name = COALESCE($1, name),
-                duration_minutes = COALESCE($2, duration_minutes)
-            WHERE id = $3
+                image_url = CASE WHEN $2 THEN $3 ELSE image_url END,
+                duration_minutes = COALESCE($4, duration_minutes)
+            WHERE id = $5
             RETURNING *;",
             recipe.name,
+            image_url.is_some(),
+            image_url.flatten(),
             recipe.duration_minutes,
             recipe_id,
         )
@@ -66,10 +71,7 @@ impl Recipes {
         .await?;
         Ok(recipe)
     }
-    pub async fn delete_by_id<'a>(
-        executor: impl PgExecutor<'a>,
-        id: Uuid,
-    ) -> AppResult<RecipeModel> {
+    pub async fn delete<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<RecipeModel> {
         let user = sqlx::query_as!(
             RecipeModel,
             "DELETE FROM recipes WHERE id = $1 RETURNING *;",

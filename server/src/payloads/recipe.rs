@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use lib::Payload;
 use uuid::Uuid;
 
-use crate::models::{recipe::RecipeModel, recipe_meal_type::RecipeMealTypeModel};
+use crate::models::{RecipeMealTypeModel, RecipeModel};
 
 #[derive(Payload)]
 struct RecipePayload {

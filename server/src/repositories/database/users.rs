@@ -1,10 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{
-    error::AppResult,
-    models::user::{PatchUserSchema, UserModel},
-};
+use crate::{error::AppResult, models::UserModel, payloads::user::UpdateUserRequest};
 
 pub struct Users;
 
@@ -47,7 +44,7 @@ impl Users {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         id: Uuid,
-        user: PatchUserSchema,
+        user: UpdateUserRequest,
         password_hash: Option<String>,
     ) -> AppResult<UserModel> {
         let user = sqlx::query_as!(
@@ -67,7 +64,7 @@ impl Users {
         Ok(user)
     }
 
-    pub async fn delete_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<UserModel> {
+    pub async fn delete<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<UserModel> {
         let user = sqlx::query_as!(
             UserModel,
             "DELETE FROM users WHERE id = $1 RETURNING *;",

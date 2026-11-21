@@ -4,13 +4,13 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::{
-        recipe::{PatchRecipeSchema, PostRecipeSchema, RecipeModel},
+    models::{RecipeIngredientModel, RecipeMealTypeModel, RecipeModel},
+    payloads::{
+        Many,
+        recipe::{CreateRecipeRequest, RecipeResponse, UpdateRecipeRequest},
         recipe_ingredient::{
-            PatchRecipeIngredientSchema, PostRecipeIngredientSchema,
-            RecipeIngredientJoinIngredient, RecipeIngredientModel,
+            CreateRecipeIngredientRequest, RecipeIngredientResponse, UpdateRecipeIngredientRequest,
         },
-        recipe_meal_type::RecipeMealTypeModel,
     },
     repositories::{
         database::{RecipeIngredients, RecipeMealTypes, Recipes},
@@ -30,47 +30,29 @@ impl RecipeService {
         Self { pool }
     }
 
-    pub async fn find_recipe_by_id(&self, recipe_id: Uuid) -> AppResult<RecipeModel> {
+    pub async fn find_recipe_by_id(&self, recipe_id: Uuid) -> AppResult<RecipeResponse> {
         let recipe = Recipes::select_by_recipe_id(&self.pool, recipe_id).await?;
-        Ok(recipe)
+        Ok(recipe.into())
     }
 
-    pub async fn find_recipes(&self) -> AppResult<Vec<RecipeModel>> {
+    pub async fn find_recipes(&self) -> AppResult<Many<RecipeResponse>> {
         let recipes = Recipes::select_all(&self.pool).await?;
-        Ok(recipes)
-    }
-
-    pub async fn find_recipe_ingredient_by_code(
-        &self,
-        recipe_id: Uuid,
-        ingredient_code: String,
-    ) -> AppResult<RecipeIngredientJoinIngredient> {
-        let recipe_ingredient =
-            RecipeIngredients::select_by_id(&self.pool, recipe_id, ingredient_code).await?;
-        Ok(recipe_ingredient)
+        Ok(recipes.into())
     }
 
     pub async fn find_recipe_ingredients_by_recipe_id(
         &self,
         recipe_id: Uuid,
-    ) -> AppResult<Vec<RecipeIngredientJoinIngredient>> {
+    ) -> AppResult<Many<RecipeIngredientResponse>> {
         let recipe_ingredients =
             RecipeIngredients::select_by_recipe_id(&self.pool, recipe_id).await?;
-        Ok(recipe_ingredients)
+        Ok(recipe_ingredients.into())
     }
 
-    pub async fn find_recipe_meal_types_by_recipe_id(
-        &self,
-        recipe_id: Uuid,
-    ) -> AppResult<Vec<RecipeMealTypeModel>> {
-        let recipe_meal_types = RecipeMealTypes::select_by_recipe_id(&self.pool, recipe_id).await?;
-        Ok(recipe_meal_types)
-    }
-
-    pub async fn create_recipe(&self, recipe: PostRecipeSchema) -> AppResult<RecipeModel> {
+    pub async fn create_recipe(&self, recipe: CreateRecipeRequest) -> AppResult<RecipeModel> {
         let mut image_url = None;
-        if let Some(data) = &recipe.image_data {
-            let bytes = STANDARD.decode(data)?;
+        if let Some(image_data) = &recipe.image_data {
+            let bytes = STANDARD.decode(image_data)?;
             let path = Images::save_recipe_image(&bytes).await?;
             image_url = Some(path);
         }
@@ -82,7 +64,7 @@ impl RecipeService {
         &self,
         recipe_id: Uuid,
         ingredient_code: String,
-        recipe_ingredient: PostRecipeIngredientSchema,
+        recipe_ingredient: CreateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient =
             RecipeIngredients::insert(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
@@ -93,7 +75,7 @@ impl RecipeService {
     pub async fn create_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: CodeMap<PostRecipeIngredientSchema>,
+        recipe_ingredients: CodeMap<CreateRecipeIngredientRequest>,
     ) -> AppResult<Vec<RecipeIngredientModel>> {
         let mut tx = self.pool.begin().await?;
         let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
@@ -120,9 +102,19 @@ impl RecipeService {
     pub async fn update_recipe(
         &self,
         recipe_id: Uuid,
-        recipe: PatchRecipeSchema,
+        recipe: UpdateRecipeRequest,
     ) -> AppResult<RecipeModel> {
-        let recipe = Recipes::update(&self.pool, recipe_id, recipe).await?;
+        let mut image_url = None;
+        if let Some(maybe_image_data) = &recipe.image_data {
+            if let Some(image_data) = maybe_image_data {
+                let bytes = STANDARD.decode(image_data)?;
+                let path = Images::save_recipe_image(&bytes).await?;
+                image_url = Some(Some(path));
+            } else {
+                image_url = Some(None);
+            }
+        }
+        let recipe = Recipes::update(&self.pool, recipe_id, recipe, image_url).await?;
         Ok(recipe)
     }
 
@@ -130,7 +122,7 @@ impl RecipeService {
         &self,
         recipe_id: Uuid,
         ingredient_code: String,
-        recipe_ingredient: PatchRecipeIngredientSchema,
+        recipe_ingredient: UpdateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient =
             RecipeIngredients::update(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
@@ -141,7 +133,7 @@ impl RecipeService {
     pub async fn update_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: CodeMap<PatchRecipeIngredientSchema>,
+        recipe_ingredients: CodeMap<UpdateRecipeIngredientRequest>,
     ) -> AppResult<Vec<RecipeIngredientModel>> {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
@@ -156,7 +148,7 @@ impl RecipeService {
     }
 
     pub async fn delete_recipe(&self, recipe_id: Uuid) -> AppResult<RecipeModel> {
-        let recipe = Recipes::delete_by_id(&self.pool, recipe_id).await?;
+        let recipe = Recipes::delete(&self.pool, recipe_id).await?;
         Ok(recipe)
     }
 
@@ -166,7 +158,7 @@ impl RecipeService {
         ingredient_code: String,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient =
-            RecipeIngredients::delete_by_id(&self.pool, recipe_id, ingredient_code).await?;
+            RecipeIngredients::delete(&self.pool, recipe_id, ingredient_code).await?;
         Ok(recipe_ingredient)
     }
 

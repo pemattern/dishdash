@@ -1,8 +1,28 @@
+use lib::Payload;
+
 pub mod ingredient;
 pub mod recipe;
 pub mod recipe_ingredient;
 pub mod unit;
 pub mod user;
+
+pub struct Many<P>
+where
+    P: Payload,
+{
+    inner: Vec<P>,
+}
+
+impl<T, P> From<Vec<T>> for Many<P>
+where
+    P: From<T> + Payload,
+{
+    fn from(items: Vec<T>) -> Self {
+        Self {
+            inner: items.into_iter().map(P::from).collect(),
+        }
+    }
+}
 
 pub fn deserialize_double_option<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
 where

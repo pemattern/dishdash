@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     error::{AppError, AppResult},
-    models::refresh_token::RefreshTokenModel,
+    models::RefreshTokenModel,
 };
 
 const ISSUER: &str = "dishdash";

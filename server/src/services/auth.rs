@@ -7,7 +7,7 @@ use crate::{
         token::{generate_refresh_token, parse_refresh_token, validate_refresh_token_expiry},
     },
     error::AppResult,
-    models::{refresh_token::RefreshTokenModel, user::UserModel},
+    models::{RefreshTokenModel, UserModel},
     repositories::{database::RefreshTokens, database::Users},
 };
 

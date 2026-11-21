@@ -201,7 +201,7 @@ pub fn generate_dtos(input: TokenStream) -> TokenStream {
     };
 
     quote! {
-        impl Payload for #name {}
+        impl lib::Payload for #get_name {}
 
         #[derive(serde::Serialize, ts_rs::TS)]
         #[serde(rename_all = "camelCase")]

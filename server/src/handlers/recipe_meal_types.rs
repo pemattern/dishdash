@@ -3,9 +3,8 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe_meal_type::RecipeMealTypeSchema,
     requests::app_path::AppPath,
-    responses::{Delete, GetManyResponse, Post},
+    responses::{Delete, Get, Post},
     state::AppState,
 };
 
@@ -13,7 +12,7 @@ use crate::{
 pub async fn get_recipe_meal_types(
     State(state): State<AppState>,
     AppPath(recipe_id): AppPath<Uuid>,
-) -> AppResult<GetManyResponse<RecipeMealTypeSchema>> {
+) -> AppResult<Get<()>> {
     let recipe_meal_types = state
         .recipe_service
         .find_recipe_meal_types_by_recipe_id(recipe_id)
@@ -25,7 +24,7 @@ pub async fn get_recipe_meal_types(
 pub async fn post_recipe_meal_type(
     State(state): State<AppState>,
     AppPath((recipe_id, meal_type_code)): AppPath<(Uuid, String)>,
-) -> AppResult<Post<RecipeMealTypeSchema>> {
+) -> AppResult<Post<()>> {
     let recipe_meal_type = state
         .recipe_service
         .create_recipe_meal_type(recipe_id, meal_type_code)

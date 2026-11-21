@@ -7,7 +7,6 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use lib::Payload;
 use serde::Serialize;
 
 use crate::error::{AppError, AppResult};

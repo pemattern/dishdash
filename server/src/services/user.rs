@@ -4,7 +4,8 @@ use uuid::Uuid;
 use crate::{
     auth::password::get_hash,
     error::AppResult,
-    models::user::{PatchUserSchema, PostUserSchema, UserModel},
+    models::UserModel,
+    payloads::user::{CreateUserRequest, UpdateUserRequest},
     repositories::database::Users,
 };
 
@@ -29,13 +30,13 @@ impl UserService {
         Ok(user)
     }
 
-    pub async fn create_user(&self, user: PostUserSchema) -> AppResult<UserModel> {
+    pub async fn create_user(&self, user: CreateUserRequest) -> AppResult<UserModel> {
         let password_hash = get_hash(&user.password)?;
         let user = Users::insert(&self.pool, &user.email, &password_hash).await?;
         Ok(user)
     }
 
-    pub async fn update_user(&self, id: Uuid, user: PatchUserSchema) -> AppResult<UserModel> {
+    pub async fn update_user(&self, id: Uuid, user: UpdateUserRequest) -> AppResult<UserModel> {
         let mut pasword_hash = None;
         if let Some(password) = &user.password {
             pasword_hash = Some(get_hash(&password)?);
@@ -45,7 +46,7 @@ impl UserService {
     }
 
     pub async fn delete_user(&self, id: Uuid) -> AppResult<UserModel> {
-        let user = Users::delete_by_id(&self.pool, id).await?;
+        let user = Users::delete(&self.pool, id).await?;
         Ok(user)
     }
 }

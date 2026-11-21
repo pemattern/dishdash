@@ -1,12 +1,14 @@
-use axum::{Router, routing::get};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 
 use crate::{
     handlers::{
         ingredients::search_ingredients,
         recipe_ingredients::{
-            delete_recipe_ingredient, get_recipe_ingredient, get_recipe_ingredients,
-            patch_recipe_ingredient, patch_recipe_ingredients, post_recipe_ingredient,
-            post_recipe_ingredients,
+            delete_recipe_ingredient, get_recipe_ingredients, patch_recipe_ingredient,
+            patch_recipe_ingredients, post_recipe_ingredient, post_recipe_ingredients,
         },
     },
     routes::EMPTY_PATH,
@@ -35,8 +37,7 @@ pub fn recipe_ingredients_router() -> Router<AppState> {
             )
             .route(
                 INGREDIENT_CODE_PATH,
-                get(get_recipe_ingredient)
-                    .post(post_recipe_ingredient)
+                post(post_recipe_ingredient)
                     .patch(patch_recipe_ingredient)
                     .delete(delete_recipe_ingredient),
             ),

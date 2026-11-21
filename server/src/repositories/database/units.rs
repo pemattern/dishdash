@@ -1,6 +1,6 @@
 use sqlx::PgExecutor;
 
-use crate::{error::AppResult, models::unit::UnitModel};
+use crate::{error::AppResult, models::UnitModel};
 
 pub struct Units;
 

@@ -1,8 +1,10 @@
 use sqlx::PgPool;
 
 use crate::{
-    error::AppResult, payloads::ingredient::IngredientResponse,
-    repositories::database::Ingredients, requests::search_query::SearchQuery,
+    error::AppResult,
+    payloads::{Many, ingredient::IngredientResponse},
+    repositories::database::Ingredients,
+    requests::search_query::SearchQuery,
 };
 
 #[derive(Clone)]
@@ -16,16 +18,11 @@ impl IngredientService {
         Self { pool }
     }
 
-    pub async fn all_ingredients(&self) -> AppResult<Vec<IngredientResponse>> {
-        let ingredients = Ingredients::select_all(&self.pool).await?;
-        Ok(ingredients)
-    }
-
     pub async fn search_ingredients(
         &self,
         search_query: SearchQuery,
-    ) -> AppResult<Vec<IngredientSearch>> {
+    ) -> AppResult<Many<IngredientResponse>> {
         let ingredients = Ingredients::search(&self.pool, search_query).await?;
-        Ok(ingredients)
+        Ok(ingredients.into())
     }
 }

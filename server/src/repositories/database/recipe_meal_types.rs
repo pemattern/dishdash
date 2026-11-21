@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::AppResult, models::recipe_meal_type::RecipeMealTypeModel};
+use crate::{error::AppResult, models::RecipeMealTypeModel};
 
 pub struct RecipeMealTypes;
 

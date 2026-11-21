@@ -3,47 +3,21 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe_ingredient::{
-        PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredientJoinIngredient,
-        RecipeIngredientModel,
-    },
+    models::RecipeIngredientModel,
+    payloads::recipe_ingredient::{CreateRecipeIngredientRequest, UpdateRecipeIngredientRequest},
 };
 
 pub struct RecipeIngredients;
 
 impl RecipeIngredients {
-    pub async fn select_by_id<'a>(
-        executor: impl PgExecutor<'a>,
-        recipe_id: Uuid,
-        ingredient_code: String,
-    ) -> AppResult<RecipeIngredientJoinIngredient> {
-        let recipe_ingredient = sqlx::query_as!(
-            RecipeIngredientJoinIngredient,
-            "SELECT ri.*, i.code AS ingredient_name
-            FROM recipe_ingredients ri
-            INNER JOIN ingredients i
-            ON ri.ingredient_code = i.code
-            WHERE ri.recipe_id = $1
-            AND ri.ingredient_code = $2;",
-            recipe_id,
-            ingredient_code,
-        )
-        .fetch_one(executor)
-        .await?;
-        Ok(recipe_ingredient)
-    }
-
     pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-    ) -> AppResult<Vec<RecipeIngredientJoinIngredient>> {
+    ) -> AppResult<Vec<RecipeIngredientModel>> {
         let recipe_ingredients = sqlx::query_as!(
-            RecipeIngredientJoinIngredient,
-            "SELECT ri.*, i.code AS ingredient_name
-            FROM recipe_ingredients ri
-            INNER JOIN ingredients i
-            ON ri.ingredient_code = i.code
-            WHERE ri.recipe_id = $1",
+            RecipeIngredientModel,
+            "SELECT * FROM recipe_ingredients
+            WHERE recipe_id = $1;",
             recipe_id,
         )
         .fetch_all(executor)
@@ -55,7 +29,7 @@ impl RecipeIngredients {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_code: String,
-        recipe_ingredient: PostRecipeIngredientSchema,
+        recipe_ingredient: CreateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredientModel,
@@ -77,7 +51,7 @@ impl RecipeIngredients {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_code: String,
-        recipe_ingredient: PatchRecipeIngredientSchema,
+        recipe_ingredient: UpdateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredientModel,
@@ -99,7 +73,7 @@ impl RecipeIngredients {
         Ok(recipe_ingredient)
     }
 
-    pub async fn delete_by_id<'a>(
+    pub async fn delete<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_code: String,

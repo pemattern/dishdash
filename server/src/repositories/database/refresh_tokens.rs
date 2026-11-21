@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::AppResult, models::refresh_token::RefreshTokenModel};
+use crate::{error::AppResult, models::RefreshTokenModel};
 
 pub struct RefreshTokens;
 
