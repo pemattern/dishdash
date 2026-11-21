@@ -1,5 +1,5 @@
-pub use generate_schemas_derive::GenerateSchemas;
+pub use payload_derive::Payload;
 
 pub const BINDINGS_PATH: &str = "./../../bindings/index.ts";
 
-pub trait GenerateSchemas {}
+pub trait Payload {}

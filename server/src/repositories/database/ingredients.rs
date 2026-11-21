@@ -2,15 +2,15 @@ use sqlx::PgExecutor;
 
 use crate::{
     error::AppResult,
-    models::ingredient::{Ingredient, IngredientSearch},
+    models::ingredient::{IngredientModel, IngredientSearch},
     requests::search_query::SearchQuery,
 };
 
 pub struct Ingredients;
 
 impl Ingredients {
-    pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> AppResult<Vec<Ingredient>> {
-        let ingredients = sqlx::query_as!(Ingredient, "SELECT * FROM ingredients;")
+    pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> AppResult<Vec<IngredientModel>> {
+        let ingredients = sqlx::query_as!(IngredientModel, "SELECT * FROM ingredients;")
             .fetch_all(executor)
             .await?;
         Ok(ingredients)

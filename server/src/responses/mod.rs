@@ -7,7 +7,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use lib::GenerateSchemas;
+use lib::Payload;
 use serde::Serialize;
 
 use crate::error::{AppError, AppResult};
@@ -44,179 +44,93 @@ fn delete_into_response() -> Response {
     StatusCode::NO_CONTENT.into_response()
 }
 
-pub struct GetResponse<Schema>
+pub struct Get<Payload>
 where
-    Schema: Serialize,
+    Payload: Serialize,
 {
-    schema: Schema,
+    payload: Payload,
 }
 
-impl<Schema, Model> From<Model> for GetResponse<Schema>
+impl<Payload> From<Payload> for Get<Payload>
 where
-    Schema: Serialize + From<Model>,
-    Model: GenerateSchemas,
+    Payload: Serialize,
 {
-    fn from(model: Model) -> Self {
-        let schema = From::from(model);
-        Self { schema }
+    fn from(payload: Payload) -> Self {
+        Self { payload }
     }
 }
 
-impl<Schema> IntoResponse for GetResponse<Schema>
+impl<Payload> IntoResponse for Get<Payload>
+where
+    Payload: Serialize,
+{
+    fn into_response(self) -> Response {
+        get_into_response(self.payload)
+    }
+}
+
+pub struct Post<Payload>
+where
+    Payload: Serialize,
+{
+    payload: Payload,
+}
+
+impl<Payload> From<Payload> for Post<Payload>
+where
+    Payload: Serialize,
+{
+    fn from(payload: Payload) -> Self {
+        Self { payload }
+    }
+}
+
+impl<Schema> IntoResponse for Post<Schema>
 where
     Schema: Serialize,
 {
     fn into_response(self) -> Response {
-        get_into_response(self.schema)
+        post_into_response(self.payload)
     }
 }
 
-pub struct GetManyResponse<Schema>
+pub struct Patch<Payload>
 where
-    Schema: Serialize,
+    Payload: Serialize,
 {
-    schemas: Vec<Schema>,
+    payload: Payload,
 }
 
-impl<Schema, Model> From<Vec<Model>> for GetManyResponse<Schema>
+impl<Payload> From<Payload> for Patch<Payload>
 where
-    Schema: Serialize + From<Model>,
-    Model: GenerateSchemas,
+    Payload: Serialize,
 {
-    fn from(models: Vec<Model>) -> Self {
-        let schemas = models.into_iter().map(|model| From::from(model)).collect();
-        Self { schemas }
+    fn from(payload: Payload) -> Self {
+        Self { payload }
     }
 }
 
-impl<Schema> IntoResponse for GetManyResponse<Schema>
+impl<Payload> IntoResponse for Patch<Payload>
 where
-    Schema: Serialize,
+    Payload: Serialize,
 {
     fn into_response(self) -> Response {
-        get_into_response(self.schemas)
+        patch_into_response(self.payload)
     }
 }
 
-pub struct PostResponse<Schema>
-where
-    Schema: Serialize,
-{
-    schema: Schema,
-}
+pub struct Delete;
 
-impl<Schema, Model> From<Model> for PostResponse<Schema>
+impl<Payload> From<Payload> for Delete
 where
-    Schema: Serialize + From<Model>,
-    Model: GenerateSchemas,
+    Payload: Serialize,
 {
-    fn from(model: Model) -> Self {
-        let schema = From::from(model);
-        Self { schema }
-    }
-}
-
-impl<Schema> IntoResponse for PostResponse<Schema>
-where
-    Schema: Serialize,
-{
-    fn into_response(self) -> Response {
-        post_into_response(self.schema)
-    }
-}
-
-pub struct PostManyResponse<Schema>
-where
-    Schema: Serialize,
-{
-    schemas: Vec<Schema>,
-}
-
-impl<Schema, Model> From<Vec<Model>> for PostManyResponse<Schema>
-where
-    Schema: Serialize + From<Model>,
-    Model: GenerateSchemas,
-{
-    fn from(models: Vec<Model>) -> Self {
-        let schemas = models.into_iter().map(|model| From::from(model)).collect();
-        Self { schemas }
-    }
-}
-
-impl<Schema> IntoResponse for PostManyResponse<Schema>
-where
-    Schema: Serialize,
-{
-    fn into_response(self) -> Response {
-        post_into_response(self.schemas)
-    }
-}
-
-pub struct PatchResponse<Schema>
-where
-    Schema: Serialize,
-{
-    schema: Schema,
-}
-
-impl<Schema, Model> From<Model> for PatchResponse<Schema>
-where
-    Schema: Serialize + From<Model>,
-    Model: GenerateSchemas,
-{
-    fn from(model: Model) -> Self {
-        let schema = From::from(model);
-        Self { schema }
-    }
-}
-
-impl<Schema> IntoResponse for PatchResponse<Schema>
-where
-    Schema: Serialize,
-{
-    fn into_response(self) -> Response {
-        patch_into_response(self.schema)
-    }
-}
-pub struct PatchManyResponse<Schema>
-where
-    Schema: Serialize,
-{
-    schemas: Vec<Schema>,
-}
-
-impl<Schema, Model> From<Vec<Model>> for PatchManyResponse<Schema>
-where
-    Schema: Serialize + From<Model>,
-    Model: GenerateSchemas,
-{
-    fn from(models: Vec<Model>) -> Self {
-        let schemas = models.into_iter().map(|model| From::from(model)).collect();
-        Self { schemas }
-    }
-}
-
-impl<Schema> IntoResponse for PatchManyResponse<Schema>
-where
-    Schema: Serialize,
-{
-    fn into_response(self) -> Response {
-        patch_into_response(self.schemas)
-    }
-}
-
-pub struct DeleteResponse;
-
-impl<Model> From<Model> for DeleteResponse
-where
-    Model: GenerateSchemas,
-{
-    fn from(_model: Model) -> Self {
+    fn from(_payload: Payload) -> Self {
         Self
     }
 }
 
-impl IntoResponse for DeleteResponse {
+impl IntoResponse for Delete {
     fn into_response(self) -> Response {
         delete_into_response()
     }

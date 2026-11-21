@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::AppResult, models::recipe_meal_type::RecipeMealType};
+use crate::{error::AppResult, models::recipe_meal_type::RecipeMealTypeModel};
 
 pub struct RecipeMealTypes;
 
@@ -9,9 +9,9 @@ impl RecipeMealTypes {
     pub async fn select_by_recipe_id<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-    ) -> AppResult<Vec<RecipeMealType>> {
+    ) -> AppResult<Vec<RecipeMealTypeModel>> {
         let recipe_meal_types = sqlx::query_as!(
-            RecipeMealType,
+            RecipeMealTypeModel,
             "SELECT *
             FROM recipe_meal_types
             WHERE recipe_id = $1",
@@ -26,9 +26,9 @@ impl RecipeMealTypes {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         meal_type_code: String,
-    ) -> AppResult<RecipeMealType> {
+    ) -> AppResult<RecipeMealTypeModel> {
         let recipe_meal_type = sqlx::query_as!(
-            RecipeMealType,
+            RecipeMealTypeModel,
             "INSERT INTO recipe_meal_types (recipe_id, meal_type_code)
             VALUES ($1, $2)
             RETURNING *;",
@@ -44,9 +44,9 @@ impl RecipeMealTypes {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         meal_type_code: String,
-    ) -> AppResult<RecipeMealType> {
+    ) -> AppResult<RecipeMealTypeModel> {
         let recipe_meal_type = sqlx::query_as!(
-            RecipeMealType,
+            RecipeMealTypeModel,
             "DELETE FROM recipe_meal_types
             WHERE recipe_id = $1 AND meal_type_code = $2
             RETURNING *;",

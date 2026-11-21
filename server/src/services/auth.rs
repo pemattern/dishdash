@@ -7,7 +7,7 @@ use crate::{
         token::{generate_refresh_token, parse_refresh_token, validate_refresh_token_expiry},
     },
     error::AppResult,
-    models::{refresh_token::RefreshToken, user::User},
+    models::{refresh_token::RefreshTokenModel, user::UserModel},
     repositories::{database::RefreshTokens, database::Users},
 };
 
@@ -22,7 +22,11 @@ impl AuthService {
         Self { pool }
     }
 
-    pub async fn get_user_from_basic_auth(&self, email: &str, password: &str) -> AppResult<User> {
+    pub async fn get_user_from_basic_auth(
+        &self,
+        email: &str,
+        password: &str,
+    ) -> AppResult<UserModel> {
         let user = Users::select_by_email(&self.pool, email).await?;
         verify_password(password, &user.password_hash)?;
         Ok(user)
@@ -32,7 +36,10 @@ impl AuthService {
         generate_and_insert_refresh_token(&self.pool, user_id, None).await
     }
 
-    pub async fn cycle_refresh_token(&self, refresh_token: &RefreshToken) -> AppResult<String> {
+    pub async fn cycle_refresh_token(
+        &self,
+        refresh_token: &RefreshTokenModel,
+    ) -> AppResult<String> {
         let mut tx = self.pool.begin().await?;
         let _ = RefreshTokens::mark_as_used(&mut *tx, refresh_token.id).await?;
         let composite_token = generate_and_insert_refresh_token(
@@ -47,8 +54,8 @@ impl AuthService {
 
     pub async fn mark_refresh_token_as_used(
         &self,
-        refresh_token: &RefreshToken,
-    ) -> AppResult<RefreshToken> {
+        refresh_token: &RefreshTokenModel,
+    ) -> AppResult<RefreshTokenModel> {
         let refresh_token = RefreshTokens::mark_as_used(&self.pool, refresh_token.id).await?;
         Ok(refresh_token)
     }
@@ -56,7 +63,7 @@ impl AuthService {
     pub async fn get_valid_refresh_token(
         &self,
         composite_refresh_token: &str,
-    ) -> AppResult<RefreshToken> {
+    ) -> AppResult<RefreshTokenModel> {
         let (refresh_token_id, opaque_token) = parse_refresh_token(composite_refresh_token)?;
         let refresh_token = RefreshTokens::select_by_id(&self.pool, refresh_token_id).await?;
         validate_refresh_token_expiry(&refresh_token)?;

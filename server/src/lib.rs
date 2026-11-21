@@ -11,6 +11,7 @@ pub mod error;
 pub mod handlers;
 pub mod middleware;
 pub mod models;
+pub mod payloads;
 pub mod repositories;
 pub mod requests;
 pub mod responses;

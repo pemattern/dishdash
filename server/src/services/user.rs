@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::{
     auth::password::get_hash,
     error::AppResult,
-    models::user::{PatchUserSchema, PostUserSchema, User},
+    models::user::{PatchUserSchema, PostUserSchema, UserModel},
     repositories::database::Users,
 };
 
@@ -19,23 +19,23 @@ impl UserService {
         Self { pool }
     }
 
-    pub async fn find_user_by_id(&self, id: Uuid) -> AppResult<User> {
+    pub async fn find_user_by_id(&self, id: Uuid) -> AppResult<UserModel> {
         let user = Users::select_by_id(&self.pool, id).await?;
         Ok(user)
     }
 
-    pub async fn find_user_by_email(&self, email: &str) -> AppResult<User> {
+    pub async fn find_user_by_email(&self, email: &str) -> AppResult<UserModel> {
         let user = Users::select_by_email(&self.pool, email).await?;
         Ok(user)
     }
 
-    pub async fn create_user(&self, user: PostUserSchema) -> AppResult<User> {
+    pub async fn create_user(&self, user: PostUserSchema) -> AppResult<UserModel> {
         let password_hash = get_hash(&user.password)?;
         let user = Users::insert(&self.pool, &user.email, &password_hash).await?;
         Ok(user)
     }
 
-    pub async fn update_user(&self, id: Uuid, user: PatchUserSchema) -> AppResult<User> {
+    pub async fn update_user(&self, id: Uuid, user: PatchUserSchema) -> AppResult<UserModel> {
         let mut pasword_hash = None;
         if let Some(password) = &user.password {
             pasword_hash = Some(get_hash(&password)?);
@@ -44,7 +44,7 @@ impl UserService {
         Ok(user)
     }
 
-    pub async fn delete_user(&self, id: Uuid) -> AppResult<User> {
+    pub async fn delete_user(&self, id: Uuid) -> AppResult<UserModel> {
         let user = Users::delete_by_id(&self.pool, id).await?;
         Ok(user)
     }

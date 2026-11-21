@@ -8,10 +8,7 @@ use crate::{
         RecipeIngredientJoinIngredientSchema, RecipeIngredientSchema,
     },
     requests::{app_path::AppPath, code_map::CodeMap, validated_json::ValidatedJson},
-    responses::{
-        DeleteResponse, GetManyResponse, GetResponse, PatchManyResponse, PatchResponse,
-        PostManyResponse, PostResponse,
-    },
+    responses::{Delete, Get, GetManyResponse, Patch, PatchManyResponse, Post, PostManyResponse},
     state::AppState,
 };
 
@@ -19,7 +16,7 @@ use crate::{
 pub async fn get_recipe_ingredient(
     State(state): State<AppState>,
     AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
-) -> AppResult<GetResponse<RecipeIngredientJoinIngredientSchema>> {
+) -> AppResult<Get<RecipeIngredientJoinIngredientSchema>> {
     let recipe_ingredient = state
         .recipe_service
         .find_recipe_ingredient_by_code(recipe_id, ingredient_code)
@@ -44,7 +41,7 @@ pub async fn post_recipe_ingredient(
     State(state): State<AppState>,
     AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
     ValidatedJson(recipe_ingredient): ValidatedJson<PostRecipeIngredientSchema>,
-) -> AppResult<PostResponse<RecipeIngredientSchema>> {
+) -> AppResult<Post<RecipeIngredientSchema>> {
     let recipe_ingredient = state
         .recipe_service
         .create_recipe_ingredient(recipe_id, ingredient_code, recipe_ingredient)
@@ -70,7 +67,7 @@ pub async fn patch_recipe_ingredient(
     State(state): State<AppState>,
     AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
     ValidatedJson(recipe_ingredient): ValidatedJson<PatchRecipeIngredientSchema>,
-) -> AppResult<PatchResponse<RecipeIngredientSchema>> {
+) -> AppResult<Patch<RecipeIngredientSchema>> {
     let recipe_ingredient = state
         .recipe_service
         .update_recipe_ingredient(recipe_id, ingredient_code, recipe_ingredient)
@@ -95,7 +92,7 @@ pub async fn patch_recipe_ingredients(
 pub async fn delete_recipe_ingredient(
     State(state): State<AppState>,
     AppPath((recipe_id, ingredient_code)): AppPath<(Uuid, String)>,
-) -> AppResult<DeleteResponse> {
+) -> AppResult<Delete> {
     let recipe_ingredient = state
         .recipe_service
         .delete_recipe_ingredient(recipe_id, ingredient_code)

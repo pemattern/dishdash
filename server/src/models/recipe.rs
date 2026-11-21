@@ -1,17 +1,11 @@
 use chrono::{DateTime, Utc};
-use lib::GenerateSchemas;
 use uuid::Uuid;
 
-#[derive(GenerateSchemas)]
-pub struct Recipe {
-    #[schema(read_only)]
+pub struct RecipeModel {
     pub id: Uuid,
-    #[schema(read_only)]
     pub created_at: DateTime<Utc>,
-    #[schema(read_only)]
     pub updated_at: DateTime<Utc>,
     pub name: String,
-    #[schema(write_rename = "image_data")]
     pub image_url: Option<String>,
     pub duration_minutes: i32,
 }

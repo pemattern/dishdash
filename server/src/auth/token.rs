@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     error::{AppError, AppResult},
-    models::refresh_token::RefreshToken,
+    models::refresh_token::RefreshTokenModel,
 };
 
 const ISSUER: &str = "dishdash";
@@ -74,7 +74,7 @@ pub fn parse_refresh_token(composite_refresh_token: &str) -> AppResult<(Uuid, St
     Ok((refresh_token_id, opaque_token.into()))
 }
 
-pub fn validate_refresh_token_expiry(refresh_token: &RefreshToken) -> AppResult<()> {
+pub fn validate_refresh_token_expiry(refresh_token: &RefreshTokenModel) -> AppResult<()> {
     if Utc::now() > refresh_token.expires_at || refresh_token.is_used {
         return Err(AppError::ExpiredRefreshToken);
     }

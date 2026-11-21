@@ -4,8 +4,8 @@ use uuid::Uuid;
 use crate::{
     error::AppResult,
     models::recipe_ingredient::{
-        PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredient,
-        RecipeIngredientJoinIngredient,
+        PatchRecipeIngredientSchema, PostRecipeIngredientSchema, RecipeIngredientJoinIngredient,
+        RecipeIngredientModel,
     },
 };
 
@@ -56,9 +56,9 @@ impl RecipeIngredients {
         recipe_id: Uuid,
         ingredient_code: String,
         recipe_ingredient: PostRecipeIngredientSchema,
-    ) -> AppResult<RecipeIngredient> {
+    ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
-            RecipeIngredient,
+            RecipeIngredientModel,
             "INSERT INTO recipe_ingredients (recipe_id, ingredient_code, unit_code, position, quantity)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *;",
@@ -78,9 +78,9 @@ impl RecipeIngredients {
         recipe_id: Uuid,
         ingredient_code: String,
         recipe_ingredient: PatchRecipeIngredientSchema,
-    ) -> AppResult<RecipeIngredient> {
+    ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
-            RecipeIngredient,
+            RecipeIngredientModel,
             "UPDATE recipe_ingredients
             SET
                 unit_code = COALESCE($1, unit_code),
@@ -103,9 +103,9 @@ impl RecipeIngredients {
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         ingredient_code: String,
-    ) -> AppResult<RecipeIngredient> {
+    ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
-            RecipeIngredient,
+            RecipeIngredientModel,
             "DELETE FROM recipe_ingredients
             WHERE recipe_id = $1 AND ingredient_code = $2
             RETURNING *;",

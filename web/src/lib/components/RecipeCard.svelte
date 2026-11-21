@@ -7,16 +7,16 @@
 </script>
 
 <article
-	class="border-gray-200 overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md"
+	class="overflow-hidden rounded-xl bg-off-white shadow-sm inset-ring inset-ring-light-green transition-shadow hover:bg-white hover:shadow-md"
 >
 	<img src={recipe.imageUrl} alt={recipe.name} class="aspect-video w-full object-cover" />
 
 	<div class="p-4">
-		<h3 class="text-gray-900 text-lg font-semibold">
+		<h3 class="text-lg font-semibold text-dark-gray">
 			{recipe.name}
 		</h3>
 
-		<div class="text-gray-500 mt-2 flex items-center gap-2 text-sm">
+		<div class="mt-2 flex items-center gap-2 text-sm text-gray">
 			<span>⏱</span>
 			<span>{recipe.durationMinutes} min</span>
 		</div>

@@ -5,7 +5,7 @@ use crate::{
     error::AppResult,
     models::recipe_meal_type::RecipeMealTypeSchema,
     requests::app_path::AppPath,
-    responses::{DeleteResponse, GetManyResponse, PostResponse},
+    responses::{Delete, GetManyResponse, Post},
     state::AppState,
 };
 
@@ -25,7 +25,7 @@ pub async fn get_recipe_meal_types(
 pub async fn post_recipe_meal_type(
     State(state): State<AppState>,
     AppPath((recipe_id, meal_type_code)): AppPath<(Uuid, String)>,
-) -> AppResult<PostResponse<RecipeMealTypeSchema>> {
+) -> AppResult<Post<RecipeMealTypeSchema>> {
     let recipe_meal_type = state
         .recipe_service
         .create_recipe_meal_type(recipe_id, meal_type_code)
@@ -37,7 +37,7 @@ pub async fn post_recipe_meal_type(
 pub async fn delete_recipe_meal_type(
     State(state): State<AppState>,
     AppPath((recipe_id, meal_type_code)): AppPath<(Uuid, String)>,
-) -> AppResult<DeleteResponse> {
+) -> AppResult<Delete> {
     let recipe_meal_type = state
         .recipe_service
         .delete_recipe_ingredient(recipe_id, meal_type_code)

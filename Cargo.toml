@@ -2,7 +2,7 @@
 members = [
     "server",
     "lib",
-    "lib/macros/generate_schemas_derive",
+    "lib/macros/payload_derive",
 ]
 resolver = "3"
 

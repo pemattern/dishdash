@@ -3,14 +3,14 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::user::{PatchUserSchema, User},
+    models::user::{PatchUserSchema, UserModel},
 };
 
 pub struct Users;
 
 impl Users {
-    pub async fn select_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<User> {
-        let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1;", id)
+    pub async fn select_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<UserModel> {
+        let user = sqlx::query_as!(UserModel, "SELECT * FROM users WHERE id = $1;", id)
             .fetch_one(executor)
             .await?;
         Ok(user)
@@ -19,8 +19,8 @@ impl Users {
     pub async fn select_by_email<'a>(
         executor: impl PgExecutor<'a>,
         email: &str,
-    ) -> AppResult<User> {
-        let user = sqlx::query_as!(User, "SELECT * FROM users WHERE email = $1", email)
+    ) -> AppResult<UserModel> {
+        let user = sqlx::query_as!(UserModel, "SELECT * FROM users WHERE email = $1", email)
             .fetch_one(executor)
             .await?;
         Ok(user)
@@ -30,9 +30,9 @@ impl Users {
         executor: impl PgExecutor<'a>,
         email: &str,
         password_hash: &str,
-    ) -> AppResult<User> {
+    ) -> AppResult<UserModel> {
         let user = sqlx::query_as!(
-            User,
+            UserModel,
             "INSERT INTO users (email, password_hash)
             VALUES ($1, $2)
             RETURNING *;",
@@ -49,9 +49,9 @@ impl Users {
         id: Uuid,
         user: PatchUserSchema,
         password_hash: Option<String>,
-    ) -> AppResult<User> {
+    ) -> AppResult<UserModel> {
         let user = sqlx::query_as!(
-            User,
+            UserModel,
             "UPDATE users
             SET
                 email = COALESCE($1, email),
@@ -67,10 +67,14 @@ impl Users {
         Ok(user)
     }
 
-    pub async fn delete_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<User> {
-        let user = sqlx::query_as!(User, "DELETE FROM users WHERE id = $1 RETURNING *;", id)
-            .fetch_one(executor)
-            .await?;
+    pub async fn delete_by_id<'a>(executor: impl PgExecutor<'a>, id: Uuid) -> AppResult<UserModel> {
+        let user = sqlx::query_as!(
+            UserModel,
+            "DELETE FROM users WHERE id = $1 RETURNING *;",
+            id
+        )
+        .fetch_one(executor)
+        .await?;
         Ok(user)
     }
 }

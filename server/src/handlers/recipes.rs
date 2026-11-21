@@ -3,9 +3,9 @@ use uuid::Uuid;
 
 use crate::{
     error::AppResult,
-    models::recipe::{PatchRecipeSchema, PostRecipeSchema, RecipeSchema},
+    payloads::recipe::RecipeResponse,
     requests::{app_path::AppPath, validated_json::ValidatedJson},
-    responses::{DeleteResponse, GetManyResponse, GetResponse, PatchResponse, PostResponse},
+    responses::{Delete, Get, Patch, Post},
     state::AppState,
 };
 
@@ -13,7 +13,7 @@ use crate::{
 pub async fn get_recipe(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
-) -> AppResult<GetResponse<RecipeSchema>> {
+) -> AppResult<Get<RecipeResponse>> {
     let recipe = state.recipe_service.find_recipe_by_id(id).await?;
     Ok(recipe.into())
 }
@@ -30,7 +30,7 @@ pub async fn get_all_recipes(
 pub async fn post_recipe(
     State(state): State<AppState>,
     ValidatedJson(recipe): ValidatedJson<PostRecipeSchema>,
-) -> AppResult<PostResponse<RecipeSchema>> {
+) -> AppResult<Post<RecipeSchema>> {
     let recipe = state.recipe_service.create_recipe(recipe).await?;
     Ok(recipe.into())
 }
@@ -40,7 +40,7 @@ pub async fn patch_recipe(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
     ValidatedJson(recipe): ValidatedJson<PatchRecipeSchema>,
-) -> AppResult<PatchResponse<RecipeSchema>> {
+) -> AppResult<Patch<RecipeSchema>> {
     let recipe = state.recipe_service.update_recipe(id, recipe).await?;
     Ok(recipe.into())
 }
@@ -49,7 +49,7 @@ pub async fn patch_recipe(
 pub async fn delete_recipe(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
-) -> AppResult<DeleteResponse> {
+) -> AppResult<Delete> {
     let recipe = state.recipe_service.delete_recipe(id).await?;
     Ok(recipe.into())
 }

@@ -4,9 +4,9 @@ use uuid::Uuid;
 use crate::{
     auth::token::Claims,
     error::AppResult,
-    models::user::{PatchUserSchema, PostUserSchema, UserSchema},
+    models::user::{PatchUserRequest, PostUserSchema, UserSchema},
     requests::{app_path::AppPath, validated_json::ValidatedJson},
-    responses::{DeleteResponse, GetResponse, PatchResponse, PostResponse},
+    responses::{Delete, Get, Patch, Post},
     state::AppState,
 };
 
@@ -14,7 +14,7 @@ use crate::{
 pub async fn get_user(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
-) -> AppResult<GetResponse<UserSchema>> {
+) -> AppResult<Get<UserSchema>> {
     let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
 }
@@ -23,7 +23,7 @@ pub async fn get_user(
 pub async fn get_me(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
-) -> AppResult<GetResponse<UserSchema>> {
+) -> AppResult<Get<UserSchema>> {
     let id = claims.sub;
     let user = state.user_service.find_user_by_id(id).await?;
     Ok(user.into())
@@ -33,7 +33,7 @@ pub async fn get_me(
 pub async fn post_user(
     State(state): State<AppState>,
     ValidatedJson(user): ValidatedJson<PostUserSchema>,
-) -> AppResult<PostResponse<UserSchema>> {
+) -> AppResult<Post<UserSchema>> {
     let user = state.user_service.create_user(user).await?;
     Ok(user.into())
 }
@@ -43,7 +43,7 @@ pub async fn patch_user(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
     ValidatedJson(user): ValidatedJson<PatchUserSchema>,
-) -> AppResult<PatchResponse<UserSchema>> {
+) -> AppResult<Patch<UserSchema>> {
     let user = state.user_service.update_user(id, user).await?;
     Ok(user.into())
 }
@@ -52,7 +52,7 @@ pub async fn patch_user(
 pub async fn delete_user(
     State(state): State<AppState>,
     AppPath(id): AppPath<Uuid>,
-) -> AppResult<DeleteResponse> {
+) -> AppResult<Delete> {
     let user = state.user_service.delete_user(id).await?;
     Ok(user.into())
 }

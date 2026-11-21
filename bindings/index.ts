@@ -10,6 +10,8 @@ export type IngredientSearchSchema = { code: string, ingredientCategoryCode: str
 
 export type LoginSchema = { accessToken: string, };
 
+export type PatchRecipeBodySchema = { name?: string, imageData?: string | null, durationMinutes?: number, mealTypes?: Array<string>, };
+
 export type PatchRecipeIngredientSchema = { unitCode?: string, position?: number, quantity?: number, };
 
 export type PatchRecipeSchema = { name?: string, imageData?: string | null, durationMinutes?: number, };
@@ -18,11 +20,15 @@ export type PatchUserSchema = { email?: string, password?: string, };
 
 export type PhysicalQuantitySchema = { code: string, };
 
+export type PostRecipeBodySchema = { name: string, imageData: string | null, durationMinutes: number, mealTypes: Array<string>, };
+
 export type PostRecipeIngredientSchema = { unitCode: string, position: number, quantity: number, };
 
 export type PostRecipeSchema = { name: string, imageData: string | null, durationMinutes: number, };
 
 export type PostUserSchema = { email: string, password: string, };
+
+export type RecipeBodySchema = { id: string, createdAt: string, updatedAt: string, name: string, imageUrl: string | null, durationMinutes: number, mealTypes: Array<string>, };
 
 export type RecipeIngredientJoinIngredientSchema = { createdAt: string, updatedAt: string, ingredientName: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
 

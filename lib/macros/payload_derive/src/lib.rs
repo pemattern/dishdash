@@ -2,11 +2,40 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{DeriveInput, parse_macro_input};
 
-#[proc_macro_derive(GenerateSchemas, attributes(schema))]
-pub fn generate_schemas(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(Payload, attributes(payload))]
+pub fn generate_dtos(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    if !matches!(input.vis, syn::Visibility::Inherited) {
+        return syn::Error::new_spanned(&input.vis, "Payload structs must have private visibility")
+            .to_compile_error()
+            .into();
+    }
+
+    let name_str = name.to_string();
+    let Some(base_name) = name_str.strip_suffix("Payload") else {
+        return syn::Error::new_spanned(
+            name,
+            "Payload structs must have a name ending in `Payload`",
+        )
+        .to_compile_error()
+        .into();
+    };
+
+    if base_name.is_empty() {
+        return syn::Error::new_spanned(
+            name,
+            "Payload structs must have a name before the `Payload` suffix",
+        )
+        .to_compile_error()
+        .into();
+    }
+
+    let base_name = syn::Ident::new(base_name, name.span());
+
     let struct_read_only = input.attrs.iter().any(|attr| {
-        if !attr.path().is_ident("schema") {
+        if !attr.path().is_ident("payload") {
             return false;
         }
 
@@ -22,7 +51,6 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
 
         read_only
     });
-    let name = &input.ident;
 
     let fields = match &input.data {
         syn::Data::Struct(data) => match &data.fields {
@@ -30,7 +58,7 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
             _ => {
                 return syn::Error::new_spanned(
                     name,
-                    "GenerateSchemas only supports structs with named fields",
+                    "Payload only supports structs with named fields",
                 )
                 .to_compile_error()
                 .into();
@@ -39,15 +67,15 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
         _ => {
             return syn::Error::new_spanned(
                 name,
-                "GenerateSchemas only supports structs with named fields",
+                "Payload only supports structs with named fields",
             )
             .to_compile_error()
             .into();
         }
     };
 
-    let mut response_fields = Vec::new();
-    let mut response_field_names = Vec::new();
+    let mut get_fields = Vec::new();
+    let mut get_field_names = Vec::new();
     let mut post_fields = Vec::new();
     let mut patch_fields = Vec::new();
 
@@ -68,7 +96,7 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
         let mut write_rename: Option<syn::LitStr> = None;
 
         for attr in &field.attrs {
-            if !attr.path().is_ident("schema") {
+            if !attr.path().is_ident("payload") {
                 continue;
             }
 
@@ -106,10 +134,10 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
                 .map(|name| syn::Ident::new(&name.value(), name.span()))
                 .unwrap_or_else(|| field_name.clone());
 
-            response_fields.push(quote! {
+            get_fields.push(quote! {
                 pub #read_field_name: #field_type
             });
-            response_field_names.push((read_field_name.clone(), field_name.clone()));
+            get_field_names.push((read_field_name.clone(), field_name.clone()));
         }
 
         if write {
@@ -141,26 +169,18 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
             };
 
             patch_fields.push(quote! {
-                #[serde(default, deserialize_with = "crate::models::deserialize_double_option")]
+                #[serde(default, deserialize_with = "crate::payloads::deserialize_double_option")]
                 #(#helper_attrs)*
                 #optional_field
             });
         }
     }
 
-    let response_name = syn::Ident::new(&format!("{}Schema", name), name.span());
-    let post_name = syn::Ident::new(&format!("Post{}Schema", name), name.span());
-    let patch_name = syn::Ident::new(&format!("Patch{}Schema", name), name.span());
+    let get_name = syn::Ident::new(&format!("{}Response", base_name), base_name.span());
+    let post_name = syn::Ident::new(&format!("Create{}Request", base_name), base_name.span());
+    let patch_name = syn::Ident::new(&format!("Update{}Request", base_name), base_name.span());
 
-    let response_assignments = response_field_names
-        .iter()
-        .map(|(schema_name, model_name)| {
-            quote! {
-                #schema_name: model.#model_name
-            }
-        });
-
-    let write_schemas = if struct_read_only {
+    let write_payloads = if struct_read_only {
         quote! {}
     } else {
         quote! {
@@ -181,26 +201,16 @@ pub fn generate_schemas(input: TokenStream) -> TokenStream {
     };
 
     quote! {
-        impl GenerateSchemas for #name {}
+        impl Payload for #name {}
 
         #[derive(serde::Serialize, ts_rs::TS)]
         #[serde(rename_all = "camelCase")]
         #[ts(export, export_to = lib::BINDINGS_PATH)]
-        pub struct #response_name {
-            #(#response_fields,)*
+        pub struct #get_name {
+            #(#get_fields,)*
         }
 
-        impl From<#name> for #response_name {
-            fn from(model: #name) -> Self {
-                Self {
-                    #(
-                        #response_assignments,
-                    )*
-                }
-            }
-        }
-
-        #write_schemas
+        #write_payloads
     }
     .into()
 }

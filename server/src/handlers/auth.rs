@@ -3,7 +3,7 @@ use axum::{Extension, extract::State};
 use crate::{
     auth::token::generate_access_token,
     error::AppResult,
-    models::{refresh_token::RefreshToken, user::User},
+    models::{refresh_token::RefreshTokenModel, user::UserModel},
     responses::auth::{LoginResponse, LogoutResponse, RefreshResponse},
     state::AppState,
 };
@@ -11,7 +11,7 @@ use crate::{
 #[axum::debug_handler]
 pub async fn login(
     State(state): State<AppState>,
-    Extension(user): Extension<User>,
+    Extension(user): Extension<UserModel>,
 ) -> AppResult<LoginResponse> {
     let access_token = generate_access_token(user.id)?;
     let refresh_token = state
@@ -24,7 +24,7 @@ pub async fn login(
 #[axum::debug_handler]
 pub async fn refresh(
     State(state): State<AppState>,
-    Extension(refresh_token): Extension<RefreshToken>,
+    Extension(refresh_token): Extension<RefreshTokenModel>,
 ) -> AppResult<RefreshResponse> {
     let access_token = generate_access_token(refresh_token.user_id)?;
     let composite_refresh_token = state
@@ -37,7 +37,7 @@ pub async fn refresh(
 #[axum::debug_handler]
 pub async fn logout(
     State(state): State<AppState>,
-    Extension(refresh_token): Extension<RefreshToken>,
+    Extension(refresh_token): Extension<RefreshTokenModel>,
 ) -> AppResult<LogoutResponse> {
     let _ = state
         .auth_service
