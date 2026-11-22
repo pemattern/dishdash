@@ -48,8 +48,8 @@ impl Recipes {
 
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
-        recipe_id: Uuid,
-        recipe: UpdateRecipeRequest,
+        recipe_id: &Uuid,
+        recipe: &UpdateRecipeRequest,
         image_url: Option<Option<String>>,
     ) -> AppResult<RecipeModel> {
         let recipe = sqlx::query_as!(

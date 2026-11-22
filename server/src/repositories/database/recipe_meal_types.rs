@@ -40,7 +40,25 @@ impl RecipeMealTypes {
         Ok(recipe_meal_type)
     }
 
-    pub async fn delete_by_id<'a>(
+    pub async fn insert_multiple<'a>(
+        executor: impl PgExecutor<'a>,
+        recipe_id: &Uuid,
+        meal_type_codes: &[String],
+    ) -> AppResult<Vec<RecipeMealTypeModel>> {
+        let recipe_meal_types = sqlx::query_as!(
+            RecipeMealTypeModel,
+            "INSERT INTO recipe_meal_types (recipe_id, meal_type_code)
+            SELECT $1, unnest($2::TEXT[])
+            RETURNING *;",
+            recipe_id,
+            meal_type_codes,
+        )
+        .fetch_all(executor)
+        .await?;
+        Ok(recipe_meal_types)
+    }
+
+    pub async fn delete<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
         meal_type_code: String,
@@ -52,6 +70,22 @@ impl RecipeMealTypes {
             RETURNING *;",
             recipe_id,
             meal_type_code,
+        )
+        .fetch_one(executor)
+        .await?;
+        Ok(recipe_meal_type)
+    }
+
+    pub async fn delete_by_recipe_id<'a>(
+        executor: impl PgExecutor<'a>,
+        recipe_id: &Uuid,
+    ) -> AppResult<RecipeMealTypeModel> {
+        let recipe_meal_type = sqlx::query_as!(
+            RecipeMealTypeModel,
+            "DELETE FROM recipe_meal_types
+            WHERE recipe_id = $1
+            RETURNING *;",
+            recipe_id,
         )
         .fetch_one(executor)
         .await?;

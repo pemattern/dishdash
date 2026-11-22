@@ -1,4 +1,3 @@
-use base64::{Engine, engine::general_purpose::STANDARD};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -17,6 +16,7 @@ use crate::{
         file_system::Images,
     },
     requests::code_map::CodeMap,
+    services::{map_double_option_async, map_option_async},
 };
 
 #[derive(Clone)]
@@ -59,16 +59,14 @@ impl RecipeService {
     }
 
     pub async fn create_recipe(&self, recipe: CreateRecipeRequest) -> AppResult<RecipeResponse> {
-        let mut image_url = None;
-        if let Some(image_data) = &recipe.image_data {
-            let bytes = STANDARD.decode(image_data)?;
-            let path = Images::save_recipe_image(&bytes).await?;
-            image_url = Some(path);
-        }
-        let recipe = Recipes::insert(&self.pool, &recipe, image_url).await?;
+        let image_url = map_option_async(&recipe.image_data, Images::save_recipe_image).await?;
+        let mut tx = self.pool.begin().await?;
+        let inserted_recipe = Recipes::insert(&mut *tx, &recipe, image_url).await?;
         let recipe_meal_types =
-            RecipeMealTypes::select_by_recipe_id(&self.pool, &recipe.id).await?;
-        Ok((recipe, recipe_meal_types).into())
+            RecipeMealTypes::insert_multiple(&mut *tx, &inserted_recipe.id, &recipe.meal_types)
+                .await?;
+        tx.commit().await?;
+        Ok((inserted_recipe, recipe_meal_types).into())
     }
 
     pub async fn create_recipe_ingredient(
@@ -113,23 +111,23 @@ impl RecipeService {
     pub async fn update_recipe(
         &self,
         recipe_id: Uuid,
-        recipe: UpdateRecipeRequest,
+        recipe_request: UpdateRecipeRequest,
     ) -> AppResult<RecipeResponse> {
-        let mut image_url = None;
-        if let Some(maybe_image_data) = &recipe.image_data {
-            if let Some(image_data) = maybe_image_data {
-                let bytes = STANDARD.decode(image_data)?;
-                let path = Images::save_recipe_image(&bytes).await?;
-                image_url = Some(Some(path));
-            } else {
-                image_url = Some(None);
-            }
+        let image_url =
+            map_double_option_async(&recipe_request.image_data, Images::save_recipe_image).await?;
+        let mut tx = self.pool.begin().await?;
+        let recipe = Recipes::update(&mut *tx, &recipe_id, &recipe_request, image_url).await?;
+        let recipe_meal_types;
+        if let Some(recipe_request_meal_types) = recipe_request.meal_types {
+            let _ = RecipeMealTypes::delete_by_recipe_id(&mut *tx, &recipe_id).await?;
+            recipe_meal_types =
+                RecipeMealTypes::insert_multiple(&mut *tx, &recipe_id, &recipe_request_meal_types)
+                    .await?;
+        } else {
+            recipe_meal_types = RecipeMealTypes::select_by_recipe_id(&mut *tx, &recipe_id).await?;
         }
-        let recipe = tokio::try_join!(
-            Recipes::update(&self.pool, recipe_id, recipe, image_url),
-            RecipeMealTypes::select_by_recipe_id(&self.pool, &recipe_id),
-        )?;
-        Ok(recipe.into())
+        tx.commit().await?;
+        Ok((recipe, recipe_meal_types).into())
     }
 
     pub async fn update_recipe_ingredient(
@@ -182,7 +180,7 @@ impl RecipeService {
         meal_type_code: String,
     ) -> AppResult<RecipeMealTypeModel> {
         let recipe_meal_type =
-            RecipeMealTypes::delete_by_id(&self.pool, recipe_id, meal_type_code).await?;
+            RecipeMealTypes::delete(&self.pool, recipe_id, meal_type_code).await?;
         Ok(recipe_meal_type)
     }
 }

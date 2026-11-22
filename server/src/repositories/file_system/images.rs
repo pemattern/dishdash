@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use base64::engine::{Engine, general_purpose::STANDARD};
 use image::{codecs::jpeg::JpegEncoder, imageops::FilterType};
 use tokio::fs;
 use uuid::Uuid;
@@ -17,9 +18,10 @@ static RECIPES_PATH: LazyLock<String> = LazyLock::new(|| format!("{}/recipes", *
 pub struct Images;
 
 impl Images {
-    pub async fn save_recipe_image(bytes: &[u8]) -> AppResult<String> {
+    pub async fn save_recipe_image(image_data: String) -> AppResult<String> {
         fs::create_dir_all(&*RECIPES_PATH).await?;
-        let image_bytes = process_image(bytes)?;
+        let bytes = STANDARD.decode(image_data)?;
+        let image_bytes = process_image(&bytes)?;
         let filename = format!("{}.jpg", Uuid::now_v7());
         let path = format!("{}/{}", *RECIPES_PATH, filename);
         fs::write(&path, image_bytes).await?;
