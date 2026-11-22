@@ -2,6 +2,7 @@ use lib::Payload;
 
 use crate::models::IngredientSearch;
 
+#[allow(dead_code)]
 #[derive(Payload)]
 #[payload(read_only)]
 struct IngredientPayload {

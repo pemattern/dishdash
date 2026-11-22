@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::models::UserModel;
 
+#[allow(dead_code)]
 #[derive(Payload)]
 struct UserPayload {
     #[payload(read_only)]

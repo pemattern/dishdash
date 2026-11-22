@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::models::RecipeIngredientModel;
 
+#[allow(dead_code)]
 #[derive(Payload)]
 struct RecipeIngredientPayload {
     #[payload(read_only)]

@@ -1,5 +1,6 @@
 use lib::Payload;
 
+#[allow(dead_code)]
 #[derive(Payload)]
 #[payload(read_only)]
 struct UnitPayload {
