@@ -2,7 +2,7 @@
 
 export type CreateRecipeIngredientRequest = { unitCode: string, position: number, quantity: number, };
 
-export type CreateRecipeRequest = { name: string, imageData: string | null, durationMinutes: number, mealTypes: Array<string>, };
+export type CreateRecipeRequest = { name: string, imageData: string | null, durationMinutes: number, mealTypes: Array<MealType>, };
 
 export type CreateUserRequest = { email: string, password: string, };
 
@@ -10,23 +10,29 @@ export type ErrorCode = "INTERNAL" | "RESOURCE_NOT_FOUND" | "HTTP_METHOD" | "INV
 
 export type ErrorSchema = { title: string, status: number, errorCode: ErrorCode | null, detail: string | null, instance: string | null, };
 
-export type IngredientResponse = { code: string, ingredientCategoryCode: string, name: string, namePlural: string, alias: string | null, };
+export type IngredientCategory = "baking-ingredients" | "canned-preserved" | "dairy-eggs" | "flavor-enhancer" | "fruits" | "grains-cereal" | "herbs-spices" | "legumes" | "liquids" | "meat" | "nuts-seeds" | "oils-fats" | "plant-based-proteins" | "sauces-condiments" | "seafood" | "sweeteners" | "vegetable";
+
+export type IngredientResponse = { code: string, ingredientCategory: IngredientCategory, name: string, namePlural: string, alias: string | null, };
 
 export type LoginSchema = { accessToken: string, };
 
-export type MealTypes = "breakfast" | "brunch" | "lunch" | "dinner" | "snack" | "dessert" | "appetizer" | "side-dish" | "drink";
+export type MealType = "breakfast" | "brunch" | "lunch" | "dinner" | "snack" | "dessert" | "appetizer" | "side-dish" | "drink";
+
+export type PhysicalQuantity = "count" | "mass" | "volume";
 
 export type RecipeIngredientResponse = { createdAt: string, updatedAt: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
 
-export type RecipeResponse = { id: string, createdAt: string, updatedAt: string, name: string, imageUrl: string | null, durationMinutes: number, mealTypes: Array<string>, };
+export type RecipeResponse = { id: string, createdAt: string, updatedAt: string, name: string, imageUrl: string | null, durationMinutes: number, mealTypes: Array<MealType>, };
 
 export type RefreshSchema = { accessToken: string, };
 
 export type UnitResponse = { code: string, physicalQuantityCode: string, unitSystemCode: string, symbol: string, siFactor: number, };
 
+export type UnitSystem = "imperial" | "metric" | "us-customary";
+
 export type UpdateRecipeIngredientRequest = { unitCode?: string, position?: number, quantity?: number, };
 
-export type UpdateRecipeRequest = { name?: string, imageData?: string | null, durationMinutes?: number, mealTypes?: Array<string>, };
+export type UpdateRecipeRequest = { name?: string, imageData?: string | null, durationMinutes?: number, mealTypes?: Array<MealType>, };
 
 export type UpdateUserRequest = { email?: string, password?: string, };
 

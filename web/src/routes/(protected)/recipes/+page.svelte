@@ -4,16 +4,16 @@
 	import Input from '#lib/components/Input.svelte';
 	import RecipeCard from '#lib/components/RecipeCard.svelte';
 	import { refreshAll } from '$app/navigation';
-	import type { CreateRecipeRequest } from '$bindings';
+	import type { CreateRecipeRequest, MealType } from '$bindings';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let open = $state(false);
-	let name = $state('');
-	let imageData = $state('');
-	let durationMinutes = $state(1);
-	let mealTypes = $state([]);
+	let name: string = $state('');
+	let imageData: string | null = $state(null);
+	let durationMinutes: number = $state(0);
+	let mealTypes: MealType[] = $state([]);
 	let error = $state('');
 
 	$effect(() => {
@@ -49,10 +49,10 @@
 </script>
 
 <button
-	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm text-off-white"
+	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm font-bold text-off-white inset-ring inset-ring-orange hover:cursor-pointer hover:bg-off-white hover:text-orange hover:inset-ring-orange"
 	onclick={() => (open = true)}
 >
-	+ Create</button
+	Create Recipe</button
 >
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -62,6 +62,13 @@
 </div>
 
 <FormModal bind:open {handleSubmit}>
-	<Input label="Title" bind:value={name} name="name" type="text" focus={open} />
+	<Input
+		bind:value={name}
+		name="name"
+		type="text"
+		focus={open}
+		label="Title"
+		placeholder="Oven veggies"
+	/>
 	{error}
 </FormModal>

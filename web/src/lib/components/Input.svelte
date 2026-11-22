@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { value = $bindable(''), focus = false, ...props } = $props();
+	let { value = $bindable(''), focus = false, label = '', ...props } = $props();
 
 	let input: HTMLInputElement;
 
@@ -13,6 +13,9 @@
 </script>
 
 <div class="flex flex-col">
+	{#if label}
+		<label for={props.id} class="mb-1 text-sm font-bold text-dark-gray">{label}</label>
+	{/if}
 	<input
 		bind:this={input}
 		bind:value

@@ -115,17 +115,17 @@ async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>
         INGREDIENTS_CSV,
         "CREATE TEMP TABLE ingredients_staging (
             code TEXT NOT NULL,
-            ingredient_category_code TEXT NOT NULL
+            ingredient_category ingredient_category NOT NULL
         ) ON COMMIT DROP;",
-        "COPY ingredients_staging (ingredient_category_code, code)
+        "COPY ingredients_staging (ingredient_category, code)
         FROM STDIN
         WITH (FORMAT CSV, HEADER TRUE);",
-        "INSERT INTO ingredients (code, ingredient_category_code)
-        SELECT code, ingredient_category_code
+        "INSERT INTO ingredients (code, ingredient_category)
+        SELECT code, ingredient_category
         FROM ingredients_staging
         ON CONFLICT (code)
         DO UPDATE SET
-            ingredient_category_code = EXCLUDED.ingredient_category_code;",
+            ingredient_category = EXCLUDED.ingredient_category;",
     )
     .await?;
     Ok(())
