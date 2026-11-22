@@ -53,7 +53,7 @@
 	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm font-bold text-off-white inset-ring inset-ring-orange hover:cursor-pointer hover:bg-off-white hover:text-orange hover:inset-ring-orange"
 	onclick={() => (open = true)}
 >
-	{m.createRecipe()}</button
+	{m['recipe.create']()}</button
 >
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
