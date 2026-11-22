@@ -6,6 +6,7 @@
 	import { refreshAll } from '$app/navigation';
 	import type { CreateRecipeRequest, MealType } from '$bindings';
 	import type { PageProps } from './$types';
+	import { m } from '#lib/paraglide/messages.js';
 
 	let { data }: PageProps = $props();
 
@@ -52,7 +53,7 @@
 	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm font-bold text-off-white inset-ring inset-ring-orange hover:cursor-pointer hover:bg-off-white hover:text-orange hover:inset-ring-orange"
 	onclick={() => (open = true)}
 >
-	Create Recipe</button
+	{m.createRecipe()}</button
 >
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -67,7 +68,7 @@
 		name="name"
 		type="text"
 		focus={open}
-		label="Title"
+		label={m.title()}
 		placeholder="Oven veggies"
 	/>
 
