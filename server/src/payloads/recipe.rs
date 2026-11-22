@@ -25,7 +25,7 @@ struct RecipePayload {
 
 impl From<(RecipeModel, Vec<RecipeMealTypeModel>)> for RecipeResponse {
     fn from(value: (RecipeModel, Vec<RecipeMealTypeModel>)) -> Self {
-        let meal_types = value.1.into_iter().map(|mt| mt.meal_type_code).collect();
+        let meal_types = value.1.into_iter().map(|mt| mt.meal_type).collect();
         Self {
             id: value.0.id,
             created_at: value.0.created_at,

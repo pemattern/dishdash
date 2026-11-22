@@ -3,16 +3,22 @@ use sqlx::PgExecutor;
 use crate::{
     error::AppResult,
     models::{IngredientModel, IngredientSearch},
-    requests::search_query::SearchQuery,
+    requests::{constants::IngredientCategory, search_query::SearchQuery},
 };
 
 pub struct Ingredients;
 
 impl Ingredients {
     pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> AppResult<Vec<IngredientModel>> {
-        let ingredients = sqlx::query_as!(IngredientModel, "SELECT * FROM ingredients;")
-            .fetch_all(executor)
-            .await?;
+        let ingredients = sqlx::query_as!(
+            IngredientModel,
+            r#"SELECT
+                code,
+                ingredient_category AS "ingredient_category: IngredientCategory"
+            FROM ingredients;"#
+        )
+        .fetch_all(executor)
+        .await?;
         Ok(ingredients)
     }
 
@@ -28,7 +34,7 @@ impl Ingredients {
             matches AS (
                 SELECT
                     i.code,
-                    i.ingredient_category_code,
+                    i.ingredient_category,
                     t.name,
                     t.name_plural,
                     t.name_normalized,
@@ -52,7 +58,7 @@ impl Ingredients {
                 UNION ALL
                 SELECT
                     i.code,
-                    i.ingredient_category_code,
+                    i.ingredient_category,
                     t.name,
                     t.name_plural,
                     a.name_normalized,
@@ -79,14 +85,14 @@ impl Ingredients {
             )
             SELECT
                 code AS "code!",
-                ingredient_category_code AS "ingredient_category_code!",
+                ingredient_category AS "ingredient_category!: IngredientCategory",
                 name AS "name!",
                 name_plural AS "name_plural!",
                 alias
             FROM matches
             GROUP BY
                 code,
-                ingredient_category_code,
+                ingredient_category,
                 name,
                 name_plural,
                 alias
