@@ -7,6 +7,7 @@
 	import type { CreateRecipeRequest, MealType } from '$bindings';
 	import type { PageProps } from './$types';
 	import { m } from '#lib/paraglide/messages.js';
+	import MealTypeSelector from '#lib/components/MealTypeSelector.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -53,7 +54,7 @@
 	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm font-bold text-off-white inset-ring inset-ring-orange hover:cursor-pointer hover:bg-off-white hover:text-orange hover:inset-ring-orange"
 	onclick={() => (open = true)}
 >
-	{m['recipe.create']()}</button
+	{m.newRecipe()}</button
 >
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -71,6 +72,6 @@
 		label={m.title()}
 		placeholder="Oven veggies"
 	/>
-
+	<MealTypeSelector bind:selected={mealTypes} />
 	{error}
 </FormModal>

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
 #[serde(rename_all = "kebab-case")]
-#[ts(export, export_to = BINDINGS_PATH)]
+#[ts(export, export_to = BINDINGS_PATH, repr(enum = name))]
 #[sqlx(type_name = "meal_type", rename_all = "kebab-case")]
 pub enum MealType {
     Breakfast,

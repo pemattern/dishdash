@@ -1,7 +1,5 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"title": "Title",
-	"recipe": {
-	  "create": "Create Recipe"
-	}
+	"newRecipe": "New Recipe"
 }

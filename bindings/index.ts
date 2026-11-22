@@ -16,8 +16,6 @@ export type IngredientResponse = { code: string, ingredientCategory: IngredientC
 
 export type LoginSchema = { accessToken: string, };
 
-export type MealType = "breakfast" | "brunch" | "lunch" | "dinner" | "snack" | "dessert" | "appetizer" | "side-dish" | "drink";
-
 export type PhysicalQuantity = "count" | "mass" | "volume";
 
 export type RecipeIngredientResponse = { createdAt: string, updatedAt: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
@@ -37,3 +35,5 @@ export type UpdateRecipeRequest = { name?: string, imageData?: string | null, du
 export type UpdateUserRequest = { email?: string, password?: string, };
 
 export type UserResponse = { id: string, createdAt: string, updatedAt: string, email: string, };
+
+export enum MealType { "breakfast" = "breakfast", "brunch" = "brunch", "lunch" = "lunch", "dinner" = "dinner", "snack" = "snack", "dessert" = "dessert", "appetizer" = "appetizer", "side-dish" = "side-dish", "drink" = "drink" }
