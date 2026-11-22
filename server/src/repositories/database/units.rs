@@ -6,7 +6,7 @@ pub struct Units;
 
 impl Units {
     pub async fn select_all<'a>(executor: impl PgExecutor<'a>) -> AppResult<Vec<UnitModel>> {
-        let units = sqlx::query_as!(UnitModel, "SELECT * FROM units;")
+        let units = sqlx::query_as!(UnitModel, r#"SELECT * FROM units;"#)
             .fetch_all(executor)
             .await?;
         Ok(units)

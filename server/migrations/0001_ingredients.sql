@@ -1,10 +1,26 @@
-CREATE TABLE ingredient_categories (
-    code TEXT PRIMARY KEY
+CREATE TYPE ingredient_category AS ENUM (
+    'baking-ingredients',
+    'canned-preserved',
+    'dairy-eggs',
+    'flavor-enhancer',
+    'fruits',
+    'grains-cereal',
+    'herbs-spices',
+    'legumes',
+    'liquids',
+    'meat',
+    'nuts-seeds',
+    'oils-fats',
+    'plant-based-proteins',
+    'sauces-condiments',
+    'seafood',
+    'sweeteners',
+    'vegetables'
 );
 
 CREATE TABLE ingredients (
     code TEXT PRIMARY KEY,
-    ingredient_category_code TEXT NOT NULL REFERENCES ingredient_categories(code) ON DELETE RESTRICT
+    ingredient_category ingredient_category NOT NULL
 );
 
 CREATE TABLE ingredient_translations (

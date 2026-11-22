@@ -4,7 +4,7 @@
 	import Input from '#lib/components/Input.svelte';
 	import RecipeCard from '#lib/components/RecipeCard.svelte';
 	import { refreshAll } from '$app/navigation';
-	import type { PostRecipeSchema } from '$bindings';
+	import type { CreateRecipeRequest } from '$bindings';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -13,6 +13,7 @@
 	let name = $state('');
 	let imageData = $state('');
 	let durationMinutes = $state(1);
+	let mealTypes = $state([]);
 	let error = $state('');
 
 	$effect(() => {
@@ -30,14 +31,15 @@
 		event.preventDefault();
 		error = '';
 
-		const schema: PostRecipeSchema = {
+		const request: CreateRecipeRequest = {
 			name,
 			imageData,
-			durationMinutes
+			durationMinutes,
+			mealTypes
 		};
 
 		try {
-			await api.recipes.create(schema);
+			await api.recipes.create(request);
 			await refreshAll();
 			open = false;
 		} catch (err) {
@@ -46,8 +48,11 @@
 	}
 </script>
 
-<button class="m-4 rounded-md bg-lighter-green p-4 font-sans" onclick={() => (open = true)}
-	>Create</button
+<button
+	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm text-off-white"
+	onclick={() => (open = true)}
+>
+	+ Create</button
 >
 
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

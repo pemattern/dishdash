@@ -15,7 +15,7 @@ use crate::{
         database::{RecipeIngredients, RecipeMealTypes, Recipes},
         file_system::Images,
     },
-    requests::code_map::CodeMap,
+    requests::{code_map::CodeMap, constants::MealType},
     services::{map_double_option_async, map_option_async},
 };
 
@@ -101,10 +101,9 @@ impl RecipeService {
     pub async fn create_recipe_meal_type(
         &self,
         recipe_id: Uuid,
-        meal_type_code: String,
+        meal_type: MealType,
     ) -> AppResult<RecipeMealTypeModel> {
-        let recipe_meal_type =
-            RecipeMealTypes::insert(&self.pool, recipe_id, meal_type_code).await?;
+        let recipe_meal_type = RecipeMealTypes::insert(&self.pool, recipe_id, meal_type).await?;
         Ok(recipe_meal_type)
     }
 
@@ -177,10 +176,9 @@ impl RecipeService {
     pub async fn delete_recipe_meal_type(
         &self,
         recipe_id: Uuid,
-        meal_type_code: String,
+        meal_type: MealType,
     ) -> AppResult<RecipeMealTypeModel> {
-        let recipe_meal_type =
-            RecipeMealTypes::delete(&self.pool, recipe_id, meal_type_code).await?;
+        let recipe_meal_type = RecipeMealTypes::delete(&self.pool, recipe_id, meal_type).await?;
         Ok(recipe_meal_type)
     }
 }

@@ -16,15 +16,27 @@ CREATE TABLE meal_types (
     code TEXT PRIMARY KEY
 );
 
+CREATE TYPE meal_type AS ENUM (
+    'breakfast',
+    'brunch',
+    'lunch',
+    'dinner',
+    'snack',
+    'dessert',
+    'appetizer',
+    'side-dish',
+    'drink'
+);
+
 CREATE TABLE recipe_meal_types (
     recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
-    meal_type_code TEXT NOT NULL REFERENCES meal_types(code) ON DELETE RESTRICT,
+    meal_type meal_type NOT NULL,
 
-    PRIMARY KEY (recipe_id, meal_type_code)
+    PRIMARY KEY (recipe_id, meal_type)
 );
 
 CREATE INDEX recipe_meal_types_meal_type_code_index
-    ON recipe_meal_types(meal_type_code);
+    ON recipe_meal_types(meal_type);
 
 CREATE TABLE recipe_ingredients (
     recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,

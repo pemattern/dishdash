@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::{error::AppResult, models::RecipeMealTypeModel};
+use crate::{error::AppResult, models::RecipeMealTypeModel, requests::constants::MealType};
 
 pub struct RecipeMealTypes;
 
@@ -12,9 +12,11 @@ impl RecipeMealTypes {
     ) -> AppResult<Vec<RecipeMealTypeModel>> {
         let recipe_meal_types = sqlx::query_as!(
             RecipeMealTypeModel,
-            "SELECT *
+            r#"SELECT
+                recipe_id,
+                meal_type AS "meal_type: MealType"
             FROM recipe_meal_types
-            WHERE recipe_id = $1",
+            WHERE recipe_id = $1"#,
             recipe_id,
         )
         .fetch_all(executor)
@@ -25,15 +27,17 @@ impl RecipeMealTypes {
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        meal_type_code: String,
+        meal_type: MealType,
     ) -> AppResult<RecipeMealTypeModel> {
         let recipe_meal_type = sqlx::query_as!(
             RecipeMealTypeModel,
-            "INSERT INTO recipe_meal_types (recipe_id, meal_type_code)
+            r#"INSERT INTO recipe_meal_types (recipe_id, meal_type)
             VALUES ($1, $2)
-            RETURNING *;",
+            RETURNING
+                recipe_id,
+                meal_type AS "meal_type: MealType";"#,
             recipe_id,
-            meal_type_code,
+            meal_type as _,
         )
         .fetch_one(executor)
         .await?;
@@ -43,15 +47,17 @@ impl RecipeMealTypes {
     pub async fn insert_multiple<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: &Uuid,
-        meal_type_codes: &[String],
+        meal_type: &[MealType],
     ) -> AppResult<Vec<RecipeMealTypeModel>> {
         let recipe_meal_types = sqlx::query_as!(
             RecipeMealTypeModel,
-            "INSERT INTO recipe_meal_types (recipe_id, meal_type_code)
-            SELECT $1, unnest($2::TEXT[])
-            RETURNING *;",
+            r#"INSERT INTO recipe_meal_types (recipe_id, meal_type)
+            SELECT $1, unnest($2::meal_type[])
+            RETURNING
+                recipe_id,
+                meal_type AS "meal_type: MealType";"#,
             recipe_id,
-            meal_type_codes,
+            meal_type as _,
         )
         .fetch_all(executor)
         .await?;
@@ -61,15 +67,17 @@ impl RecipeMealTypes {
     pub async fn delete<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        meal_type_code: String,
+        meal_type: MealType,
     ) -> AppResult<RecipeMealTypeModel> {
         let recipe_meal_type = sqlx::query_as!(
             RecipeMealTypeModel,
-            "DELETE FROM recipe_meal_types
-            WHERE recipe_id = $1 AND meal_type_code = $2
-            RETURNING *;",
+            r#"DELETE FROM recipe_meal_types
+            WHERE recipe_id = $1 AND meal_type = $2
+            RETURNING
+                recipe_id,
+                meal_type AS "meal_type: MealType";"#,
             recipe_id,
-            meal_type_code,
+            meal_type as _,
         )
         .fetch_one(executor)
         .await?;
@@ -82,9 +90,11 @@ impl RecipeMealTypes {
     ) -> AppResult<RecipeMealTypeModel> {
         let recipe_meal_type = sqlx::query_as!(
             RecipeMealTypeModel,
-            "DELETE FROM recipe_meal_types
+            r#"DELETE FROM recipe_meal_types
             WHERE recipe_id = $1
-            RETURNING *;",
+            RETURNING
+                recipe_id,
+                meal_type AS "meal_type: MealType";"#,
             recipe_id,
         )
         .fetch_one(executor)

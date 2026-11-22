@@ -34,30 +34,22 @@ CREATE TABLE locales (
     code TEXT PRIMARY KEY
 );
 
-CREATE TABLE physical_quantities (
-    code TEXT PRIMARY KEY
+CREATE TYPE physical_quantity AS ENUM (
+    'count',
+    'mass',
+    'volume'
 );
 
-INSERT INTO physical_quantities (code)
-VALUES
-    ('count'),
-    ('mass'),
-    ('volume');
-
-CREATE TABLE unit_systems (
-    code TEXT PRIMARY KEY
+CREATE TYPE unit_system AS ENUM (
+    'imperial',
+    'metric',
+    'us-customary'
 );
-
-INSERT INTO unit_systems (code)
-VALUES
-    ('imperial'),
-    ('metric'),
-    ('us-customary');
 
 CREATE TABLE units (
     code TEXT PRIMARY KEY,
-    physical_quantity_code TEXT NOT NULL REFERENCES physical_quantities(code) ON DELETE RESTRICT,
-    unit_system_code TEXT NOT NULL REFERENCES unit_systems(code) ON DELETE RESTRICT,
+    physical_quantity physical_quantity NOT NULL,
+    unit_system unit_system NOT NULL,
     symbol TEXT NOT NULL,
     si_factor FLOAT8 NOT NULL CHECK (si_factor > 0)
 );

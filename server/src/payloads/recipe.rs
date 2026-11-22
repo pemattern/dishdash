@@ -2,7 +2,10 @@ use chrono::{DateTime, Utc};
 use lib::Payload;
 use uuid::Uuid;
 
-use crate::models::{RecipeMealTypeModel, RecipeModel};
+use crate::{
+    models::{RecipeMealTypeModel, RecipeModel},
+    requests::constants::MealType,
+};
 
 #[allow(dead_code)]
 #[derive(Payload)]
@@ -17,7 +20,7 @@ struct RecipePayload {
     #[payload(write_rename = "image_data")]
     pub image_url: Option<String>,
     pub duration_minutes: i32,
-    pub meal_types: Vec<String>,
+    pub meal_types: Vec<MealType>,
 }
 
 impl From<(RecipeModel, Vec<RecipeMealTypeModel>)> for RecipeResponse {
