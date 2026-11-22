@@ -10,13 +10,9 @@ export type ErrorCode = "INTERNAL" | "RESOURCE_NOT_FOUND" | "HTTP_METHOD" | "INV
 
 export type ErrorSchema = { title: string, status: number, errorCode: ErrorCode | null, detail: string | null, instance: string | null, };
 
-export type IngredientCategory = "baking-ingredients" | "canned-preserved" | "dairy-eggs" | "flavor-enhancer" | "fruits" | "grains-cereal" | "herbs-spices" | "legumes" | "liquids" | "meat" | "nuts-seeds" | "oils-fats" | "plant-based-proteins" | "sauces-condiments" | "seafood" | "sweeteners" | "vegetable";
-
 export type IngredientResponse = { code: string, ingredientCategory: IngredientCategory, name: string, namePlural: string, alias: string | null, };
 
 export type LoginSchema = { accessToken: string, };
-
-export type PhysicalQuantity = "count" | "mass" | "volume";
 
 export type RecipeIngredientResponse = { createdAt: string, updatedAt: string, recipeId: string, ingredientCode: string, unitCode: string, position: number, quantity: number, };
 
@@ -26,8 +22,6 @@ export type RefreshSchema = { accessToken: string, };
 
 export type UnitResponse = { code: string, physicalQuantityCode: string, unitSystemCode: string, symbol: string, siFactor: number, };
 
-export type UnitSystem = "imperial" | "metric" | "us-customary";
-
 export type UpdateRecipeIngredientRequest = { unitCode?: string, position?: number, quantity?: number, };
 
 export type UpdateRecipeRequest = { name?: string, imageData?: string | null, durationMinutes?: number, mealTypes?: Array<MealType>, };
@@ -35,5 +29,11 @@ export type UpdateRecipeRequest = { name?: string, imageData?: string | null, du
 export type UpdateUserRequest = { email?: string, password?: string, };
 
 export type UserResponse = { id: string, createdAt: string, updatedAt: string, email: string, };
+
+export enum UnitSystem { "imperial" = "imperial", "metric" = "metric", "us-customary" = "us-customary" }
+
+export enum PhysicalQuantity { "count" = "count", "mass" = "mass", "volume" = "volume" }
+
+export enum IngredientCategory { "baking-ingredients" = "baking-ingredients", "canned-preserved" = "canned-preserved", "dairy-eggs" = "dairy-eggs", "flavor-enhancer" = "flavor-enhancer", "fruits" = "fruits", "grains-cereal" = "grains-cereal", "herbs-spices" = "herbs-spices", "legumes" = "legumes", "liquids" = "liquids", "meat" = "meat", "nuts-seeds" = "nuts-seeds", "oils-fats" = "oils-fats", "plant-based-proteins" = "plant-based-proteins", "sauces-condiments" = "sauces-condiments", "seafood" = "seafood", "sweeteners" = "sweeteners", "vegetable" = "vegetable" }
 
 export enum MealType { "breakfast" = "breakfast", "brunch" = "brunch", "lunch" = "lunch", "dinner" = "dinner", "snack" = "snack", "dessert" = "dessert", "appetizer" = "appetizer", "side-dish" = "side-dish", "drink" = "drink" }

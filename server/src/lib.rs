@@ -103,11 +103,11 @@ mod tests {
         let app = create_router(pool);
         let token = generate_access_token(Uuid::nil()).unwrap();
         let name = "pumpkin soup";
-        let image_url = "abc";
+        let image_data = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j5ZsAAAAASUVORK5CYII=";
         let duration = 10;
         let json = json!({
             "name": name,
-            "imageUrl": image_url,
+            "imageData": image_data,
             "durationMinutes" : duration,
         });
         let response = app
@@ -127,7 +127,6 @@ mod tests {
         let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
         let schema: serde_json::Value = serde_json::from_slice(&body).unwrap();
         assert_eq!(schema["name"], name);
-        assert_eq!(schema["imageUrl"], image_url);
         assert_eq!(schema["durationMinutes"], duration);
     }
 
