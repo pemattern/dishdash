@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { MealType } from '$bindings';
+	import Badge from './Badge.svelte';
 
 	type Props = {
 		selected?: MealType[];
@@ -11,31 +12,25 @@
 	function toggle(option: MealType) {
 		if (selected.includes(option)) {
 			selected = selected.filter((item) => item !== option);
+		} else {
+			selected.push(option);
 		}
+	}
+
+	function isSelected(option: MealType) {
+		return selected.includes(option);
 	}
 </script>
 
 <div class="flex flex-wrap gap-2" role="group">
 	{#each options as option (option)}
-		<button
-			type="button"
-			aria-pressed={selected.includes(option)}
-			onclick={() => toggle(option)}
-			class="
-          focus-visible:ring-green-500 rounded-full border px-3 py-1.5 text-sm
-          font-medium transition-colors
-          duration-150 focus-visible:ring-2
-          focus-visible:ring-offset-2 focus-visible:outline-none
-        "
-			class:bg-green-100={selected.includes(option)}
-			class:border-green-300={selected.includes(option)}
-			class:text-green-800={selected.includes(option)}
-			class:bg-white={!selected.includes(option)}
-			class:border-gray-300={!selected.includes(option)}
-			class:text-gray-700={!selected.includes(option)}
-			class:hover:bg-gray-50={!selected.includes(option)}
-		>
-			{option}
+		<button class="rounded-full" type="button" onclick={() => toggle(option)}>
+			<Badge
+				text={option}
+				bgColor={isSelected(option) ? 'bg-vibrant-green' : ''}
+				textColor={isSelected(option) ? 'text-white' : 'text-orange'}
+				borderColor={isSelected(option) ? 'border-vibrant-green' : 'border-orange'}
+			/>
 		</button>
 	{/each}
 </div>
