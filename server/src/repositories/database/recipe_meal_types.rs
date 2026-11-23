@@ -37,7 +37,7 @@ impl RecipeMealTypes {
                 recipe_id,
                 meal_type AS "meal_type: MealType";"#,
             recipe_id,
-            meal_type as _,
+            meal_type as MealType,
         )
         .fetch_one(executor)
         .await?;
@@ -57,7 +57,7 @@ impl RecipeMealTypes {
                 recipe_id,
                 meal_type AS "meal_type: MealType";"#,
             recipe_id,
-            meal_type as _,
+            meal_type as &[MealType],
         )
         .fetch_all(executor)
         .await?;
@@ -77,7 +77,7 @@ impl RecipeMealTypes {
                 recipe_id,
                 meal_type AS "meal_type: MealType";"#,
             recipe_id,
-            meal_type as _,
+            meal_type as MealType,
         )
         .fetch_one(executor)
         .await?;
