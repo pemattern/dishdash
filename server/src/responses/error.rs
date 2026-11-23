@@ -92,6 +92,7 @@ impl IntoResponse for ErrorSchema {
 
 impl From<AppError> for ErrorSchema {
     fn from(error: AppError) -> Self {
+        dbg!(&error);
         match error.clone() {
             AppError::Internal(_error) => Self::internal_server_error(),
             AppError::ResourceNotFound => Self::not_found(),

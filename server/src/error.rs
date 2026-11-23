@@ -46,6 +46,7 @@ impl From<tokio::io::Error> for AppError {
 
 impl From<base64::DecodeError> for AppError {
     fn from(_error: base64::DecodeError) -> Self {
+        dbg!(&_error);
         AppError::InvalidData
     }
 }

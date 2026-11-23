@@ -68,5 +68,5 @@ pub enum IngredientCategoryCode {
     SaucesCondiments,
     Seafood,
     Sweeteners,
-    Vegetable,
+    Vegetables,
 }

@@ -95,7 +95,8 @@ mod tests {
     use uuid::Uuid;
 
     use crate::{
-        auth::token::generate_access_token, create_router, seed_data::upsert_seed_data_tables,
+        auth::token::generate_access_token, create_router, requests::constants::MealTypeCode,
+        seed_data::upsert_seed_data_tables,
     };
 
     #[sqlx::test]
@@ -103,12 +104,14 @@ mod tests {
         let app = create_router(pool);
         let token = generate_access_token(Uuid::nil()).unwrap();
         let name = "pumpkin soup";
-        let image_data = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j5ZsAAAAASUVORK5CYII=";
+        let image_data = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=";
         let duration = 10;
+        let meal_types = vec![MealTypeCode::Dinner, MealTypeCode::SideDish];
         let json = json!({
             "name": name,
             "imageData": image_data,
-            "durationMinutes" : duration,
+            "durationMinutes": duration,
+            "mealTypes": meal_types,
         });
         let response = app
             .clone()
