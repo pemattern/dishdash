@@ -1,4 +1,4 @@
-CREATE TYPE ingredient_category AS ENUM (
+CREATE TYPE ingredient_category_code AS ENUM (
     'baking-ingredients',
     'canned-preserved',
     'dairy-eggs',
@@ -20,7 +20,7 @@ CREATE TYPE ingredient_category AS ENUM (
 
 CREATE TABLE ingredients (
     code TEXT PRIMARY KEY,
-    ingredient_category ingredient_category NOT NULL
+    ingredient_category_code ingredient_category_code NOT NULL
 );
 
 CREATE TABLE ingredient_translations (

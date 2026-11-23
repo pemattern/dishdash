@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     models::{RecipeMealTypeModel, RecipeModel},
-    requests::constants::MealType,
+    requests::constants::MealTypeCode,
 };
 
 #[allow(dead_code)]
@@ -20,12 +20,12 @@ struct RecipePayload {
     #[payload(write_rename = "image_data")]
     pub image_url: Option<String>,
     pub duration_minutes: i32,
-    pub meal_types: Vec<MealType>,
+    pub meal_types: Vec<MealTypeCode>,
 }
 
 impl From<(RecipeModel, Vec<RecipeMealTypeModel>)> for RecipeResponse {
     fn from(value: (RecipeModel, Vec<RecipeMealTypeModel>)) -> Self {
-        let meal_types = value.1.into_iter().map(|mt| mt.meal_type).collect();
+        let meal_types = value.1.into_iter().map(|mt| mt.meal_type_code).collect();
         Self {
             id: value.0.id,
             created_at: value.0.created_at,

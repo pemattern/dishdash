@@ -16,7 +16,7 @@ CREATE TABLE meal_types (
     code TEXT PRIMARY KEY
 );
 
-CREATE TYPE meal_type AS ENUM (
+CREATE TYPE meal_type_code AS ENUM (
     'breakfast',
     'brunch',
     'lunch',
@@ -30,18 +30,19 @@ CREATE TYPE meal_type AS ENUM (
 
 CREATE TABLE recipe_meal_types (
     recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
-    meal_type meal_type NOT NULL,
+    meal_type_code meal_type_code NOT NULL,
 
-    PRIMARY KEY (recipe_id, meal_type)
+    PRIMARY KEY (recipe_id, meal_type_code)
 );
 
 CREATE INDEX recipe_meal_types_meal_type_code_index
-    ON recipe_meal_types(meal_type);
+    ON recipe_meal_types(meal_type_code);
 
 CREATE TABLE recipe_ingredients (
     recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
     ingredient_code TEXT NOT NULL REFERENCES ingredients(code) ON DELETE RESTRICT,
-    unit_code TEXT NOT NULL REFERENCES units(code) ON DELETE RESTRICT,
+    unit_code unit_code NOT NULL,
+    unit_system_code unit_system_code NOT NULL,
     position INT NOT NULL CHECK (position >= 0),
     quantity REAL NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -50,7 +51,8 @@ CREATE TABLE recipe_ingredients (
     PRIMARY KEY (recipe_id, ingredient_code),
     CONSTRAINT recipe_ingredient_recipe_id_position_unique
         UNIQUE (recipe_id, position)
-        DEFERRABLE INITIALLY DEFERRED
+        DEFERRABLE INITIALLY DEFERRED,
+    FOREIGN KEY (unit_code, unit_system_code) REFERENCES units (code, unit_system_code)
 );
 
 CREATE TRIGGER update_recipe_ingredients_updated_at

@@ -2,7 +2,10 @@ use chrono::{DateTime, Utc};
 use lib::Payload;
 use uuid::Uuid;
 
-use crate::models::RecipeIngredientModel;
+use crate::{
+    models::RecipeIngredientModel,
+    requests::constants::{UnitCode, UnitSystemCode},
+};
 
 #[allow(dead_code)]
 #[derive(Payload)]
@@ -15,7 +18,8 @@ struct RecipeIngredientPayload {
     pub recipe_id: Uuid,
     #[payload(read_only)]
     pub ingredient_code: String,
-    pub unit_code: String,
+    pub unit_code: UnitCode,
+    pub unit_system_code: UnitSystemCode,
     pub position: i32,
     pub quantity: f32,
 }
@@ -28,6 +32,7 @@ impl From<RecipeIngredientModel> for RecipeIngredientResponse {
             recipe_id: value.recipe_id,
             ingredient_code: value.ingredient_code,
             unit_code: value.unit_code,
+            unit_system_code: value.unit_system_code,
             position: value.position,
             quantity: value.quantity,
         }

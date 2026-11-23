@@ -5,6 +5,7 @@ use crate::{
     error::AppResult,
     models::RecipeIngredientModel,
     payloads::recipe_ingredient::{CreateRecipeIngredientRequest, UpdateRecipeIngredientRequest},
+    requests::constants::{UnitCode, UnitSystemCode},
 };
 
 pub struct RecipeIngredients;
@@ -16,8 +17,17 @@ impl RecipeIngredients {
     ) -> AppResult<Vec<RecipeIngredientModel>> {
         let recipe_ingredients = sqlx::query_as!(
             RecipeIngredientModel,
-            "SELECT * FROM recipe_ingredients
-            WHERE recipe_id = $1;",
+            r#"SELECT
+                created_at,
+                updated_at,
+                recipe_id,
+                ingredient_code,
+                unit_code AS "unit_code: UnitCode",
+                unit_system_code AS "unit_system_code: UnitSystemCode",
+                position,
+                quantity
+            FROM recipe_ingredients
+            WHERE recipe_id = $1;"#,
             recipe_id,
         )
         .fetch_all(executor)
@@ -33,12 +43,21 @@ impl RecipeIngredients {
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredientModel,
-            "INSERT INTO recipe_ingredients (recipe_id, ingredient_code, unit_code, position, quantity)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;",
+            r#"INSERT INTO recipe_ingredients (recipe_id, ingredient_code, unit_code, unit_system_code, position, quantity)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING
+                created_at,
+                updated_at,
+                recipe_id,
+                ingredient_code,
+                unit_code AS "unit_code: UnitCode",
+                unit_system_code AS "unit_system_code: UnitSystemCode",
+                position,
+                quantity;"#,
             recipe_id,
             ingredient_code,
-            recipe_ingredient.unit_code,
+            recipe_ingredient.unit_code as UnitCode,
+            recipe_ingredient.unit_system_code as UnitSystemCode,
             recipe_ingredient.position,
             recipe_ingredient.quantity,
         )
@@ -55,14 +74,24 @@ impl RecipeIngredients {
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredientModel,
-            "UPDATE recipe_ingredients
+            r#"UPDATE recipe_ingredients
             SET
                 unit_code = COALESCE($1, unit_code),
-                position = COALESCE($2, position),
-                quantity = COALESCE($3, quantity)
-            WHERE recipe_id = $4 AND ingredient_code = $5
-            RETURNING *;",
-            recipe_ingredient.unit_code,
+                unit_system_code = COALESCE($2, unit_system_code),
+                position = COALESCE($3, position),
+                quantity = COALESCE($4, quantity)
+            WHERE recipe_id = $5 AND ingredient_code = $6
+            RETURNING
+                created_at,
+                updated_at,
+                recipe_id,
+                ingredient_code,
+                unit_code AS "unit_code: UnitCode",
+                unit_system_code AS "unit_system_code: UnitSystemCode",
+                position,
+                quantity;"#,
+            recipe_ingredient.unit_code as Option<UnitCode>,
+            recipe_ingredient.unit_system_code as Option<UnitSystemCode>,
             recipe_ingredient.position,
             recipe_ingredient.quantity,
             recipe_id,
@@ -80,9 +109,17 @@ impl RecipeIngredients {
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
             RecipeIngredientModel,
-            "DELETE FROM recipe_ingredients
+            r#"DELETE FROM recipe_ingredients
             WHERE recipe_id = $1 AND ingredient_code = $2
-            RETURNING *;",
+            RETURNING
+                created_at,
+                updated_at,
+                recipe_id,
+                ingredient_code,
+                unit_code AS "unit_code: UnitCode",
+                unit_system_code AS "unit_system_code: UnitSystemCode",
+                position,
+                quantity;"#,
             recipe_id,
             ingredient_code,
         )

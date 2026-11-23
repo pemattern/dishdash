@@ -1,6 +1,6 @@
 use sqlx::PgExecutor;
 
-use crate::requests::constants::{PhysicalQuantity, UnitSystem};
+use crate::requests::constants::{PhysicalQuantityCode, UnitCode, UnitSystemCode};
 use crate::{error::AppResult, models::UnitModel};
 
 pub struct Units;
@@ -10,9 +10,9 @@ impl Units {
         let units = sqlx::query_as!(
             UnitModel,
             r#"SELECT
-                code,
-                physical_quantity AS "physical_quantity: PhysicalQuantity",
-                unit_system AS "unit_system: UnitSystem",
+                code AS "code: UnitCode",
+                physical_quantity_code AS "physical_quantity_code: PhysicalQuantityCode",
+                unit_system_code AS "unit_system_code: UnitSystemCode",
                 symbol,
                 si_factor
             FROM units;"#

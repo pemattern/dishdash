@@ -34,24 +34,44 @@ CREATE TABLE locales (
     code TEXT PRIMARY KEY
 );
 
-CREATE TYPE physical_quantity AS ENUM (
+CREATE TYPE physical_quantity_code AS ENUM (
     'count',
     'mass',
     'volume'
 );
 
-CREATE TYPE unit_system AS ENUM (
+CREATE TYPE unit_system_code AS ENUM (
     'imperial',
     'metric',
     'us-customary'
 );
 
+CREATE TYPE unit_code AS ENUM (
+    'piece',
+    'dozen',
+    'milligram',
+    'gram',
+    'kilogram',
+    'ounce',
+    'pound',
+    'milliliter',
+    'liter',
+    'teaspoon',
+    'tablespoon',
+    'fluid-ounce',
+    'cup',
+    'pint',
+    'quart',
+    'gallon'
+);
+
 CREATE TABLE units (
-    code TEXT PRIMARY KEY,
-    physical_quantity physical_quantity NOT NULL,
-    unit_system unit_system NOT NULL,
+    code unit_code NOT NULL,
+    physical_quantity_code physical_quantity_code NOT NULL,
+    unit_system_code unit_system_code NOT NULL,
     symbol TEXT NOT NULL,
-    si_factor FLOAT8 NOT NULL CHECK (si_factor > 0)
+    si_factor FLOAT8 NOT NULL CHECK (si_factor > 0),
+    PRIMARY KEY (code, unit_system_code)
 );
 
 CREATE TABLE users (

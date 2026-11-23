@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
 #[serde(rename_all = "kebab-case")]
-#[ts(export, export_to = BINDINGS_PATH, repr(enum = name))]
-#[sqlx(type_name = "meal_type", rename_all = "kebab-case")]
-pub enum MealType {
+#[ts(export, export_to = BINDINGS_PATH)]
+#[sqlx(type_name = "meal_type_code", rename_all = "kebab-case")]
+pub enum MealTypeCode {
     Breakfast,
     Brunch,
     Lunch,
@@ -19,9 +19,9 @@ pub enum MealType {
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
 #[serde(rename_all = "kebab-case")]
-#[ts(export, export_to = BINDINGS_PATH, repr(enum = name))]
-#[sqlx(type_name = "physical_quantity", rename_all = "kebab-case")]
-pub enum PhysicalQuantity {
+#[ts(export, export_to = BINDINGS_PATH)]
+#[sqlx(type_name = "physical_quantity_code", rename_all = "kebab-case")]
+pub enum PhysicalQuantityCode {
     Count,
     Mass,
     Volume,
@@ -29,9 +29,9 @@ pub enum PhysicalQuantity {
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
 #[serde(rename_all = "kebab-case")]
-#[ts(export, export_to = BINDINGS_PATH, repr(enum = name))]
-#[sqlx(type_name = "unit_system", rename_all = "kebab-case")]
-pub enum UnitSystem {
+#[ts(export, export_to = BINDINGS_PATH)]
+#[sqlx(type_name = "unit_system_code", rename_all = "kebab-case")]
+pub enum UnitSystemCode {
     Imperial,
     Metric,
     UsCustomary,
@@ -39,9 +39,19 @@ pub enum UnitSystem {
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
 #[serde(rename_all = "kebab-case")]
-#[ts(export, export_to = BINDINGS_PATH, repr(enum = name))]
-#[sqlx(type_name = "ingredient_category", rename_all = "kebab-case")]
-pub enum IngredientCategory {
+#[ts(export, export_to = BINDINGS_PATH)]
+#[sqlx(type_name = "unit_code", rename_all = "kebab-case")]
+pub enum UnitCode {
+    Imperial,
+    Metric,
+    UsCustomary,
+}
+
+#[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
+#[serde(rename_all = "kebab-case")]
+#[ts(export, export_to = BINDINGS_PATH)]
+#[sqlx(type_name = "ingredient_category_code", rename_all = "kebab-case")]
+pub enum IngredientCategoryCode {
     BakingIngredients,
     CannedPreserved,
     DairyEggs,

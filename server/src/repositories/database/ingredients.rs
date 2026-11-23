@@ -3,7 +3,7 @@ use sqlx::PgExecutor;
 use crate::{
     error::AppResult,
     models::{IngredientModel, IngredientSearch},
-    requests::{constants::IngredientCategory, search_query::SearchQuery},
+    requests::{constants::IngredientCategoryCode, search_query::SearchQuery},
 };
 
 pub struct Ingredients;
@@ -14,7 +14,7 @@ impl Ingredients {
             IngredientModel,
             r#"SELECT
                 code,
-                ingredient_category AS "ingredient_category: IngredientCategory"
+                ingredient_category_code AS "ingredient_category_code: IngredientCategoryCode"
             FROM ingredients;"#
         )
         .fetch_all(executor)
@@ -34,7 +34,7 @@ impl Ingredients {
             matches AS (
                 SELECT
                     i.code,
-                    i.ingredient_category,
+                    i.ingredient_category_code,
                     t.name,
                     t.name_plural,
                     t.name_normalized,
@@ -58,7 +58,7 @@ impl Ingredients {
                 UNION ALL
                 SELECT
                     i.code,
-                    i.ingredient_category,
+                    i.ingredient_category_code,
                     t.name,
                     t.name_plural,
                     a.name_normalized,
@@ -85,14 +85,14 @@ impl Ingredients {
             )
             SELECT
                 code AS "code!",
-                ingredient_category AS "ingredient_category!: IngredientCategory",
+                ingredient_category_code AS "ingredient_category_code!: IngredientCategoryCode",
                 name AS "name!",
                 name_plural AS "name_plural!",
                 alias
             FROM matches
             GROUP BY
                 code,
-                ingredient_category,
+                ingredient_category_code,
                 name,
                 name_plural,
                 alias
