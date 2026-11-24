@@ -6,10 +6,11 @@
 
 	type Props = {
 		selected?: MealTypeCode[];
+		required?: boolean;
 		label?: string;
 	};
 
-	let { selected = $bindable<MealTypeCode[]>([]), label }: Props = $props();
+	let { selected = $bindable<MealTypeCode[]>([]), required = false, label }: Props = $props();
 
 	function toggle(mealTypeCode: MealTypeCode) {
 		if (selected.includes(mealTypeCode)) {
@@ -26,7 +27,7 @@
 
 <div class="flex flex-col">
 	{#if label}
-		<Label for="mealTypeSelector">{label}</Label>
+		<Label {required} for="mealTypeSelector">{label}</Label>
 	{/if}
 	<div id="mealTypeSelector" class="flex flex-wrap gap-2" role="group">
 		{#each mealTypeLabelMap as option (option)}

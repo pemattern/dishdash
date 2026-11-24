@@ -100,6 +100,7 @@
 			bind:value={name}
 			name="name"
 			type="text"
+			required={true}
 			focus={open}
 			label={m.title()}
 			placeholder="Oven veggies"
@@ -108,11 +109,12 @@
 			bind:value={durationMinutesString}
 			name="durationMinutesInput"
 			type="number"
+			required={true}
 			label={m.preparationTime()}
 			placeholder="25"
 		/>
 	</div>
-	<MealTypeSelector label={m.selectMealTypes()} bind:selected={mealTypes} />
+	<MealTypeSelector required={true} label={m.selectMealTypes()} bind:selected={mealTypes} />
 	<ImageUpload label={m.uploadCoverPhoto()} onUpload={handleUpload} />
 	{error}
 </FormModal>

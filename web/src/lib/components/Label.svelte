@@ -16,7 +16,7 @@
 	<label for={htmlFor} class="mb-1 text-sm font-medium text-dark-gray">
 		{@render children()}
 		{#if required}
-			<span class="ml-0.5 text-dark-orange" aria-hidden="true">*</span>
+			<span class="ml-0.5 text-orange" aria-hidden="true">*</span>
 		{/if}
 	</label>
 </div>

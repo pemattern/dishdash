@@ -12,6 +12,7 @@
 		maxSize?: number;
 		accept?: string;
 		onUpload?: (files: File[]) => void;
+		required?: boolean;
 		label?: string;
 	};
 
@@ -20,6 +21,7 @@
 		maxSize: maxFileSize = 5,
 		accept = 'image/png,image/jpeg,image/webp',
 		onUpload = () => {},
+		required = false,
 		label
 	}: Props = $props();
 
@@ -91,7 +93,7 @@
 
 <div class="flex flex-col">
 	{#if label}
-		<Label for="fileInput">{label}</Label>
+		<Label {required} for="fileInput">{label}</Label>
 	{/if}
 	<div class="w-full space-y-4">
 		<label
