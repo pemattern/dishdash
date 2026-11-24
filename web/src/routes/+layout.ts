@@ -7,5 +7,5 @@ export const csr = true;
 
 export const load: LayoutLoad = async ({ fetch }) => {
 	setFetch(fetch);
-	setLocale('en');
+	setLocale('de');
 };

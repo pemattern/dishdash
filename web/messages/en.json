@@ -11,5 +11,8 @@
 	"appetizer": "Appetizer",
 	"sideDish": "Side Dish",
 	"drink": "Drink",
-	"maxFileSize": "Maximum file size is {maxFileSize} MB."
+	"maxFileSize": "Maximum file size is {maxFileSize} MB.",
+	"uploadCoverPhoto": "Upload cover photo",
+	"selectMealTypes": "Select meal types",
+	"preparationTime": "Preparation time (in minutes)"
 }

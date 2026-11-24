@@ -17,7 +17,7 @@
   --color-orange: #c69b83;
   --color-dark-orange: #895744;
   --color-black: #3a3a3a;
-  --color-dark-gray: #3d3f44;
+  --color-dark-gray: #4e5255;
   --color-gray: #77796f;
   --color-light-gray: #f8f8fe;
   --color-dark-blue: #4250af;
@@ -63,4 +63,14 @@
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
+}
+
+@utility scrollbar-hide {
+	/* Firefox */
+	scrollbar-width: none;
+
+	/* Chrome, Safari and Edge */
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }

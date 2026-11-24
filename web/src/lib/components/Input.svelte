@@ -12,14 +12,14 @@
 	});
 </script>
 
-<div class="flex flex-col">
+<div class="flex min-w-0 flex-1 flex-col">
 	{#if label}
 		<label for={props.id} class="mb-1 text-sm font-bold text-dark-gray">{label}</label>
 	{/if}
 	<input
 		bind:this={input}
 		bind:value
-		class="rounded-md border border-light-orange px-3 py-2 text-gray hover:bg-off-white"
+		class="w-full min-w-0 rounded-md border border-light-orange px-3 py-2 text-gray hover:bg-off-white"
 		{...props}
 	/>
 </div>

@@ -32,7 +32,7 @@
 			}
 		}}
 	>
-		<section class="w-fit max-w-xl overflow-y-auto rounded-xl bg-white text-dark-gray shadow-2xl">
+		<section class="w-fit max-w-lg overflow-y-auto rounded-xl bg-white text-dark-gray shadow-2xl">
 			<div class="p-4">
 				{@render children()}
 			</div>

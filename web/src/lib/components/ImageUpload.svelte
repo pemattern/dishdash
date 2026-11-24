@@ -11,13 +11,15 @@
 		maxSize?: number;
 		accept?: string;
 		onUpload?: (files: File[]) => void;
+		label?: string;
 	};
 
 	let {
 		multiple = false,
 		maxSize: maxFileSize = 5,
 		accept = 'image/png,image/jpeg,image/webp',
-		onUpload = () => {}
+		onUpload = () => {},
+		label
 	}: Props = $props();
 
 	let files = $state<UploadedImage[]>([]);
@@ -86,75 +88,87 @@
 	});
 </script>
 
-<div class="w-full space-y-4">
-	<label
-		class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 text-center text-orange hover:bg-off-white"
-		class:border-orange={!dragging}
-		class:bg-white={!dragging}
-		ondragover={handleDragOver}
-		ondragleave={handleDragLeave}
-		ondrop={handleDrop}
-	>
-		<input type="file" {accept} {multiple} onchange={handleChange} class="hidden" />
-
-		<div
-			class="bg-indigo-100 text-indigo-600 flex size-14 items-center justify-center rounded-full"
+<div class="flex flex-col">
+	{#if label}
+		<label for="fileInput" class="mb-1 text-sm font-bold text-dark-gray">{label}</label>
+	{/if}
+	<div class="w-full space-y-4">
+		<label
+			class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 text-center text-orange hover:bg-off-white"
+			class:border-orange={!dragging}
+			class:bg-white={!dragging}
+			ondragover={handleDragOver}
+			ondragleave={handleDragLeave}
+			ondrop={handleDrop}
 		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="1.5"
-				stroke="currentColor"
-				class="size-7"
+			<input
+				id="fileInput"
+				type="file"
+				{accept}
+				{multiple}
+				onchange={handleChange}
+				class="hidden"
+			/>
+
+			<div
+				class="bg-indigo-100 text-indigo-600 flex size-14 items-center justify-center rounded-full"
 			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 7.5 12 3m0 0L7.5 7.5M12 3v13.5"
-				/>
-			</svg>
-		</div>
-
-		<div class="space-y-1">
-			<p class="text-sm font-semibold">Drop your images here</p>
-			<p class="text-sm">
-				or <span class="font-semibold">browse files</span>
-			</p>
-		</div>
-
-		<p class="text-xs">
-			PNG, JPG or WebP · Max {maxFileSize} MB
-		</p>
-	</label>
-
-	{#if error}
-		<p class="text-sm">{error}</p>
-	{/if}
-
-	{#if files.length > 0}
-		<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-			{#each files as item, i (item.file.name + item.file.lastModified)}
-				<div class="group relative min-w-0">
-					<img
-						src={item.url}
-						alt={item.file.name}
-						class="aspect-square w-full rounded-lg border border-light-orange object-cover"
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-7"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 7.5 12 3m0 0L7.5 7.5M12 3v13.5"
 					/>
+				</svg>
+			</div>
 
-					<button
-						type="button"
-						onclick={() => removeFile(i)}
-						class="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full border border-light-orange bg-white text-orange hover:cursor-pointer hover:bg-off-white"
-					>
-						×
-					</button>
+			<div class="space-y-1">
+				<p class="text-sm font-semibold">Drop your images here</p>
+				<p class="text-sm">
+					or <span class="font-semibold">browse files</span>
+				</p>
+			</div>
 
-					<p class="mt-1 truncate text-xs text-gray">
-						{item.file.name}
-					</p>
-				</div>
-			{/each}
-		</div>
-	{/if}
+			<p class="text-xs">
+				PNG, JPG or WebP · Max {maxFileSize} MB
+			</p>
+		</label>
+
+		{#if error}
+			<p class="text-sm">{error}</p>
+		{/if}
+
+		{#if files.length > 0}
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+				{#each files as item, i (item.file.name + item.file.lastModified)}
+					<div class="group relative min-w-0">
+						<img
+							src={item.url}
+							alt={item.file.name}
+							class="aspect-square w-full rounded-lg border border-light-orange object-cover"
+						/>
+
+						<button
+							type="button"
+							onclick={() => removeFile(i)}
+							class="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full border border-light-orange bg-white text-orange hover:cursor-pointer hover:bg-off-white"
+						>
+							×
+						</button>
+
+						<p class="mt-1 truncate text-xs text-gray">
+							{item.file.name}
+						</p>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</div>
 </div>

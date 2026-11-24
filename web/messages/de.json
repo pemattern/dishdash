@@ -11,5 +11,8 @@
 	"appetizer": "Vorspeise",
 	"sideDish": "Beilage",
 	"drink": "Getränk",
-	"maxFileSize": "Dateien dürfen nicht größer als {maxFileSize} MB sein."
+	"maxFileSize": "Dateien dürfen nicht größer als {maxFileSize} MB sein.",
+	"uploadCoverPhoto": "Titelbild hochladen",
+	"selectMealTypes": "Gerichtkategorien auswählen",
+	"preparationTime": "Zubereitungszeit (in Minuten)"
 }

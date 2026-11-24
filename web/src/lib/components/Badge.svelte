@@ -12,7 +12,7 @@
 </script>
 
 <div
-	class={`rounded-full px-2 py-1 text-xs font-semibold
+	class={`rounded-full px-2 py-1 font-sans text-xs font-semibold
         ${textColor ? textColor : ''} ${bgColor ? bgColor : ''}
         ${borderColor ? `border ${borderColor}` : ''}
         ${ringColor ? `ring ${ringColor}` : ''}

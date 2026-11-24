@@ -16,12 +16,20 @@
 	let name: string = $state('');
 	let imageData: string | null = $state(null);
 	let durationMinutes: number = $state(0);
+	let durationMinutesString: string = $state('');
 	let mealTypes: MealTypeCode[] = $state([]);
 	let error = $state('');
 
 	$effect(() => {
 		if (!open) {
 			resetForm();
+		}
+	});
+
+	$effect(() => {
+		let value = parseInt(durationMinutesString);
+		if (!isNaN(value)) {
+			durationMinutes = value;
 		}
 	});
 
@@ -74,28 +82,37 @@
 </script>
 
 <button
-	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm font-bold text-off-white inset-ring inset-ring-orange hover:cursor-pointer hover:bg-off-white hover:text-orange hover:inset-ring-orange"
+	class="m-4 rounded-full bg-orange px-3 py-2 font-sans text-sm font-semibold text-off-white inset-ring inset-ring-orange hover:cursor-pointer hover:bg-off-white hover:text-orange hover:inset-ring-orange"
 	onclick={() => (open = true)}
 >
-	{m.newRecipe()}</button
+	+ {m.newRecipe()}</button
 >
 
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+<div class="mx-auto grid w-fit grid-cols-1 justify-center gap-6 sm:grid-cols-2 lg:grid-cols-3">
 	{#each data.recipes as recipe (recipe.id)}
-		<RecipeCard {recipe} />
+		<div class="w-full max-w-100 min-w-0"><RecipeCard {recipe} /></div>
 	{/each}
 </div>
 
 <FormModal bind:open {handleSubmit}>
-	<Input
-		bind:value={name}
-		name="name"
-		type="text"
-		focus={open}
-		label={m.title()}
-		placeholder="Oven veggies"
-	/>
-	<MealTypeSelector bind:selected={mealTypes} />
-	<ImageUpload onUpload={handleUpload} />
+	<div class="flex flex-row gap-4">
+		<Input
+			bind:value={name}
+			name="name"
+			type="text"
+			focus={open}
+			label={m.title()}
+			placeholder="Oven veggies"
+		/>
+		<Input
+			bind:value={durationMinutesString}
+			name="durationMinutesInput"
+			type="number"
+			label={m.preparationTime()}
+			placeholder="25"
+		/>
+	</div>
+	<MealTypeSelector label={m.selectMealTypes()} bind:selected={mealTypes} />
+	<ImageUpload label={m.uploadCoverPhoto()} onUpload={handleUpload} />
 	{error}
 </FormModal>
