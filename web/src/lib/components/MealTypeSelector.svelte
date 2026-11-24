@@ -1,35 +1,53 @@
 <script lang="ts">
-	import { MealType } from '$bindings';
+	import * as m from '#lib/paraglide/messages.js';
+	import type { MealTypeCode } from '$bindings';
 	import Badge from './Badge.svelte';
 
 	type Props = {
-		selected?: MealType[];
+		selected?: MealTypeCode[];
 	};
 
-	let { selected = $bindable<MealType[]>([]) }: Props = $props();
-	let options = Object.values(MealType) as MealType[];
+	let { selected = $bindable<MealTypeCode[]>([]) }: Props = $props();
 
-	function toggle(option: MealType) {
-		if (selected.includes(option)) {
-			selected = selected.filter((item) => item !== option);
+	const options = new Map<MealTypeCode, string>([
+		['breakfast', m.breakfast()],
+		['brunch', m.brunch()],
+		['lunch', m.lunch()],
+		['dinner', m.dinner()],
+		['snack', m.snack()],
+		['dessert', m.dessert()],
+		['appetizer', m.appetizer()],
+		['side-dish', m.sideDish()],
+		['drink', m.drink()]
+	]);
+
+	function toggle(mealTypeCode: MealTypeCode) {
+		if (selected.includes(mealTypeCode)) {
+			selected = selected.filter((item) => item !== mealTypeCode);
 		} else {
-			selected.push(option);
+			selected.push(mealTypeCode);
 		}
 	}
 
-	function isSelected(option: MealType) {
-		return selected.includes(option);
+	function isSelected(mealTypeCode: MealTypeCode) {
+		return selected.includes(mealTypeCode);
 	}
 </script>
 
 <div class="flex flex-wrap gap-2" role="group">
 	{#each options as option (option)}
-		<button class="rounded-full" type="button" onclick={() => toggle(option)}>
+		<button
+			class="rounded-full hover:cursor-pointer"
+			type="button"
+			onclick={() => toggle(option[0])}
+		>
 			<Badge
-				text={option}
-				bgColor={isSelected(option) ? 'bg-vibrant-green' : ''}
-				textColor={isSelected(option) ? 'text-white' : 'text-orange'}
-				borderColor={isSelected(option) ? 'border-vibrant-green' : 'border-orange'}
+				text={option[1]}
+				bgColor={isSelected(option[0])
+					? 'bg-lighter-green hover:bg-light-green'
+					: 'hover:bg-off-white'}
+				textColor={isSelected(option[0]) ? 'text-white' : 'text-orange'}
+				borderColor={isSelected(option[0]) ? 'border-lighter-green' : 'border-orange'}
 			/>
 		</button>
 	{/each}

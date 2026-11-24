@@ -3,11 +3,9 @@
 
 	let {
 		open = $bindable(),
-		title = undefined,
 		children
 	}: {
 		open?: boolean;
-		title?: string;
 		children: Snippet;
 	} = $props();
 
@@ -35,11 +33,6 @@
 		}}
 	>
 		<section class="w-fit max-w-xl overflow-y-auto rounded-xl bg-white text-dark-gray shadow-2xl">
-			<header class="rounded-t-xl bg-gray p-4">
-				<h2 class="text-center text-3xl italic">
-					{title}
-				</h2>
-			</header>
 			<div class="p-4">
 				{@render children()}
 			</div>

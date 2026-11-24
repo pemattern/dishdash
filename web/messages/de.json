@@ -1,7 +1,15 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"title": "Titel",
-	"recipe": {
-	  "create": "Gericht erstellen"
-	}
+	"newRecipe": "Gericht erstellen",
+	"breakfast": "Frühstück",
+	"brunch": "Brunch",
+	"lunch": "Mittagessen",
+	"dinner": "Abendessen",
+	"snack": "Snack",
+	"dessert": "Nachtisch",
+	"appetizer": "Vorspeise",
+	"sideDish": "Beilage",
+	"drink": "Getränk",
+	"maxFileSize": "Dateien dürfen nicht größer als {maxFileSize} MB sein."
 }

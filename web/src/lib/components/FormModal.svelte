@@ -4,23 +4,21 @@
 
 	let {
 		open = $bindable(),
-		title = undefined,
 		handleSubmit,
 		children
 	}: {
 		open: boolean;
-		title?: string;
 		handleSubmit: (event: SubmitEvent) => void;
 		children: Snippet;
 	} = $props();
 </script>
 
-<Modal bind:open {title}>
+<Modal bind:open>
 	<form onsubmit={handleSubmit} class="flex font-sans">
 		<div class="flex flex-col gap-y-4">
 			{@render children()}
 			<input
-				class="w-full cursor-pointer rounded-md bg-blue p-2 text-[18px] text-dark-gray hover:bg-light-blue"
+				class="cursor-pointer rounded-sm bg-light-orange py-2 text-sm font-medium text-dark-orange inset-ring inset-ring-orange hover:bg-off-white hover:text-orange hover:inset-ring-light-orange"
 				type="submit"
 				value="Submit"
 			/>

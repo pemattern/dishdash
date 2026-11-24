@@ -1,5 +1,15 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"title": "Title",
-	"newRecipe": "New Recipe"
+	"newRecipe": "New Recipe",
+	"breakfast": "Breakfast",
+	"brunch": "Brunch",
+	"lunch": "Lunch",
+	"dinner": "Dinner",
+	"snack": "Snack",
+	"dessert": "Dessert",
+	"appetizer": "Appetizer",
+	"sideDish": "Side Dish",
+	"drink": "Drink",
+	"maxFileSize": "Maximum file size is {maxFileSize} MB."
 }

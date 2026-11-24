@@ -4,10 +4,11 @@
 	import Input from '#lib/components/Input.svelte';
 	import RecipeCard from '#lib/components/RecipeCard.svelte';
 	import { refreshAll } from '$app/navigation';
-	import type { CreateRecipeRequest, MealType } from '$bindings';
+	import type { CreateRecipeRequest, MealTypeCode } from '$bindings';
 	import type { PageProps } from './$types';
 	import { m } from '#lib/paraglide/messages.js';
 	import MealTypeSelector from '#lib/components/MealTypeSelector.svelte';
+	import ImageUpload from '#lib/components/ImageUpload.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -15,7 +16,7 @@
 	let name: string = $state('');
 	let imageData: string | null = $state(null);
 	let durationMinutes: number = $state(0);
-	let mealTypes: MealType[] = $state([]);
+	let mealTypes: MealTypeCode[] = $state([]);
 	let error = $state('');
 
 	$effect(() => {
@@ -26,26 +27,48 @@
 
 	function resetForm() {
 		name = '';
+		mealTypes = [];
+		durationMinutes = 0;
+		imageData = null;
 		error = '';
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		error = '';
-
 		const request: CreateRecipeRequest = {
 			name,
 			imageData,
 			durationMinutes,
 			mealTypes
 		};
-
 		try {
 			await api.recipes.create(request);
 			await refreshAll();
 			open = false;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Something went wrong';
+		}
+	}
+
+	async function fileToBase64(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => {
+				const result = reader.result as string;
+				resolve(result);
+			};
+			reader.onerror = () => reject(reader.error);
+			reader.readAsDataURL(file);
+		});
+	}
+
+	async function handleUpload(files: File[]) {
+		try {
+			const base64Images = await Promise.all(files.map(async (file) => await fileToBase64(file)));
+			imageData = base64Images[0];
+		} catch (error) {
+			console.error('Image conversion failed:', error);
 		}
 	}
 </script>
@@ -73,5 +96,6 @@
 		placeholder="Oven veggies"
 	/>
 	<MealTypeSelector bind:selected={mealTypes} />
+	<ImageUpload onUpload={handleUpload} />
 	{error}
 </FormModal>

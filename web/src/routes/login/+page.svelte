@@ -36,7 +36,7 @@
 					>
 				</div>
 				<input
-					class="cursor-pointer rounded-sm bg-light-orange py-2 font-bold text-dark-orange inset-ring inset-ring-orange hover:bg-white hover:text-orange hover:inset-ring-light-orange"
+					class="cursor-pointer rounded-sm bg-light-orange py-2 font-semibold text-dark-orange inset-ring inset-ring-orange hover:bg-white hover:text-orange hover:inset-ring-light-orange"
 					type="submit"
 					value="Login"
 				/>

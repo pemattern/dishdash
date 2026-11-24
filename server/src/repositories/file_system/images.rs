@@ -20,11 +20,11 @@ pub struct Images;
 impl Images {
     pub async fn save_recipe_image(image_data: String) -> AppResult<String> {
         fs::create_dir_all(&*RECIPES_PATH).await?;
-        let bytes = STANDARD.decode(image_data)?;
-        let image_bytes = process_image(&bytes)?;
+        let input_bytes = decode_base64(&image_data)?;
+        let output_bytes = process_image(&input_bytes)?;
         let filename = format!("{}.jpg", Uuid::now_v7());
         let path = format!("{}/{}", *RECIPES_PATH, filename);
-        fs::write(&path, image_bytes).await?;
+        fs::write(&path, output_bytes).await?;
         Ok(path)
     }
 }
@@ -45,4 +45,13 @@ impl From<image::ImageError> for AppError {
     fn from(_error: image::ImageError) -> Self {
         AppError::UnsupportedImageFormat
     }
+}
+
+fn decode_base64(input: &str) -> AppResult<Vec<u8>> {
+    let payload = if input.starts_with("data:") {
+        input.split_once(',').ok_or(AppError::InvalidData)?.1
+    } else {
+        input
+    };
+    Ok(STANDARD.decode(payload)?)
 }

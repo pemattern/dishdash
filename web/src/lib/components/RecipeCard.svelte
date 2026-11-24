@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { RecipeSchema } from '$bindings';
+	import type { RecipeResponse } from '$bindings';
 	type Props = {
-		recipe: RecipeSchema;
+		recipe: RecipeResponse;
 	};
 	let { recipe }: Props = $props();
 </script>
 
 <article
-	class="overflow-hidden rounded-xl bg-off-white shadow-sm inset-ring inset-ring-light-green transition-shadow hover:bg-white hover:shadow-md"
+	class="overflow-hidden rounded-xl bg-white shadow-sm inset-ring inset-ring-light-orange transition-shadow hover:cursor-pointer hover:bg-off-white hover:shadow-md"
 >
 	<img src={recipe.imageUrl} alt={recipe.name} class="aspect-video w-full object-cover" />
 
