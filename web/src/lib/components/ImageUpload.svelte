@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as m from '#lib/paraglide/messages.js';
+	import Label from './Label.svelte';
 
 	type UploadedImage = {
 		file: File;
@@ -90,7 +91,7 @@
 
 <div class="flex flex-col">
 	{#if label}
-		<label for="fileInput" class="mb-1 text-sm font-bold text-dark-gray">{label}</label>
+		<Label for="fileInput">{label}</Label>
 	{/if}
 	<div class="w-full space-y-4">
 		<label

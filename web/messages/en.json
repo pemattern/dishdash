@@ -1,6 +1,7 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"title": "Title",
+	"logout": "Logout",
+	"search": "search for anything...",
 	"newRecipe": "New Recipe",
 	"breakfast": "Breakfast",
 	"brunch": "Brunch",
@@ -11,6 +12,7 @@
 	"appetizer": "Appetizer",
 	"sideDish": "Side Dish",
 	"drink": "Drink",
+	"title": "Title",
 	"maxFileSize": "Maximum file size is {maxFileSize} MB.",
 	"uploadCoverPhoto": "Upload cover photo",
 	"selectMealTypes": "Select meal types",

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { mealTypeLabelMap } from '#lib/const/routes.ts';
+	import { mealTypeLabelMap } from '#lib/const/maps.ts';
 	import type { RecipeResponse } from '$bindings';
 	import { LucidePencil } from '@lucide/svelte';
 	import Badge from './Badge.svelte';

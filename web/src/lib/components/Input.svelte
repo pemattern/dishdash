@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Label from './Label.svelte';
+
 	let { value = $bindable(''), focus = false, label = '', ...props } = $props();
 
 	let input: HTMLInputElement;
@@ -14,7 +16,7 @@
 
 <div class="flex min-w-0 flex-1 flex-col">
 	{#if label}
-		<label for={props.id} class="mb-1 text-sm font-bold text-dark-gray">{label}</label>
+		<Label for={props.id}>{label}</Label>
 	{/if}
 	<input
 		bind:this={input}

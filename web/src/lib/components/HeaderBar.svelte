@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { api } from '#lib/api/instance.ts';
 	import { routes } from '#lib/const/routes.ts';
+	import { m } from '#lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import MasterSearch from './MasterSearch.svelte';
@@ -20,7 +21,7 @@
 			class="rounded-md px-4 py-2 text-dark-orange inset-ring inset-ring-light-orange hover:cursor-pointer hover:bg-off-white hover:inset-ring-orange"
 			onclick={logout}
 		>
-			Logout
+			{m.logout()}
 		</button>
 	</div>
 </header>

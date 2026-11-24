@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { mealTypeLabelMap } from '#lib/const/routes.ts';
+	import { mealTypeLabelMap } from '#lib/const/maps.ts';
 	import type { MealTypeCode } from '$bindings';
 	import Badge from './Badge.svelte';
+	import Label from './Label.svelte';
 
 	type Props = {
 		selected?: MealTypeCode[];
@@ -25,7 +26,7 @@
 
 <div class="flex flex-col">
 	{#if label}
-		<label for="mealTypeSelector" class="mb-1 text-sm font-bold text-dark-gray">{label}</label>
+		<Label for="mealTypeSelector">{label}</Label>
 	{/if}
 	<div id="mealTypeSelector" class="flex flex-wrap gap-2" role="group">
 		{#each mealTypeLabelMap as option (option)}
