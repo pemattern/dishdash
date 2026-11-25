@@ -3,12 +3,14 @@
 	import FormModal from '#lib/components/FormModal.svelte';
 	import Input from '#lib/components/Input.svelte';
 	import RecipeCard from '#lib/components/RecipeCard.svelte';
-	import { refreshAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import type { CreateRecipeRequest, MealTypeCode } from '$bindings';
 	import type { PageProps } from './$types';
 	import { m } from '#lib/paraglide/messages.js';
 	import MealTypeSelector from '#lib/components/MealTypeSelector.svelte';
 	import ImageUpload from '#lib/components/ImageUpload.svelte';
+	import { routes } from '#lib/const/routes.ts';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 
@@ -51,9 +53,9 @@
 			mealTypes
 		};
 		try {
-			await api.recipes.create(request);
-			await refreshAll();
+			const response = await api.recipes.create(request);
 			open = false;
+			await goto(resolve(routes.recipeEdit, { id: response.id }));
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Something went wrong';
 		}

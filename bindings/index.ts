@@ -4,7 +4,7 @@ export type CreateRecipeIngredientRequest = { unitCode: UnitCode, unitSystemCode
 
 export type CreateRecipeRequest = { name: string, imageData: string | null, durationMinutes: number, mealTypes: Array<MealTypeCode>, };
 
-export type CreateUserRequest = { email: string, password: string, };
+export type CreateUserRequest = { name: string, email: string, password: string, avatarData: string | null, };
 
 export type ErrorCode = "INTERNAL" | "RESOURCE_NOT_FOUND" | "HTTP_METHOD" | "INVALID_BASIC_AUTH" | "MISSING_BASIC_AUTH" | "INVALID_ACCESS_TOKEN" | "MISSING_ACCESS_TOKEN" | "INVALID_REFRESH_TOKEN" | "MISSING_REFRESH_TOKEN" | "EXPIRED_REFRESH_TOKEN" | "MISSING_UUID_PATH" | "ALREADY_EXISTS" | "INVALID_DATA" | "INVALID_JSON_SYNTAX" | "MISSING_JSON_CONTENT_TYPE" | "INVALID_QUERY_PARAMETER" | "UNSUPPORTED_IMAGE_FORMAT";
 
@@ -38,6 +38,6 @@ export type UpdateRecipeIngredientRequest = { unitCode?: UnitCode, unitSystemCod
 
 export type UpdateRecipeRequest = { name?: string, imageData?: string | null, durationMinutes?: number, mealTypes?: Array<MealTypeCode>, };
 
-export type UpdateUserRequest = { email?: string, password?: string, };
+export type UpdateUserRequest = { name?: string, email?: string, password?: string, avatarData?: string | null, };
 
-export type UserResponse = { id: string, createdAt: string, updatedAt: string, email: string, };
+export type UserResponse = { id: string, createdAt: string, updatedAt: string, name: string, email: string, avatarUrl: string | null, };

@@ -25,7 +25,8 @@ impl Images {
         let filename = format!("{}.jpg", Uuid::now_v7());
         let path = format!("{}/{}", *RECIPES_PATH, filename);
         fs::write(&path, output_bytes).await?;
-        Ok(path)
+        let path_as_root = format!("/{}", path);
+        Ok(path_as_root)
     }
 }
 
