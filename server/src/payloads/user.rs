@@ -13,9 +13,12 @@ struct UserPayload {
     pub created_at: DateTime<Utc>,
     #[payload(read_only)]
     pub updated_at: DateTime<Utc>,
+    pub name: String,
     pub email: String,
     #[payload(write_only)]
     pub password: String,
+    #[payload(write_rename = "avatar_data")]
+    pub avatar_url: Option<String>,
 }
 
 impl From<UserModel> for UserResponse {
@@ -24,7 +27,9 @@ impl From<UserModel> for UserResponse {
             id: value.id,
             created_at: value.created_at,
             updated_at: value.updated_at,
+            name: value.name,
             email: value.email,
+            avatar_url: value.avatar_url,
         }
     }
 }

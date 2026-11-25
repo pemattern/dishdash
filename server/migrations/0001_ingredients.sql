@@ -25,7 +25,7 @@ CREATE TABLE ingredients (
 
 CREATE TABLE ingredient_translations (
     ingredient_code TEXT NOT NULL REFERENCES ingredients(code),
-    locale_code TEXT NOT NULL REFERENCES locales(code),
+    locale_code locale_code NOT NULL,
     name TEXT NOT NULL,
     name_plural TEXT NOT NULL,
     name_normalized TEXT NOT NULL,
@@ -47,7 +47,7 @@ USING GIN (name_normalized gin_trgm_ops);
 
 CREATE TABLE ingredient_aliases (
     ingredient_code TEXT NOT NULL REFERENCES ingredients(code),
-    locale_code TEXT NOT NULL REFERENCES locales(code),
+    locale_code locale_code NOT NULL,
     name TEXT NOT NULL,
     name_plural TEXT NOT NULL,
     name_normalized TEXT NOT NULL,

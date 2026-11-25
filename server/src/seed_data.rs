@@ -7,13 +7,11 @@ use tokio::{
 };
 
 const SEED_DATA_PATH: &str = "seed_data/";
-const LOCALES_CSV: &str = "locales.csv";
 const INGREDIENTS_CSV: &str = "ingredients.csv";
 const INGREDIENT_TRANSLATIONS_CSV: &str = "ingredient_translations.csv";
 const INGREDIENT_ALIASES_CSV: &str = "ingredient_aliases.csv";
 
 pub async fn upsert_seed_data_tables(pool: &PgPool) -> Result<(), Box<dyn Error>> {
-    upsert_locales_seed_data(pool).await?;
     upsert_ingredient_seed_data(pool).await?;
     upsert_ingredient_translations_seed_data(pool).await?;
     upsert_ingredient_aliases_seed_data(pool).await?;
@@ -89,26 +87,6 @@ async fn checksum_file(file: &mut File) -> std::io::Result<String> {
     Ok(hasher.finalize().to_hex().to_string())
 }
 
-async fn upsert_locales_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
-    upsert_seed_data(
-        pool,
-        LOCALES_CSV,
-        "CREATE TEMP TABLE locales_staging (
-            code TEXT NOT NULL
-        ) ON COMMIT DROP;",
-        "COPY locales_staging (code)
-        FROM STDIN
-        WITH (FORMAT CSV, HEADER TRUE);",
-        "INSERT INTO locales (code)
-        SELECT code
-        FROM locales_staging
-        ON CONFLICT (code)
-        DO NOTHING;",
-    )
-    .await?;
-    Ok(())
-}
-
 async fn upsert_ingredient_seed_data(pool: &PgPool) -> Result<(), Box<dyn Error>> {
     upsert_seed_data(
         pool,
@@ -137,7 +115,7 @@ async fn upsert_ingredient_translations_seed_data(pool: &PgPool) -> Result<(), B
         INGREDIENT_TRANSLATIONS_CSV,
         "CREATE TEMP TABLE ingredient_translations_staging (
             ingredient_code TEXT NOT NULL,
-            locale_code TEXT NOT NULL,
+            locale_code locale_code NOT NULL,
             name TEXT NOT NULL,
             name_plural TEXT NOT NULL
         ) ON COMMIT DROP;",
@@ -166,7 +144,7 @@ async fn upsert_ingredient_aliases_seed_data(pool: &PgPool) -> Result<(), Box<dy
         INGREDIENT_ALIASES_CSV,
         "CREATE TEMP TABLE ingredient_aliases_staging (
             ingredient_code TEXT NOT NULL,
-            locale_code TEXT NOT NULL,
+            locale_code locale_code NOT NULL,
             name TEXT NOT NULL,
             name_plural TEXT NOT NULL
         ) ON COMMIT DROP;",

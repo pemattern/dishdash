@@ -14,6 +14,8 @@ export type IngredientCategoryCode = "baking-ingredients" | "canned-preserved" |
 
 export type IngredientResponse = { code: string, ingredientCategoryCode: IngredientCategoryCode, name: string, namePlural: string, alias: string | null, };
 
+export type LocaleCode = "de" | "en" | "es" | "fr" | "it" | "pt-BR";
+
 export type LoginSchema = { accessToken: string, };
 
 export type MealTypeCode = "breakfast" | "brunch" | "lunch" | "dinner" | "snack" | "dessert" | "appetizer" | "side-dish" | "drink";

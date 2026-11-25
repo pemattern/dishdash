@@ -4,10 +4,10 @@ use axum::{
 };
 use serde::Deserialize;
 
-use crate::error::AppError;
+use crate::{error::AppError, requests::constants::LocaleCode};
 
-fn default_locale() -> String {
-    "en".into()
+fn default_locale() -> LocaleCode {
+    LocaleCode::En
 }
 
 fn default_limit() -> i64 {
@@ -18,7 +18,7 @@ fn default_limit() -> i64 {
 pub struct SearchQuery {
     pub q: String,
     #[serde(default = "default_locale")]
-    pub locale: String,
+    pub locale_code: LocaleCode,
     #[serde(default = "default_limit")]
     pub limit: i64,
 }

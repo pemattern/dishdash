@@ -80,7 +80,7 @@ CREATE TABLE recipe_actions (
 
 CREATE TABLE recipe_action_translations (
     recipe_action_code TEXT NOT NULL REFERENCES recipe_actions(code),
-    locale_code TEXT NOT NULL REFERENCES locales(code),
+    locale_code locale_code NOT NULL,
     instructions TEXT NOT NULL,
     UNIQUE (recipe_action_code, locale_code)
 );

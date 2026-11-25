@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-MESSAGES_DIR = Path("../web/messages")
+MESSAGES_DIR = Path("web/messages")
 
 for file_path in MESSAGES_DIR.glob("*.json"):
     with open(file_path, "r", encoding="utf-8") as f:
@@ -21,5 +21,3 @@ for file_path in MESSAGES_DIR.glob("*.json"):
         f.write("\n")
 
     print(f"Sorted: {file_path}")
-
-print("All message files sorted!")

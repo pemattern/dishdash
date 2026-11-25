@@ -3,7 +3,10 @@ use sqlx::PgExecutor;
 use crate::{
     error::AppResult,
     models::{IngredientModel, IngredientSearch},
-    requests::{constants::IngredientCategoryCode, search_query::SearchQuery},
+    requests::{
+        constants::{IngredientCategoryCode, LocaleCode},
+        search_query::SearchQuery,
+    },
 };
 
 pub struct Ingredients;
@@ -102,7 +105,7 @@ impl Ingredients {
                 name
             LIMIT $3;"#,
             search_query.q,
-            search_query.locale,
+            search_query.locale_code as LocaleCode,
             search_query.limit,
         )
         .fetch_all(executor)

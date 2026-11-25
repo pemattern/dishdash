@@ -30,8 +30,13 @@ CREATE TRIGGER update_seed_data_imports_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TABLE locales (
-    code TEXT PRIMARY KEY
+CREATE TYPE locale_code AS ENUM (
+    'de',
+    'en',
+    'es',
+    'fr',
+    'it',
+    'pt-BR'
 );
 
 CREATE TYPE physical_quantity_code AS ENUM (
@@ -76,8 +81,10 @@ CREATE TABLE units (
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
+    name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    avatar_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -88,12 +95,22 @@ CREATE TRIGGER update_users_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 INSERT INTO users (
+    name,
     email,
     password_hash
 ) VALUES (
     'system',
+    'system',
     -- password: secret
     '$argon2id$v=19$m=19456,t=2,p=1$c2FsdHltY3NhbHRzdGVy$AEBiLPbgT23PDqzPWAzKakRLOGlb+DaHevR0mzzMA/8'
+);
+
+CREATE TABLE user_preferences (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    locale_code locale_code NOT NULL,
+    unit_system_code unit_system_code NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE refresh_tokens (

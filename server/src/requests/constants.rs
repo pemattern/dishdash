@@ -2,6 +2,21 @@ use lib::BINDINGS_PATH;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
+#[serde(rename_all = "lowercase")]
+#[ts(export, export_to = BINDINGS_PATH)]
+#[sqlx(type_name = "locale_code", rename_all = "lowercase")]
+pub enum LocaleCode {
+    De,
+    En,
+    Es,
+    Fr,
+    It,
+    #[serde(rename = "pt-BR")]
+    #[sqlx(rename = "pt-BR")]
+    PtBr,
+}
+
+#[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]
 #[serde(rename_all = "kebab-case")]
 #[ts(export, export_to = BINDINGS_PATH)]
 #[sqlx(type_name = "meal_type_code", rename_all = "kebab-case")]
