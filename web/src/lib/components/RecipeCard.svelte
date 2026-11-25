@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { mealTypeLabelMap } from '#lib/const/maps.ts';
 	import type { RecipeResponse } from '$bindings';
-	import { LucidePencil } from '@lucide/svelte';
+	import { LucidePencil, LucideSoup } from '@lucide/svelte';
 	import Badge from './Badge.svelte';
+	import { routes } from '#lib/const/routes.ts';
+	import { resolve } from '$app/paths';
 
 	type Props = {
 		recipe: RecipeResponse;
@@ -14,16 +16,27 @@
 </script>
 
 <article
-	class="group relative overflow-hidden rounded-xl bg-white shadow-sm inset-ring inset-ring-light-orange hover:bg-off-white hover:shadow-md"
+	class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring ring-light-orange hover:bg-off-white hover:shadow-md"
 >
-	<a href="/recipes/{recipe.id}" class="absolute inset-0 z-0" aria-label="View {recipe.name}"></a>
+	<a
+		href={resolve(routes.recipe, { id: recipe.id })}
+		class="absolute inset-0 z-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lighter-green"
+		aria-label="View {recipe.name}"
+	></a>
 
-	<div class="relative">
-		<img src={recipe.imageUrl} alt={recipe.name} class="aspect-video w-full object-cover" />
-
+	<div class="pointer-events-none relative">
+		{#if recipe.imageUrl}
+			<img src={recipe.imageUrl} alt="" class="aspect-video w-full object-cover" />
+		{:else}
+			<div
+				class="flex aspect-video w-full items-center justify-center bg-lightest-green text-green"
+			>
+				<LucideSoup size="32" />
+			</div>
+		{/if}
 		<a
-			href="/recipes/{recipe.id}/edit"
-			class="absolute top-3 right-3 z-10 rounded-md p-2 text-white opacity-0 group-hover:opacity-100 hover:bg-transparent focus-visible:opacity-100"
+			href={resolve(routes.recipeEdit, { id: recipe.id })}
+			class="pointer-events-auto absolute top-3 right-3 z-10 rounded-md bg-white p-2 text-dark-green opacity-0 group-hover:opacity-100 hover:bg-off-white focus-visible:opacity-100"
 			aria-label="Edit {recipe.name}"
 		>
 			<LucidePencil size="18" />
