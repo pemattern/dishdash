@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { mealTypeLabelMap } from '#lib/const/maps.ts';
 	import type { RecipeResponse } from '$bindings';
-	import { LucidePencil, LucideSoup } from '@lucide/svelte';
+	import { LucideSoup } from '@lucide/svelte';
 	import Badge from './Badge.svelte';
 	import { routes } from '#lib/const/routes.ts';
 	import { resolve } from '$app/paths';
+	import EditButton from './Buttons/EditButton.svelte';
 
 	type Props = {
 		recipe: RecipeResponse;
@@ -34,12 +35,8 @@
 				<LucideSoup size="32" />
 			</div>
 		{/if}
-		<a
-			href={resolve(routes.recipeEdit, { id: recipe.id })}
-			class="pointer-events-auto absolute top-3 right-3 z-10 rounded-md bg-white p-2 text-dark-green opacity-0 group-hover:opacity-100 hover:bg-off-white focus-visible:opacity-100"
-			aria-label="Edit {recipe.name}"
-		>
-			<LucidePencil size="18" />
+		<a href={resolve(routes.recipeEdit, { id: recipe.id })} class="absolute top-3 right-3">
+			<EditButton />
 		</a>
 	</div>
 

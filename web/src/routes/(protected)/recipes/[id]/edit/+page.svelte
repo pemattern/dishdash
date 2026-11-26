@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { api } from '#lib/api/instance.ts';
 	import type { PageProps } from './$types';
 
 	type Ingredient = {
@@ -79,10 +78,14 @@
 <div class="mx-auto w-full max-w-3xl px-4 py-6 font-sans sm:px-6">
 	<!-- Header -->
 	<div class="mb-8">
-		<p class="p-4 font-serif text-4xl font-medium text-green italic sm:text-3xl">
-			{data.recipe.name}
+		<p class="p-4 font-serif text-4xl font-medium text-green">
+			{data.recipe?.name}
 		</p>
-		<img src={data.recipe?.imageUrl} alt={data.recipe.name} />
+		<img
+			src={data.recipe?.imageUrl}
+			alt={data.recipe?.name}
+			class="max-h-64 max-w-full object-contain"
+		/>
 	</div>
 
 	<!-- Ingredient editor -->
@@ -155,7 +158,7 @@
 			aria-label="Unit"
 			class="w-20 shrink-0 rounded-lg border border-orange/30 bg-white px-2 py-2.5 text-sm text-orange outline-none focus:border-orange sm:w-24"
 		>
-			{#each units as item}
+			{#each units as item (item)}
 				<option value={item}>{item}</option>
 			{/each}
 		</select>

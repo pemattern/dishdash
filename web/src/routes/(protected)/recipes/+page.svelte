@@ -73,9 +73,9 @@
 		});
 	}
 
-	async function handleUpload(files: File[]) {
+	async function handleUpload(file: File) {
 		try {
-			const base64Images = await Promise.all(files.map(async (file) => await fileToBase64(file)));
+			const base64Images = await fileToBase64(file);
 			imageData = base64Images[0];
 		} catch (error) {
 			console.error('Image conversion failed:', error);
