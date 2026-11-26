@@ -61,6 +61,13 @@
 		imageInput.click();
 	}
 
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === ' ' || event.key === 'Enter') {
+			event.preventDefault();
+			openDialog();
+		}
+	}
+
 	function removeFile() {
 		if (imageUrl) URL.revokeObjectURL(imageUrl);
 
@@ -83,8 +90,8 @@
 	{/if}
 
 	<div
-		class="group relative aspect-video w-full overflow-hidden rounded-xl border-dashed border-light-orange"
-		class:border-2={!imageUrl}
+		class="group relative aspect-video w-full overflow-visible rounded-xl border-dashed border-light-orange"
+		class:border={!imageUrl}
 	>
 		<input
 			bind:this={imageInput}
@@ -96,8 +103,9 @@
 		/>
 
 		{#if imageUrl}
-			<img src={imageUrl} alt={file?.name ?? 'Uploaded image'} class="size-full object-cover" />
-
+			<div class="absolute inset-0 overflow-hidden rounded-xl">
+				<img src={imageUrl} alt={file?.name ?? 'Uploaded image'} class="size-full object-cover" />
+			</div>
 			<div class="absolute top-3 right-3 z-10 flex gap-3">
 				<EditButton onclick={openDialog} />
 				<RemoveButton onclick={removeFile} />
@@ -105,10 +113,11 @@
 		{:else}
 			<button
 				type="button"
-				class="flex size-full cursor-pointer flex-col items-center justify-center gap-3 p-10 text-center text-orange hover:bg-off-white"
+				class="flex size-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl p-10 text-center text-orange hover:bg-off-white"
 				ondrop={handleDrop}
 				ondragover={(event) => event.preventDefault()}
 				onclick={openDialog}
+				onkeydown={handleKeyDown}
 			>
 				<LucideUpload />
 

@@ -75,11 +75,14 @@
 
 	async function handleUpload(file: File) {
 		try {
-			const base64Images = await fileToBase64(file);
-			imageData = base64Images[0];
+			imageData = await fileToBase64(file);
 		} catch (error) {
 			console.error('Image conversion failed:', error);
 		}
+	}
+
+	function isValid() {
+		return name.length > 0 && !isNaN(durationMinutes) && mealTypes.length > 0;
 	}
 </script>
 
@@ -96,7 +99,7 @@
 	{/each}
 </div>
 
-<FormModal bind:open {handleSubmit}>
+<FormModal bind:open {handleSubmit} {isValid}>
 	<div class="flex flex-row gap-4">
 		<Input
 			bind:value={name}
