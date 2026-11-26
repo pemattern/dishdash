@@ -4,6 +4,7 @@
 	let { value = $bindable(''), focus = false, required = false, label = '', ...props } = $props();
 
 	let input: HTMLInputElement;
+	let id = $props.id();
 
 	$effect(() => {
 		if (focus) {
@@ -16,7 +17,7 @@
 
 <div class="flex min-w-0 flex-1 flex-col">
 	{#if label}
-		<Label {required} for={props.id}>{label}</Label>
+		<Label {required} for={id}>{label}</Label>
 	{/if}
 	<input
 		bind:this={input}

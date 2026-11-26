@@ -1,5 +1,6 @@
 const loginPath = '/login';
 const homePath = '/(protected)';
+const newPath = '/new';
 const idPath = '/[id]';
 const editPath = '/edit';
 const recipesPath = `${homePath}/recipes`;
@@ -11,6 +12,7 @@ export const routes = {
 	home: homePath,
 	recipes: recipesPath,
 	recipe: `${recipesPath}${idPath}`,
+	recipeNew: `${recipesPath}${newPath}`,
 	recipeEdit: `${recipesPath}${idPath}${editPath}`,
 	ingredients: ingredientsPath,
 	ingredient: `${ingredientsPath}${idPath}`,

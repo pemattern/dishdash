@@ -8,6 +8,7 @@
 	type Props = {
 		maxSize?: number;
 		accept?: string;
+		url?: string | null;
 		onUpload?: (file: File) => void;
 		required?: boolean;
 		label?: string;
@@ -16,15 +17,22 @@
 	let {
 		maxSize: maxFileSize = 5,
 		accept = 'image/png,image/jpeg,image/webp',
+		url,
 		onUpload = () => {},
 		required = false,
 		label
 	}: Props = $props();
 
 	let file = $state<File | null>(null);
-	let imageUrl = $state('');
+	let imageUrl = $state<string | null>(null);
 	let error = $state('');
 	let imageInput: HTMLInputElement;
+
+	$effect(() => {
+		if (url) {
+			imageUrl = url;
+		}
+	});
 
 	function addFile(selectedFile: File | null) {
 		if (!selectedFile) return;

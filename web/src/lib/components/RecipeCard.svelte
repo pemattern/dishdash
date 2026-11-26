@@ -17,7 +17,7 @@
 </script>
 
 <article
-	class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring ring-light-orange hover:bg-off-white hover:shadow-md"
+	class="group relative overflow-hidden rounded-xl bg-white shadow-sm inset-ring inset-ring-light-gray hover:bg-off-white"
 >
 	<a
 		href={resolve(routes.recipe, { id: recipe.id })}
