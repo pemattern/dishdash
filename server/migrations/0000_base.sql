@@ -46,6 +46,7 @@ CREATE TYPE physical_quantity_code AS ENUM (
 );
 
 CREATE TYPE unit_system_code AS ENUM (
+    'universal',
     'imperial',
     'metric',
     'us-customary'
@@ -78,6 +79,40 @@ CREATE TABLE units (
     si_factor FLOAT8 NOT NULL CHECK (si_factor > 0),
     PRIMARY KEY (code, unit_system_code)
 );
+
+INSERT INTO units (
+    code,
+    physical_quantity_code,
+    unit_system_code,
+    symbol,
+    si_factor
+)
+VALUES
+    ('piece', 'count', 'universal', 'pc', 1),
+    ('dozen', 'count', 'universal', 'doz', 12),
+    ('milligram', 'mass', 'metric', 'mg', 0.000001),
+    ('gram', 'mass', 'metric', 'g', 0.001),
+    ('kilogram', 'mass', 'metric', 'kg', 1),
+    ('milliliter', 'volume', 'metric', 'mL', 0.001),
+    ('liter', 'volume', 'metric', 'L', 1),
+    ('ounce', 'mass', 'imperial', 'oz', 0.028349523125),
+    ('pound', 'mass', 'imperial', 'lb', 0.45359237),
+    ('teaspoon', 'volume', 'imperial', 'tsp', 0.00591938802),
+    ('tablespoon', 'volume', 'imperial', 'tbsp', 0.0177581641),
+    ('fluid-ounce', 'volume', 'imperial', 'fl oz', 0.0284130625),
+    ('cup', 'volume', 'imperial', 'cup', 0.284130625),
+    ('pint', 'volume', 'imperial', 'pt', 0.56826125),
+    ('quart', 'volume', 'imperial', 'qt', 1.1365225),
+    ('gallon', 'volume', 'imperial', 'gal', 4.54609),
+    ('ounce', 'mass', 'us-customary', 'oz', 0.028349523125),
+    ('pound', 'mass', 'us-customary', 'lb', 0.45359237),
+    ('teaspoon', 'volume', 'us-customary', 'tsp', 0.004928921594),
+    ('tablespoon', 'volume', 'us-customary', 'tbsp', 0.014786764781),
+    ('fluid-ounce', 'volume', 'us-customary', 'fl oz', 0.029573529562),
+    ('cup', 'volume', 'us-customary', 'cup', 0.2365882365),
+    ('pint', 'volume', 'us-customary', 'pt', 0.473176473),
+    ('quart', 'volume', 'us-customary', 'qt', 0.946352946),
+    ('gallon', 'volume', 'us-customary', 'gal', 3.785411784);
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuidv7(),

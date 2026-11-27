@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { ingredients } from '#lib/api/ingredients.ts';
 	import { api } from '#lib/api/instance.ts';
 	import ImageUpload from '#lib/components/ImageUpload.svelte';
 	import IngredientsEditor from '#lib/components/IngredientsEditor.svelte';
@@ -9,7 +8,12 @@
 	import { m } from '#lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { CreateRecipeRequest, MealTypeCode, RecipeIngredientResponse, RecipeResponse } from '$bindings';
+	import type {
+		CreateRecipeRequest,
+		MealTypeCode,
+		RecipeIngredientResponse,
+		RecipeResponse
+	} from '$bindings';
 	import { untrack } from 'svelte';
 
 	type Props = {
@@ -52,7 +56,7 @@
 		};
 		try {
 			const recipeResponse = await api.recipes.create(request);
-			const recipeIngredientResponse = await api.
+			// const recipeIngredientResponse = await api.recipes.createIngredients();
 			await goto(resolve(routes.recipe, { id: recipeResponse.id }));
 		} catch (err) {
 			console.log(err);

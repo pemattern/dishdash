@@ -5,5 +5,7 @@ import { recipes } from './recipes';
 export const api = {
 	auth,
 	recipes,
-	ingredients
+	ingredients,
+	units,
+	users
 };

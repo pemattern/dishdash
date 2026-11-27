@@ -2,6 +2,7 @@ mod auth;
 mod data;
 mod ingredients;
 mod recipes;
+mod units;
 mod users;
 
 use std::time::Duration;
@@ -95,6 +96,7 @@ fn access_token_auth_router(state: AppState) -> Router<AppState> {
     Router::new()
         .merge(ingredients::router())
         .merge(recipes::router())
+        .merge(units::router())
         .merge(users::router())
         .layer(middleware::from_fn_with_state(
             state,

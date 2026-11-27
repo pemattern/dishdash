@@ -1,9 +1,11 @@
 type AppState = {
 	accessToken: string | null;
+	units: UnitResponse[] | null;
 };
 
 let state = $state<AppState>({
-	accessToken: null
+	accessToken: null,
+	units: null
 });
 
 export const appState = {
@@ -15,6 +17,18 @@ export const appState = {
 		state = {
 			...state,
 			accessToken: value
+		};
+	},
+
+	get units() {
+		return state.units;
+	},
+
+	async init() {
+		const units = api.units.getAll();
+		state = {
+			...state,
+			units
 		};
 	}
 };

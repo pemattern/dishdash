@@ -30,7 +30,7 @@ export type RefreshSchema = { accessToken: string, };
 
 export type UnitCode = "piece" | "dozen" | "milligram" | "gram" | "kilogram" | "ounce" | "pound" | "milliliter" | "liter" | "teaspoon" | "tablespoon" | "fluid-ounce" | "cup" | "pint" | "quart" | "gallon";
 
-export type UnitResponse = { code: string, physicalQuantityCode: string, unitSystemCode: string, symbol: string, siFactor: number, };
+export type UnitResponse = { code: UnitCode, physicalQuantityCode: PhysicalQuantityCode, unitSystemCode: UnitSystemCode, symbol: string, siFactor: number, };
 
 export type UnitSystemCode = "imperial" | "metric" | "us-customary";
 
