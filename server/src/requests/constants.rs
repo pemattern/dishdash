@@ -47,6 +47,7 @@ pub enum PhysicalQuantityCode {
 #[ts(export, export_to = BINDINGS_PATH)]
 #[sqlx(type_name = "unit_system_code", rename_all = "kebab-case")]
 pub enum UnitSystemCode {
+    Universal,
     Imperial,
     Metric,
     UsCustomary,

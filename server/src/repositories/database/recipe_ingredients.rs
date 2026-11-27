@@ -38,7 +38,6 @@ impl RecipeIngredients {
     pub async fn insert<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        ingredient_code: String,
         recipe_ingredient: CreateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
@@ -55,7 +54,7 @@ impl RecipeIngredients {
                 position,
                 quantity;"#,
             recipe_id,
-            ingredient_code,
+            recipe_ingredient.ingredient_code,
             recipe_ingredient.unit_code as UnitCode,
             recipe_ingredient.unit_system_code as UnitSystemCode,
             recipe_ingredient.position,
@@ -69,7 +68,6 @@ impl RecipeIngredients {
     pub async fn update<'a>(
         executor: impl PgExecutor<'a>,
         recipe_id: Uuid,
-        ingredient_code: String,
         recipe_ingredient: UpdateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientModel> {
         let recipe_ingredient = sqlx::query_as!(
@@ -95,7 +93,7 @@ impl RecipeIngredients {
             recipe_ingredient.position,
             recipe_ingredient.quantity,
             recipe_id,
-            ingredient_code,
+            recipe_ingredient.ingredient_code,
         )
         .fetch_one(executor)
         .await?;

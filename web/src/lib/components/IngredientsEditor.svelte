@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { m } from '#lib/paraglide/messages.js';
 	import { appState } from '#lib/state.svelte.ts';
-	import type { Unit } from '#lib/types/unit.ts';
-	import type { RecipeIngredientResponse } from '$bindings';
+	import type { RecipeIngredient, Unit } from '#lib/types/unit.ts';
 	import Input from './Input.svelte';
 	import Label from './Label.svelte';
 	import SearchableSelect from './SearchableSelect.svelte';
 
 	type Props = {
-		value?: RecipeIngredientResponse[];
+		value: RecipeIngredient[];
 	};
 
 	let { value = $bindable() }: Props = $props();
@@ -16,6 +15,7 @@
 	let name = $state('');
 	let quantity = $state('');
 	let unit = $state<Unit | null>(null);
+	let ingredient = $state<string>('');
 
 	function addIngredient() {
 		if (!name.trim()) {
@@ -27,18 +27,19 @@
 		}
 
 		value.push({
+			ingredientCode: ingredient,
+			unitCode: 'piece',
+			unitSystemCode: 'imperial',
 			quantity: parseFloat(quantity),
-			unit: unit,
-			name: name.trim()
+			position: 0
 		});
 
 		quantity = '';
-		unit = 'g';
 		name = '';
 	}
 
-	function removeIngredient(id: string) {
-		ingredients = ingredients.filter((item) => item.id !== id);
+	function removeIngredient(ingredient_code: string) {
+		value = value.filter((item) => item.ingredientCode !== ingredient_code);
 	}
 </script>
 
@@ -47,25 +48,22 @@
 
 	<!-- Existing ingredients -->
 	<div>
-		{#each ingredients as ingredient (ingredient.id)}
+		{#each value as ingredient (ingredient)}
 			<div class="flex min-h-13 items-center gap-3 border-orange/15">
 				<div class="min-w-0 flex-1 text-sm text-orange">
 					<span>
-						{#if ingredient.quantity}
-							{ingredient.quantity} {ingredient.unit}
-						{:else}
-							To taste
-						{/if}
+						{ingredient.quantity}
+						{ingredient.unitCode}
 					</span>
 					<span>
-						{ingredient.name}
+						{ingredient.ingredientCode}
 					</span>
 				</div>
 
 				<button
 					type="button"
-					onclick={() => removeIngredient(ingredient.id)}
-					aria-label="Remove {ingredient.name}"
+					onclick={() => removeIngredient(ingredient.ingredientCode)}
+					aria-label="Remove ingredient"
 					class="rounded-full px-2 py-1 text-lg text-orange/50 transition hover:bg-orange/10 hover:text-orange"
 				>
 					×
@@ -83,13 +81,15 @@
 			<SearchableSelect
 				bind:value={unit}
 				options={appState.units}
-				getLabel={(unit) => {
-					return unit?.code.toString() ? '';
-				}}
+				getLabel={(unit) => unit?.code.toString() ?? ''}
 			/>
 		</div>
 		<div class="flex-8">
-			<Input bind:value={name} placeholder="Ingredient" aria-label="Ingredient name" />
+			<SearchableSelect
+				bind:value={ingredient}
+				placeholder="Ingredient"
+				getLabel={(ingredient) => ingredient}
+			/>
 		</div>
 
 		<button

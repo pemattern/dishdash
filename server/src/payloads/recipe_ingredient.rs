@@ -16,7 +16,6 @@ struct RecipeIngredientPayload {
     pub updated_at: DateTime<Utc>,
     #[payload(read_only)]
     pub recipe_id: Uuid,
-    #[payload(read_only)]
     pub ingredient_code: String,
     pub unit_code: UnitCode,
     pub unit_system_code: UnitSystemCode,

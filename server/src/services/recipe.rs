@@ -15,7 +15,7 @@ use crate::{
         database::{RecipeIngredients, RecipeMealTypes, Recipes},
         file_system::Images,
     },
-    requests::{code_map::CodeMap, constants::MealTypeCode},
+    requests::constants::MealTypeCode,
     services::{map_double_option_async, map_option_async},
 };
 
@@ -72,26 +72,23 @@ impl RecipeService {
     pub async fn create_recipe_ingredient(
         &self,
         recipe_id: Uuid,
-        ingredient_code: String,
         recipe_ingredient: CreateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientResponse> {
         let recipe_ingredient =
-            RecipeIngredients::insert(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
-                .await?;
+            RecipeIngredients::insert(&self.pool, recipe_id, recipe_ingredient).await?;
         Ok(recipe_ingredient.into())
     }
 
     pub async fn create_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: CodeMap<CreateRecipeIngredientRequest>,
+        recipe_ingredients: Vec<CreateRecipeIngredientRequest>,
     ) -> AppResult<Many<RecipeIngredientResponse>> {
         let mut tx = self.pool.begin().await?;
         let mut inserted_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for (ingredient_code, recipe_ingredient) in recipe_ingredients {
+        for recipe_ingredient in recipe_ingredients {
             let inserted_recipe_ingredient =
-                RecipeIngredients::insert(&mut *tx, recipe_id, ingredient_code, recipe_ingredient)
-                    .await?;
+                RecipeIngredients::insert(&mut *tx, recipe_id, recipe_ingredient).await?;
             inserted_recipe_ingredients.push(inserted_recipe_ingredient);
         }
         tx.commit().await?;
@@ -132,26 +129,23 @@ impl RecipeService {
     pub async fn update_recipe_ingredient(
         &self,
         recipe_id: Uuid,
-        ingredient_code: String,
         recipe_ingredient: UpdateRecipeIngredientRequest,
     ) -> AppResult<RecipeIngredientResponse> {
         let recipe_ingredient =
-            RecipeIngredients::update(&self.pool, recipe_id, ingredient_code, recipe_ingredient)
-                .await?;
+            RecipeIngredients::update(&self.pool, recipe_id, recipe_ingredient).await?;
         Ok(recipe_ingredient.into())
     }
 
     pub async fn update_recipe_ingredients(
         &self,
         recipe_id: Uuid,
-        recipe_ingredients: CodeMap<UpdateRecipeIngredientRequest>,
+        recipe_ingredients: Vec<UpdateRecipeIngredientRequest>,
     ) -> AppResult<Many<RecipeIngredientResponse>> {
         let mut tx = self.pool.begin().await?;
         let mut updated_recipe_ingredients = Vec::with_capacity(recipe_ingredients.len());
-        for (ingredient_code, recipe_ingredient) in recipe_ingredients {
+        for recipe_ingredient in recipe_ingredients {
             let updated_recipe_ingredient =
-                RecipeIngredients::update(&mut *tx, recipe_id, ingredient_code, recipe_ingredient)
-                    .await?;
+                RecipeIngredients::update(&mut *tx, recipe_id, recipe_ingredient).await?;
             updated_recipe_ingredients.push(updated_recipe_ingredient);
         }
         tx.commit().await?;

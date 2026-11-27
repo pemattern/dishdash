@@ -1,6 +1,6 @@
 import { appState } from '#lib/state.svelte.ts';
 import type { LoginSchema, RefreshSchema } from '$bindings';
-import { request } from './client';
+import { fetch } from './transport';
 
 let refreshPromise: Promise<void> | null = null;
 
@@ -21,48 +21,34 @@ export const auth = {
 	async login(email: string, password: string) {
 		try {
 			const credentials = btoa(`${email}:${password}`);
-			const response = await request<LoginSchema>(
-				'/auth/login',
-				{
-					method: 'POST',
-					headers: {
-						Authorization: `Basic ${credentials}`
-					}
-				},
-				true
-			);
+			const response = await fetch<LoginSchema>('/auth/login', {
+				method: 'POST',
+				headers: {
+					Authorization: `Basic ${credentials}`
+				}
+			});
 			appState.accessToken = response.accessToken;
 		} catch (error) {
 			appState.accessToken = null;
 			throw error;
 		}
 	},
-
 	async refresh() {
 		try {
-			const response = await request<RefreshSchema>(
-				`/auth/refresh`,
-				{
-					method: 'POST'
-				},
-				true
-			);
+			const response = await fetch<RefreshSchema>(`/auth/refresh`, {
+				method: 'POST'
+			});
 			appState.accessToken = response.accessToken;
 		} catch (error) {
 			appState.accessToken = null;
 			throw error;
 		}
 	},
-
 	async logout() {
 		try {
-			await request(
-				`/auth/logout`,
-				{
-					method: 'POST'
-				},
-				true
-			);
+			await fetch(`/auth/logout`, {
+				method: 'POST'
+			});
 		} catch (error) {
 			appState.accessToken = null;
 			throw error;
