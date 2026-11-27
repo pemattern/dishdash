@@ -1,22 +1,19 @@
 <script lang="ts">
 	import { m } from '#lib/paraglide/messages.js';
+	import type { RecipeIngredientResponse } from '$bindings';
 	import Input from './Input.svelte';
 	import Label from './Label.svelte';
 	import SearchableSelect from './SearchableSelect.svelte';
 
-	type Ingredient = {
-		id: string;
-		quantity: string;
-		unit: string;
-		name: string;
+	type Props = {
+		value?: RecipeIngredientResponse[];
 	};
 
+	let { value = $bindable() }: Props = $props();
+
 	let name = $state('');
-	let ingredients = $state<Ingredient[]>([]);
 	let quantity = $state('');
 	let unit = $state('g');
-
-	const units = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'piece', 'clove', 'pinch'];
 
 	function addIngredient() {
 		if (!name.trim()) {

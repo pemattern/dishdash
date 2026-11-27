@@ -11,6 +11,7 @@
   "maxFileSize": "Dateien dürfen nicht größer als {maxFileSize} MB sein.",
   "newRecipe": "Gericht erstellen",
   "preparationTime": "Zubereitungszeit (in Minuten)",
+  "save": "Speichern",
   "search": "Suche",
   "selectIngredients": "Zutaten auswählen",
   "selectMealTypes": "Gerichtkategorien auswählen",

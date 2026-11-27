@@ -28,7 +28,7 @@ export type RecipeResponse = { id: string, createdAt: string, updatedAt: string,
 
 export type RefreshSchema = { accessToken: string, };
 
-export type UnitCode = "imperial" | "metric" | "us-customary";
+export type UnitCode = "piece" | "dozen" | "milligram" | "gram" | "kilogram" | "ounce" | "pound" | "milliliter" | "liter" | "teaspoon" | "tablespoon" | "fluid-ounce" | "cup" | "pint" | "quart" | "gallon";
 
 export type UnitResponse = { code: string, physicalQuantityCode: string, unitSystemCode: string, symbol: string, siFactor: number, };
 

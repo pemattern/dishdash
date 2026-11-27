@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ingredients } from '#lib/api/ingredients.ts';
 	import { api } from '#lib/api/instance.ts';
 	import ImageUpload from '#lib/components/ImageUpload.svelte';
 	import IngredientsEditor from '#lib/components/IngredientsEditor.svelte';
@@ -8,14 +9,15 @@
 	import { m } from '#lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { CreateRecipeRequest, MealTypeCode, RecipeResponse } from '$bindings';
+	import type { CreateRecipeRequest, MealTypeCode, RecipeIngredientResponse, RecipeResponse } from '$bindings';
 	import { untrack } from 'svelte';
 
 	type Props = {
 		recipe?: RecipeResponse;
+		ingredients?: RecipeIngredientResponse[];
 	};
 
-	let { recipe = undefined }: Props = $props();
+	let { recipe, ingredients }: Props = $props();
 
 	let name: string = $state(untrack(() => recipe?.name) ?? '');
 	let imageData: string | null = $state(null);
@@ -34,6 +36,14 @@
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
+		if (recipe) {
+			await handleCreate();
+		} else {
+			await handleUpdate();
+		}
+	}
+
+	async function handleCreate() {
 		const request: CreateRecipeRequest = {
 			name,
 			imageData,
@@ -41,12 +51,15 @@
 			mealTypes
 		};
 		try {
-			const response = await api.recipes.create(request);
-			await goto(resolve(routes.recipe, { id: response.id }));
+			const recipeResponse = await api.recipes.create(request);
+			const recipeIngredientResponse = await api.
+			await goto(resolve(routes.recipe, { id: recipeResponse.id }));
 		} catch (err) {
 			console.log(err);
 		}
 	}
+
+	async function handleUpdate() {}
 
 	async function fileToBase64(file: File): Promise<string> {
 		return new Promise((resolve, reject) => {
@@ -97,6 +110,7 @@
 				<ImageUpload label={m.uploadCoverPhoto()} onUpload={handleUpload} url={recipe?.imageUrl} />
 			</div>
 		</div>
-		<IngredientsEditor />
+		<IngredientsEditor bind:value={ingredients} />
+		<button class="rounded-xl bg-off-white p-4 font-medium text-orange">{m.save()}</button>
 	</form>
 </div>

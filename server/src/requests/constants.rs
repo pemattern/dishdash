@@ -57,9 +57,22 @@ pub enum UnitSystemCode {
 #[ts(export, export_to = BINDINGS_PATH)]
 #[sqlx(type_name = "unit_code", rename_all = "kebab-case")]
 pub enum UnitCode {
-    Imperial,
-    Metric,
-    UsCustomary,
+    Piece,
+    Dozen,
+    Milligram,
+    Gram,
+    Kilogram,
+    Ounce,
+    Pound,
+    Milliliter,
+    Liter,
+    Teaspoon,
+    Tablespoon,
+    FluidOunce,
+    Cup,
+    Pint,
+    Quart,
+    Gallon,
 }
 
 #[derive(Serialize, Deserialize, ts_rs::TS, sqlx::Type)]

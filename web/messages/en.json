@@ -11,6 +11,7 @@
   "maxFileSize": "Maximum file size is {maxFileSize} MB.",
   "newRecipe": "New Recipe",
   "preparationTime": "Preparation time (in minutes)",
+  "save": "Save",
   "search": "search for anything...",
   "selectIngredients": "Select ingredients",
   "selectMealTypes": "Select meal types",
