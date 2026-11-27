@@ -1,6 +1,9 @@
+import { api } from './api/instance';
+import type { Unit } from './types/unit';
+
 type AppState = {
 	accessToken: string | null;
-	units: UnitResponse[] | null;
+	units: Unit[] | null;
 };
 
 let state = $state<AppState>({
@@ -21,11 +24,14 @@ export const appState = {
 	},
 
 	get units() {
+		if (!state.units) {
+			throw new Error('not laoded');
+		}
 		return state.units;
 	},
 
 	async init() {
-		const units = api.units.getAll();
+		const units = await api.units.getAll();
 		state = {
 			...state,
 			units

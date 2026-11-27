@@ -1,3 +1,4 @@
+import type { UnitResponse } from '$bindings';
 import { methods } from './client';
 
 const unitsPath = '/units';

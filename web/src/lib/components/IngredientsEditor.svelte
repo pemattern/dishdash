@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { m } from '#lib/paraglide/messages.js';
 	import { appState } from '#lib/state.svelte.ts';
-	import type { UnitCode, UnitSystemCode, RecipeIngredientResponse } from '$bindings';
+	import type { Unit } from '#lib/types/unit.ts';
+	import type { RecipeIngredientResponse } from '$bindings';
 	import Input from './Input.svelte';
 	import Label from './Label.svelte';
 	import SearchableSelect from './SearchableSelect.svelte';
@@ -14,8 +15,7 @@
 
 	let name = $state('');
 	let quantity = $state('');
-	let unit = $state<UnitCode>('gram');
-	let unitSystem = $state<UnitSystemCode>('imperial');
+	let unit = $state<Unit | null>(null);
 
 	function addIngredient() {
 		if (!name.trim()) {
@@ -26,9 +26,8 @@
 			return;
 		}
 
-		ingredients.push({
-			id: crypto.randomUUID(),
-			quantity,
+		value.push({
+			quantity: parseFloat(quantity),
 			unit: unit,
 			name: name.trim()
 		});
@@ -81,7 +80,13 @@
 			<Input bind:value={quantity} type="number" min="0" step="any" placeholder="Qty" />
 		</div>
 		<div class="flex-1">
-			<SearchableSelect bind:value={unit} options={appState.units} />
+			<SearchableSelect
+				bind:value={unit}
+				options={appState.units}
+				getLabel={(unit) => {
+					return unit?.code.toString() ? '';
+				}}
+			/>
 		</div>
 		<div class="flex-8">
 			<Input bind:value={name} placeholder="Ingredient" aria-label="Ingredient name" />

@@ -1,26 +1,26 @@
-<script lang="ts">
+<script lang="ts" generics="T">
 	import { onMount } from 'svelte';
 	import Label from './Label.svelte';
 
 	type Props = {
-		value?: string;
-		options?: string[];
+		value?: T;
+		options?: T[];
+		getLabel: (option: T) => string;
 		label?: string;
 		placeholder?: string;
 		required?: boolean;
 		disabled?: boolean;
-		allowCustom?: boolean;
 		name?: string;
 	};
 
 	let {
-		value = $bindable(''),
+		value = $bindable<T>(),
 		options = [],
+		getLabel,
 		label = '',
 		placeholder = 'Search...',
 		required = false,
 		disabled = false,
-		allowCustom = true,
 		name
 	}: Props = $props();
 
@@ -30,26 +30,22 @@
 	let activeIndex = $state(0);
 
 	let container: HTMLDivElement;
-	let input: HTMLInputElement;
 
 	const filteredOptions = $derived(
-		options.filter((option) => option.toLowerCase().includes(search.toLowerCase()))
+		options.filter((option) => getLabel(option).toLowerCase().includes(search.toLowerCase()))
 	);
 
-	function selectOption(option: string) {
+	function selectOption(option: T) {
 		value = option;
 		search = '';
 		open = false;
 		activeIndex = 0;
 	}
 
-	function handleInput() {
+	function handleInput(event: Event) {
+		search = (event.currentTarget as HTMLInputElement).value;
 		open = true;
 		activeIndex = 0;
-
-		if (allowCustom) {
-			value = search;
-		}
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -59,7 +55,7 @@
 			case 'ArrowDown':
 				event.preventDefault();
 				open = true;
-				activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1);
+				activeIndex = Math.min(activeIndex + 1, Math.max(filteredOptions.length - 1, 0));
 				break;
 
 			case 'ArrowUp':
@@ -68,11 +64,12 @@
 				break;
 
 			case 'Enter':
-				if (open && filteredOptions.length > 0) {
-					event.preventDefault();
+				if (!open) return;
+
+				event.preventDefault();
+
+				if (filteredOptions.length > 0) {
 					selectOption(filteredOptions[activeIndex]);
-				} else if (open && allowCustom && search.trim()) {
-					selectOption(search.trim());
 				}
 				break;
 
@@ -110,10 +107,9 @@
 	{/if}
 
 	<input
-		bind:this={input}
 		{id}
 		{name}
-		value={open ? search : value}
+		value={search}
 		{placeholder}
 		{required}
 		{disabled}
@@ -142,18 +138,18 @@
 					id={`${id}-option-${i}`}
 					type="button"
 					role="option"
-					aria-selected={i === activeIndex}
+					aria-selected={option === value}
 					onmousedown={(event) => event.preventDefault()}
 					onclick={() => selectOption(option)}
 					onmouseenter={() => (activeIndex = i)}
 					class="block w-full px-3 py-2 text-left text-sm text-gray hover:bg-off-white"
 					class:bg-off-white={i === activeIndex}
 				>
-					{option}
+					{getLabel(option)}
 				</button>
 			{/each}
 		</div>
-	{:else if open && search.trim() && !allowCustom}
+	{:else if open && search.trim()}
 		<div
 			class="absolute top-full right-0 left-0 z-50 mt-1 rounded-md border border-light-orange bg-white px-3 py-2 text-sm text-gray shadow-lg"
 		>
