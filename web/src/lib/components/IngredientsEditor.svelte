@@ -45,8 +45,6 @@
 
 <div>
 	<Label for="addIngredientButton" required={true}>{m.selectIngredients()}</Label>
-
-	<!-- Existing ingredients -->
 	<div>
 		{#each value as ingredient (ingredient)}
 			<div class="flex min-h-13 items-center gap-3 border-orange/15">
@@ -71,13 +69,11 @@
 			</div>
 		{/each}
 	</div>
-
-	<!-- New ingredient row -->
 	<div class="flex flex-row items-center gap-2">
-		<div class="flex-1">
+		<div class="w-24">
 			<Input bind:value={quantity} type="number" min="0" step="any" placeholder="Qty" />
 		</div>
-		<div class="flex-1">
+		<div class="w-24">
 			<SearchableSelect
 				bind:value={unit}
 				options={appState.units}

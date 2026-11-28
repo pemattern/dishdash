@@ -37,7 +37,7 @@
 
 	function selectOption(option: T) {
 		value = option;
-		search = '';
+		search = getLabel(option);
 		open = false;
 		activeIndex = 0;
 	}
@@ -88,7 +88,6 @@
 	function handleOutsideClick(event: MouseEvent) {
 		if (!container?.contains(event.target as Node)) {
 			open = false;
-			search = '';
 		}
 	}
 
